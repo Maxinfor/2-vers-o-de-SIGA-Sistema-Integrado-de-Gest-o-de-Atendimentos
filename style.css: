@@ -1,0 +1,389 @@
+/* ===============================
+   CONFIGURAÇÕES GERAIS - SIGA
+================================ */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+
+body{
+
+    background:#F1F5F9;
+    color:#1F2937;
+
+}
+
+
+/* ===============================
+   ESTRUTURA PRINCIPAL
+================================ */
+
+.layout{
+
+    display:flex;
+    min-height:100vh;
+
+}
+
+
+
+/* ===============================
+   MENU LATERAL
+================================ */
+
+
+.sidebar{
+
+    width:260px;
+    background:#1E3A8A;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    padding:25px 20px;
+
+}
+
+
+
+.logo{
+
+    text-align:center;
+    margin-bottom:40px;
+
+}
+
+
+.logo h2{
+
+    font-size:32px;
+    letter-spacing:2px;
+
+}
+
+
+.logo span{
+
+    font-size:13px;
+    opacity:.8;
+
+}
+
+
+
+.sidebar nav{
+
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+
+}
+
+
+
+.sidebar nav a{
+
+    color:white;
+    text-decoration:none;
+    padding:14px;
+    border-radius:10px;
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+
+
+.sidebar nav a:hover,
+.sidebar nav .ativo{
+
+    background:#2563EB;
+
+}
+
+
+
+.usuario{
+
+    margin-top:auto;
+
+    background:rgba(255,255,255,.15);
+
+    padding:15px;
+
+    border-radius:10px;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+}
+
+
+
+/* ===============================
+   CONTEÚDO
+================================ */
+
+
+.conteudo{
+
+    flex:1;
+    padding:30px;
+
+}
+
+
+
+header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:30px;
+
+}
+
+
+header h1{
+
+    font-size:28px;
+
+}
+
+
+header i{
+
+    font-size:22px;
+    color:#2563EB;
+
+}
+
+
+
+/* ===============================
+   CARDS
+================================ */
+
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(250px,1fr));
+
+    gap:20px;
+
+    margin-bottom:30px;
+
+}
+
+
+
+.card{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:25px;
+
+    box-shadow:
+    0 5px 15px rgba(0,0,0,.08);
+
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+}
+
+
+
+.card i{
+
+    font-size:35px;
+
+    color:#2563EB;
+
+}
+
+
+
+.card span{
+
+    color:#64748B;
+
+    font-size:14px;
+
+}
+
+
+.card h2{
+
+    font-size:32px;
+
+    margin-top:8px;
+
+}
+
+
+
+/* ===============================
+   PAINÉIS
+================================ */
+
+
+.graficos{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(300px,1fr));
+
+    gap:20px;
+
+    margin-bottom:30px;
+
+}
+
+
+
+.painel{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:18px;
+
+    box-shadow:
+    0 5px 15px rgba(0,0,0,.08);
+
+}
+
+
+
+.painel h3{
+
+    margin-bottom:20px;
+
+}
+
+
+
+.grafico{
+
+    height:220px;
+
+    background:#F8FAFC;
+
+    border-radius:12px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:#94A3B8;
+
+}
+
+
+
+/* ===============================
+   TABELA
+================================ */
+
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+
+thead{
+
+    background:#EFF6FF;
+
+}
+
+
+
+th{
+
+    text-align:left;
+
+    padding:14px;
+
+    color:#1E40AF;
+
+}
+
+
+
+td{
+
+    padding:14px;
+
+    border-bottom:1px solid #E5E7EB;
+
+}
+
+
+
+/* ===============================
+   RESPONSIVIDADE
+================================ */
+
+
+@media(max-width:900px){
+
+
+.sidebar{
+
+    width:80px;
+
+}
+
+
+.sidebar span,
+.sidebar nav a:not(.ativo){
+
+    display:none;
+
+}
+
+
+.logo h2{
+
+    font-size:22px;
+
+}
+
+
+.conteudo{
+
+    padding:15px;
+
+}
+
+
+}

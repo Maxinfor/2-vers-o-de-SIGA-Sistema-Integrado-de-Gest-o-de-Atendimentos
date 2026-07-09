@@ -118,7 +118,12 @@ let atendimento = {
     criadoEm:
     new Date().toISOString()
 
-
+arquivoPDF:
+document.getElementById("arquivoAnexo").files[0]
+?
+document.getElementById("arquivoAnexo").files[0].name
+:
+"",
 };
 
 

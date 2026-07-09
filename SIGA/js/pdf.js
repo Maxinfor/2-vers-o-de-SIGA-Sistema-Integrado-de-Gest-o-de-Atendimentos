@@ -150,75 +150,71 @@ leitor.readAsArrayBuffer(arquivo);
 function interpretarDocumento(texto){
 
 
-
-let conteudo =
-texto.toLowerCase();
+let conteudo = texto.toLowerCase();
 
 
 
+// ===============================
+// NOME DA CRIANÇA / ADOLESCENTE
+// ===============================
 
 
-
-// Nome
-
-
-let nome =
-buscarCampo(
+let nome = extrairCampo(
 texto,
 [
 "nome:",
 "nome da criança:",
-"criança:"
+"criança/adolescente:",
+"criança:",
+"adolescente:"
 ]
 );
 
 
 
-
-document.getElementById(
-"pdfNome"
-).value =
-nome;
+document.getElementById("pdfNome").value = nome;
 
 
 
 
 
 
-// Data nascimento
+// ===============================
+// DATA NASCIMENTO
+// ===============================
 
 
-let nascimento =
-buscarCampo(
+let nascimento = extrairCampo(
 texto,
 [
 "dn:",
+"d.n:",
 "data de nascimento:",
-"nascimento:"
+"nascimento:",
+"nasc."
 ]
 );
 
 
 
-
-document.getElementById(
-"pdfNascimento"
-).value =
-nascimento;
+document.getElementById("pdfNascimento").value = nascimento;
 
 
 
 
 
 
-// Responsável
+// ===============================
+// RESPONSÁVEL
+// ===============================
 
 
-let responsavel =
-buscarCampo(
+let responsavel = extrairCampo(
 texto,
 [
 "responsável:",
+"responsavel:",
+"genitora:",
 "genitor:",
 "mãe:",
 "pai:"
@@ -227,9 +223,7 @@ texto,
 
 
 
-document.getElementById(
-"pdfResponsavel"
-).value =
+document.getElementById("pdfResponsavel").value =
 responsavel;
 
 
@@ -237,24 +231,25 @@ responsavel;
 
 
 
-// Telefone
+
+// ===============================
+// TELEFONE
+// ===============================
 
 
-let telefone =
-buscarCampo(
+let telefone = extrairCampo(
 texto,
 [
 "telefone:",
 "contato:",
+"fone:",
 "celular:"
 ]
 );
 
 
 
-document.getElementById(
-"pdfTelefone"
-).value =
+document.getElementById("pdfTelefone").value =
 telefone;
 
 
@@ -263,24 +258,26 @@ telefone;
 
 
 
-// Endereço
+
+// ===============================
+// ENDEREÇO
+// ===============================
 
 
-let endereco =
-buscarCampo(
+let endereco = extrairCampo(
 texto,
 [
 "endereço:",
-"rua:",
-"logradouro:"
+"endereco:",
+"logradouro:",
+"residência:",
+"residencia:"
 ]
 );
 
 
 
-document.getElementById(
-"pdfEndereco"
-).value =
+document.getElementById("pdfEndereco").value =
 endereco;
 
 
@@ -289,24 +286,26 @@ endereco;
 
 
 
-// Localidade
+
+// ===============================
+// LOCALIDADE
+// ===============================
 
 
-let localidade =
-buscarCampo(
+let localidade = extrairCampo(
 texto,
 [
 "localidade:",
 "bairro:",
-"região:"
+"setor:",
+"região:",
+"regiao:"
 ]
 );
 
 
 
-document.getElementById(
-"pdfLocalidade"
-).value =
+document.getElementById("pdfLocalidade").value =
 localidade;
 
 
@@ -316,16 +315,19 @@ localidade;
 
 
 
-// Tipo atendimento
+
+// ===============================
+// TIPO DE ATENDIMENTO
+// ===============================
 
 
-let tipo = "";
+let tipo="Outro";
 
 
 
-if(conteudo.includes(
-"atendimento presencial"
-)){
+if(
+conteudo.includes("atendimento presencial")
+){
 
 tipo =
 "Atendimento Presencial";
@@ -333,13 +335,15 @@ tipo =
 
 }
 
-else if(conteudo.includes(
-"atendimento telefonico"
-)
+
+
+else if(
+
+conteudo.includes("atendimento telefonico")
 ||
-conteudo.includes(
-"atendimento telefônico"
-)){
+conteudo.includes("atendimento telefônico")
+
+){
 
 
 tipo =
@@ -348,13 +352,17 @@ tipo =
 
 }
 
-else if(conteudo.includes(
-"atendimento on-line"
-)
+
+
+else if(
+
+conteudo.includes("atendimento on-line")
 ||
-conteudo.includes(
-"online"
-)){
+conteudo.includes("atendimento online")
+||
+conteudo.includes("online")
+
+){
 
 
 tipo =
@@ -363,20 +371,10 @@ tipo =
 
 }
 
-else{
-
-
-tipo =
-"Outro";
-
-
-}
 
 
 
-document.getElementById(
-"pdfTipo"
-).value =
+document.getElementById("pdfTipo").value =
 tipo;
 
 
@@ -386,16 +384,18 @@ tipo;
 
 
 
-// Assunto
+// ===============================
+// ASSUNTO
+// ===============================
 
 
-let assunto="";
+let assunto="Outro";
 
 
 
-if(conteudo.includes(
-"vaga escolar"
-)){
+if(
+conteudo.includes("vaga escolar")
+){
 
 assunto =
 "Vaga Escolar";
@@ -403,44 +403,34 @@ assunto =
 }
 
 
-else if(conteudo.includes(
-"abandono de incapaz"
-)){
+else if(
+
+conteudo.includes("abandono de incapaz")
+
+){
 
 assunto =
 "Abandono de Incapaz";
 
-
 }
 
 
-else if(conteudo.includes(
-"conflito familiar"
-)){
 
+else if(
+
+conteudo.includes("conflito familiar")
+
+){
 
 assunto =
 "Conflito Familiar";
 
-
-}
-
-
-else{
-
-
-assunto =
-"Outro";
-
-
 }
 
 
 
 
-document.getElementById(
-"pdfAssunto"
-).value =
+document.getElementById("pdfAssunto").value =
 assunto;
 
 
@@ -448,11 +438,31 @@ assunto;
 
 
 
+
+
+
+// ===============================
+// DATA DO DOCUMENTO
+// ===============================
+
+
+let dataDocumento =
+extrairData(texto);
+
+
+
+if(dataDocumento){
+
+console.log(
+"Data encontrada:",
+dataDocumento
+);
+
 }
 
 
 
-
+}
 
 
 

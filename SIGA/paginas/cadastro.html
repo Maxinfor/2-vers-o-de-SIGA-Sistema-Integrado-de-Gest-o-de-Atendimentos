@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SIGA - Cadastro de Atendimento</title>
+
+<link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- MENU -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h2>SIGA</h2>
+
+            <span>Gestão de Atendimentos</span>
+
+        </div>
+
+        <nav>
+
+            <a href="../index.html">Dashboard</a>
+
+            <a class="ativo">Cadastro</a>
+
+            <a href="pesquisa.html">Pesquisa</a>
+
+            <a href="importar-pdf.html">Importar PDF</a>
+
+            <a href="relatorios.html">Relatórios</a>
+
+            <a href="usuarios.html">Usuários</a>
+
+            <a href="configuracoes.html">Configurações</a>
+
+        </nav>
+
+    </aside>
+
+    <!-- CONTEÚDO -->
+
+    <main class="conteudo">
+
+        <header>
+
+            <h1>Novo Atendimento</h1>
+
+            <button class="btn" onclick="salvarAtendimento()">
+
+                Salvar Atendimento
+
+            </button>
+
+        </header>
+
+        <section class="painel">
+
+            <form id="formCadastro">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="data">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <input type="text" id="nome">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Data de Nascimento</label>
+                        <input type="date" id="nascimento">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Responsável</label>
+                        <input type="text" id="responsavel">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Endereço</label>
+                        <input type="text" id="endereco">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Localidade</label>
+
+                        <input
+                            list="listaLocalidades"
+                            id="localidade">
+
+                        <datalist id="listaLocalidades">
+
+                            <option>Cruzeiro</option>
+                            <option>Sudoeste</option>
+                            <option>Octogonal</option>
+                            <option>Guará</option>
+                            <option>Taguatinga</option>
+                            <option>Ceilândia</option>
+
+                        </datalist>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contato</label>
+                        <input type="text" id="contato">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contato 2</label>
+                        <input type="text" id="contato2">
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Tipo de Atendimento</label>
+
+                        <select id="tipo">
+
+                            <option>Atendimento Presencial</option>
+
+                            <option>Atendimento Telefônico</option>
+
+                            <option>Atendimento On-line</option>
+
+                            <option>Outro</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Assunto</label>
+
+                        <select id="assunto">
+
+                            <option>Vaga Escolar</option>
+
+                            <option>Conflito Familiar</option>
+
+                            <option>Abandono de Incapaz</option>
+
+                            <option>Violência Doméstica</option>
+
+                            <option>Negligência</option>
+
+                            <option>Evasão Escolar</option>
+
+                            <option>Outro</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Plantonista</label>
+
+                        <input type="text" id="plantonista">
+
+                    </div>
+
+                </div>
+
+                <div class="form-group" style="margin-top:20px;">
+
+                    <label>Observações</label>
+
+                    <textarea
+                        id="observacoes"
+                        rows="8"></textarea>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../js/login.js"></script>
+
+<script src="../js/cadastro.js"></script>
+
+</body>
+
+</html>

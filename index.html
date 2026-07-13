@@ -2,17 +2,14 @@
 <html lang="pt-BR">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
+    <title>SIGACTPAR - Sistema Integrado de Gestão de Atendimentos do Conselho Tutelar do Paranoá</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
 
-<title>SIGACTPAR - Sistema Integrado de Gestão de Atendimentos do Conselho Tutelar do Paranoá</title>
-
-<link rel="stylesheet" href="css/style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -20,343 +17,175 @@
 <div class="layout">
 
     <!-- MENU LATERAL -->
-
     <aside class="sidebar">
 
         <div class="logo">
-
             <h2>SIGA</h2>
-
             <span>Sistema Integrado de Gestão</span>
-
         </div>
 
         <nav>
+            <a class="ativo" href="#">Dashboard</a>
 
-            <a class="ativo" href="#">
-                Dashboard
-            </a>
+            <a href="#">Cadastro</a>
 
-            <a href="#">
-                Cadastro
-            </a>
+            <a href="#">Pesquisa</a>
 
-            <a href="#">
-                Pesquisa
-            </a>
+            <a href="#">Importar PDF</a>
 
-            <a href="#">
-                Importar PDF
-            </a>
+            <a href="#">Relatórios</a>
 
-            <a href="#">
-                Relatórios
-            </a>
+            <a href="#">Usuários</a>
 
-            <a href="#">
-                Usuários
-            </a>
+            <a href="#">Configurações</a>
 
-            <a href="#">
-                Configurações
-            </a>
-
-            <a href="#" onclick="sairSistema()">
-                Sair
-            </a>
-
+            <a href="#" onclick="sairSistema(); return false;">Sair</a>
         </nav>
 
         <div class="usuario">
-
             <strong id="nomeUsuario">
-
                 Administrador
-
             </strong>
-
         </div>
 
     </aside>
 
     <!-- CONTEÚDO -->
-
     <main class="conteudo">
 
         <header>
 
             <div>
-
                 <h1>Dashboard</h1>
-
                 <small id="dataAtual"></small>
-
             </div>
 
-            <button class="btn">
-
+            <button class="btn" onclick="novoAtendimento()">
                 Novo Atendimento
-
             </button>
 
         </header>
-        <!-- =========================
-     DASHBOARD
-========================= -->
 
-<section class="cards">
+        <!-- DASHBOARD -->
+        <section class="cards">
 
-    <div class="card">
-        <div class="icone-card azul">
-            📋
-        </div>
+            <div class="card">
+                <div class="icone-card azul">📋</div>
+                <div class="info-card">
+                    <span>Total de Atendimentos</span>
+                    <h2 id="totalAtendimentos">0</h2>
+                </div>
+            </div>
 
-        <div class="info-card">
-            <span>Total de Atendimentos</span>
-            <h2 id="totalAtendimentos">0</h2>
-        </div>
-    </div>
+            <div class="card">
+                <div class="icone-card verde">📅</div>
+                <div class="info-card">
+                    <span>Atendimentos de Hoje</span>
+                    <h2 id="atendimentosHoje">0</h2>
+                </div>
+            </div>
 
-    <div class="card">
-        <div class="icone-card verde">
-            📅
-        </div>
+            <div class="card">
+                <div class="icone-card laranja">📆</div>
+                <div class="info-card">
+                    <span>Atendimentos do Mês</span>
+                    <h2 id="atendimentosMes">0</h2>
+                </div>
+            </div>
 
-        <div class="info-card">
-            <span>Atendimentos de Hoje</span>
-            <h2 id="atendimentosHoje">0</h2>
-        </div>
-    </div>
+            <div class="card">
+                <div class="icone-card roxo">👦</div>
+                <div class="info-card">
+                    <span>Crianças e Adolescentes</span>
+                    <h2 id="totalCriancas">0</h2>
+                </div>
+            </div>
 
-    <div class="card">
-        <div class="icone-card laranja">
-            📆
-        </div>
+            <div class="card">
+                <div class="icone-card azul">👨‍👩‍👧</div>
+                <div class="info-card">
+                    <span>Responsáveis</span>
+                    <h2 id="totalResponsaveis">0</h2>
+                </div>
+            </div>
 
-        <div class="info-card">
-            <span>Atendimentos do Mês</span>
-            <h2 id="atendimentosMes">0</h2>
-        </div>
-    </div>
+            <div class="card">
+                <div class="icone-card verde">📍</div>
+                <div class="info-card">
+                    <span>Localidades</span>
+                    <h2 id="totalLocalidades">0</h2>
+                </div>
+            </div>
 
-    <div class="card">
-        <div class="icone-card roxo">
-            👦
-        </div>
+            <div class="card">
+                <div class="icone-card vermelho">📌</div>
+                <div class="info-card">
+                    <span>Tipo mais utilizado</span>
+                    <h2 id="tipoMaisUtilizado">-</h2>
+                </div>
+            </div>
 
-        <div class="info-card">
-            <span>Crianças e Adolescentes</span>
-            <h2 id="totalCriancas">0</h2>
-        </div>
-    </div>
+            <div class="card">
+                <div class="icone-card azul">👤</div>
+                <div class="info-card">
+                    <span>Plantonista do Dia</span>
+                    <h2 id="plantonistaDia">-</h2>
+                </div>
+            </div>
 
-    <div class="card">
-        <div class="icone-card azul">
-            👨‍👩‍👧
-        </div>
+        </section>
 
-        <div class="info-card">
-            <span>Responsáveis</span>
-            <h2 id="totalResponsaveis">0</h2>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="icone-card verde">
-            📍
-        </div>
-
-        <div class="info-card">
-            <span>Localidades</span>
-            <h2 id="totalLocalidades">0</h2>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="icone-card vermelho">
-            📌
-        </div>
-
-        <div class="info-card">
-            <span>Tipo mais utilizado</span>
-            <h2 id="tipoMaisUtilizado">-</h2>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="icone-card azul">
-            👤
-        </div>
-
-        <div class="info-card">
-            <span>Plantonista do Dia</span>
-            <h2 id="plantonistaDia">-</h2>
-        </div>
-    </div>
-
-</section>
-        <!-- =========================
-     DASHBOARD
-========================= -->
-
-<section class="cards">
-
-    <div class="card">
-        <div class="icone-card azul">
-            📋
-        </div>
-
-        <div class="info-card">
-            <span>Total de Atendimentos</span>
-            <h2 id="totalAtendimentos">0</h2>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="icone-card verde">
-            📅
-        </div>
-
-        <div class="info-card">
-            <span>Atendimentos de Hoje</span>
-            <h2 id="atendimentosHoje">0</h2>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="icone-card laranja">
-            📆
-        </div>
-
-        <div class="info-card">
-            <span>Atendimentos do Mês</span>
-            <h2 id="atendimentosMes">0</h2>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="icone-card roxo">
-            👦
-        </div>
-
-        <div class="info-card">
-            <span>Crianças e Adolescentes</span>
-            <h2 id="totalCriancas">0</h2>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="icone-card azul">
-            👨‍👩‍👧
-        </div>
-
-        <div class="info-card">
-            <span>Responsáveis</span>
-            <h2 id="totalResponsaveis">0</h2>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="icone-card verde">
-            📍
-        </div>
-
-        <div class="info-card">
-            <span>Localidades</span>
-            <h2 id="totalLocalidades">0</h2>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="icone-card vermelho">
-            📌
-        </div>
-
-        <div class="info-card">
-            <span>Tipo mais utilizado</span>
-            <h2 id="tipoMaisUtilizado">-</h2>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="icone-card azul">
-            👤
-        </div>
-
-        <div class="info-card">
-            <span>Plantonista do Dia</span>
-            <h2 id="plantonistaDia">-</h2>
-        </div>
-    </div>
-
-</section>
+        <!-- GRÁFICOS -->
         <section class="graficos">
 
-    <div class="painel">
+            <div class="painel">
+                <h3>Tipos de Atendimento</h3>
+                <canvas id="graficoTipo"></canvas>
+            </div>
 
-        <h3>Tipos de Atendimento</h3>
+            <div class="painel">
+                <h3>Atendimentos por Localidade</h3>
+                <canvas id="graficoLocalidade"></canvas>
+            </div>
 
-        <canvas id="graficoTipo"></canvas>
+        </section>
 
-    </div>
+        <section class="graficos">
 
-    <div class="painel">
+            <div class="painel">
+                <h3>Assuntos dos Atendimentos</h3>
+                <canvas id="graficoAssunto"></canvas>
+            </div>
 
-        <h3>Atendimentos por Localidade</h3>
+        </section>
 
-        <canvas id="graficoLocalidade"></canvas>
-
-    </div>
-
-</section>
-
-<section class="graficos">
-
-    <div class="painel">
-
-        <h3>Assuntos dos Atendimentos</h3>
-
-        <canvas id="graficoAssunto"></canvas>
-
-    </div>
-
-</section>
+        <!-- TABELA -->
         <section class="painel">
 
-    <h3>Últimos Atendimentos</h3>
+            <h3>Últimos Atendimentos</h3>
 
-    <table>
+            <table>
 
-        <thead>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Nome</th>
+                        <th>Responsável</th>
+                        <th>Tipo</th>
+                        <th>Assunto</th>
+                        <th>Plantonista</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
 
-            <tr>
+                <tbody id="tabelaAtendimentos">
+                </tbody>
 
-                <th>Data</th>
+            </table>
 
-                <th>Nome</th>
+        </section>
 
-                <th>Responsável</th>
-
-                <th>Tipo</th>
-
-                <th>Assunto</th>
-
-                <th>Plantonista</th>
-
-                <th>Ações</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody id="tabelaAtendimentos">
-
-        </tbody>
-
-    </table>
-
-</section>
-            </main>
+    </main>
 
 </div>
 

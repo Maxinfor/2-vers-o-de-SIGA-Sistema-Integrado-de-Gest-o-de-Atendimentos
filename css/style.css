@@ -1,0 +1,193 @@
+/* ==========================================================
+   SIGACTPAR
+   Sistema Integrado de Gestão de Atendimentos
+   Conselho Tutelar do Paranoá
+   ========================================================== */
+
+/* ==========================
+   RESET
+========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+
+    font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+
+    background:#f4f6f9;
+
+    color:#2c3e50;
+
+    overflow:hidden;
+
+}
+
+/* ==========================
+   CORES
+========================== */
+
+:root{
+
+    --azul:#1565C0;
+    --azulEscuro:#0D47A1;
+    --azulClaro:#42A5F5;
+
+    --verde:#2E7D32;
+
+    --vermelho:#D32F2F;
+
+    --laranja:#F57C00;
+
+    --amarelo:#FBC02D;
+
+    --roxo:#7B1FA2;
+
+    --cinza:#ECEFF1;
+
+    --cinzaEscuro:#455A64;
+
+    --cinzaClaro:#FAFAFA;
+
+    --branco:#FFFFFF;
+
+    --texto:#263238;
+
+    --borda:#E0E0E0;
+
+}
+
+/* ==========================
+   SOMBRAS
+========================== */
+
+:root{
+
+    --sombra:
+
+    0 4px 12px rgba(0,0,0,.08);
+
+    --sombraHover:
+
+    0 10px 25px rgba(0,0,0,.15);
+
+}
+
+/* ==========================
+   LAYOUT
+========================== */
+
+.container{
+
+    display:flex;
+
+    width:100%;
+
+    height:100vh;
+
+}
+
+/* ==========================
+   CONTEÚDO
+========================== */
+
+.principal{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    overflow:hidden;
+
+}
+
+/* Área onde serão carregadas as telas */
+
+#dashboard{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:25px;
+
+    background:#f4f6f9;
+
+}
+
+/* ==========================
+   SCROLL
+========================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#eceff1;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#90A4AE;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#607D8B;
+
+}
+
+/* ==========================
+   LINKS
+========================== */
+
+a{
+
+    text-decoration:none;
+
+    color:inherit;
+
+}
+
+/* ==========================
+   BOTÕES
+========================== */
+
+button{
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+}
+
+/* ==========================
+   INPUTS
+========================== */
+
+input,
+select,
+textarea{
+
+    font-family:inherit;
+
+    outline:none;
+
+}

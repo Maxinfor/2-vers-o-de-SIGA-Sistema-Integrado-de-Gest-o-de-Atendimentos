@@ -1,4 +1,36 @@
 /* ==========================================================
+               LAYOUT PRINCIPAL
+   ========================================================== */
+
+/* Remove margens padrão e define a fonte */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f7f6;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Espaçamento para o conteúdo não ficar atrás da sidebar */
+.principal {
+    margin-left: 260px; /* Mesma largura da sidebar */
+    width: calc(100% - 260px);
+    padding: 20px;
+}
+
+
+
+
+
+/* ==========================================================
    RESET
 ========================================================== */
 

@@ -1,58 +1,21 @@
-function renderizarDashboard() {
-    // Atualiza os Cards
-    document.querySelector('.dashboard-cards').innerHTML = `
-        <div class="card"><h3>Atendimentos</h3><p class="numero">${dadosDashboard.atendimentosHoje}</p></div>
-        <div class="card"><h3>Casos</h3><p class="numero">${dadosDashboard.casosAbertos}</p></div>
-        <div class="card"><h3>Processos</h3><p class="numero">${dadosDashboard.processos}</p></div>
-        <div class="card"><h3>Urgências</h3><p class="numero">${dadosDashboard.urgencias}</p></div>
-    `;
-
-    // Atualiza a Tabela
-    const tbody = document.querySelector('table tbody');
-    tbody.innerHTML = atendimentosRecentes.map(item => `
-        <tr>
-            <td>${item.id}</td>
-            <td>${item.data}</td>
-            <td>${item.responsavel}</td>
-            <td>${item.status}</td>
-        </tr>
-    `).join('');
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
 }
 
-// Executa ao carregar a página
-document.addEventListener('DOMContentLoaded', renderizarDashboard);
-    // Função de busca na tabela
-document.querySelector('.busca input').addEventListener('input', function() {
-    const termo = this.value.toLowerCase();
-    const linhas = document.querySelectorAll('table tbody tr');
-
-    linhas.forEach(linha => {
-        const textoLinha = linha.innerText.toLowerCase();
-        // Se o texto da linha contiver o termo, mostra a linha, senão, esconde
-        linha.style.display = textoLinha.includes(termo) ? '' : 'none';
-    });
-});
-// Abrir modal ao clicar em alguma ação (vamos adaptar o botão da tabela)
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.btn-acao')) {
-        document.getElementById('modalDetalhes').style.display = 'block';
-    }
-});
-
-// Fechar modal
-document.querySelector('.fechar-modal').addEventListener('click', () => {
-    document.getElementById('modalDetalhes').style.display = 'none';
-});
-        .card { 
-    background: white; 
-    padding: 20px; 
-    border-radius: 8px; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-    text-align: center;
-    transition: all 0.3s ease; /* Transição suave */
+.card {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: var(--radius, 12px);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.card:hover { 
-    transform: translateY(-8px); /* Efeito de elevação ao passar o mouse */
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
+.card:hover {
+    border-color: var(--primary, #2563eb);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }

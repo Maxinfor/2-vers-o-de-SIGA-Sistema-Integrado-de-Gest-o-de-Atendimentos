@@ -1,3 +1,14 @@
+// Dentro da função que preenche a tabela
+tbody.innerHTML = atendimentosRecentes.map(atendimento => `
+    <tr>
+        <td>${atendimento.id}</td>
+        <td>${atendimento.data}</td>
+        <td>${atendimento.responsavel}</td>
+        <td>${atendimento.status}</td>
+        <td><button class="btn-acao" onclick="abrirDetalhes('${atendimento.id}')">Ver</button></td>
+    </tr>
+`).join('');
+
 .dashboard-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

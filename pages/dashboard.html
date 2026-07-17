@@ -1,0 +1,319 @@
+<!-- ==========================================================
+                    DASHBOARD
+========================================================== -->
+
+<section class="dashboard">
+
+    <!-- ======================================================
+                        CARDS
+    ======================================================= -->
+
+    <section class="dashboard-cards">
+
+        <div class="card azul">
+
+            <div class="card-icone">
+                <i class="fa-solid fa-file-lines"></i>
+            </div>
+
+            <div class="card-info">
+                <span>Atendimentos</span>
+                <h2 id="totalAtendimentos">0</h2>
+                <small>Total de registros</small>
+            </div>
+
+        </div>
+
+        <div class="card verde">
+
+            <div class="card-icone">
+                <i class="fa-solid fa-child"></i>
+            </div>
+
+            <div class="card-info">
+                <span>Crianças</span>
+                <h2 id="totalCriancas">0</h2>
+                <small>Cadastros ativos</small>
+            </div>
+
+        </div>
+
+        <div class="card laranja">
+
+            <div class="card-icone">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+
+            <div class="card-info">
+                <span>Processos</span>
+                <h2 id="totalProcessos">0</h2>
+                <small>Em andamento</small>
+            </div>
+
+        </div>
+
+        <div class="card vermelho">
+
+            <div class="card-icone">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+
+            <div class="card-info">
+                <span>Pendências</span>
+                <h2 id="totalPendencias">0</h2>
+                <small>Aguardando providências</small>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ======================================================
+                        PRIMEIRA LINHA
+    ======================================================= -->
+
+    <section class="dashboard-grid">
+
+        <!-- Gráfico -->
+
+        <div class="painel painel-grande">
+
+            <div class="painel-header">
+
+                <h3>
+
+                    <i class="fa-solid fa-chart-column"></i>
+
+                    Atendimentos Mensais
+
+                </h3>
+
+            </div>
+
+            <canvas id="graficoAtendimentos"></canvas>
+
+        </div>
+
+        <!-- Agenda -->
+
+        <div class="painel">
+
+            <div class="painel-header">
+
+                <h3>
+
+                    <i class="fa-solid fa-calendar-days"></i>
+
+                    Agenda de Hoje
+
+                </h3>
+
+            </div>
+
+            <div id="agendaHoje">
+
+                <p class="vazio">
+
+                    Nenhum compromisso cadastrado.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ======================================================
+                        SEGUNDA LINHA
+    ======================================================= -->
+
+    <section class="dashboard-grid">
+
+        <!-- Últimos Atendimentos -->
+
+        <div class="painel painel-grande">
+
+            <div class="painel-header">
+
+                <h3>
+
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+
+                    Últimos Atendimentos
+
+                </h3>
+
+                <button class="btn-padrao">
+
+                    Ver Todos
+
+                </button>
+
+            </div>
+
+            <table class="tabela-dashboard">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Data</th>
+
+                        <th>Criança</th>
+
+                        <th>Responsável</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="ultimosAtendimentos">
+
+                    <tr>
+
+                        <td colspan="4">
+
+                            Nenhum atendimento cadastrado.
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- Avisos -->
+
+        <div class="painel">
+
+            <div class="painel-header">
+
+                <h3>
+
+                    <i class="fa-solid fa-bullhorn"></i>
+
+                    Avisos
+
+                </h3>
+
+            </div>
+
+            <div id="avisosSistema">
+
+                <p class="vazio">
+
+                    Nenhum aviso disponível.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ======================================================
+                        TERCEIRA LINHA
+    ======================================================= -->
+
+    <section class="dashboard-grid">
+
+        <!-- Veículos -->
+
+        <div class="painel">
+
+            <div class="painel-header">
+
+                <h3>
+
+                    <i class="fa-solid fa-car-side"></i>
+
+                    Veículos
+
+                </h3>
+
+            </div>
+
+            <div class="status">
+
+                <div>
+
+                    <strong>Disponíveis</strong>
+
+                    <span id="veiculosDisponiveis">0</span>
+
+                </div>
+
+                <div>
+
+                    <strong>Manutenção</strong>
+
+                    <span id="veiculosManutencao">0</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Plantonista -->
+
+        <div class="painel">
+
+            <div class="painel-header">
+
+                <h3>
+
+                    <i class="fa-solid fa-user-check"></i>
+
+                    Plantonista
+
+                </h3>
+
+            </div>
+
+            <h2 id="plantonistaHoje">
+
+                Não informado
+
+            </h2>
+
+        </div>
+
+        <!-- Pendências -->
+
+        <div class="painel">
+
+            <div class="painel-header">
+
+                <h3>
+
+                    <i class="fa-solid fa-list-check"></i>
+
+                    Pendências
+
+                </h3>
+
+            </div>
+
+            <ul id="listaPendencias">
+
+                <li>
+
+                    Nenhuma pendência cadastrada.
+
+                </li>
+
+            </ul>
+
+        </div>
+
+    </section>
+
+</section>

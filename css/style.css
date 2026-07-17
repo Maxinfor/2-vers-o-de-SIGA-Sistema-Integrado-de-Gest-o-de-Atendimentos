@@ -491,5 +491,48 @@ width:100%;
 grid-template-columns:1fr;
 
 }
+/* ==========================================================
+   LAYOUT
+========================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#f4f6f9;
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+    overflow-x:hidden;
+}
+
+.wrapper{
+    display:flex;
+    width:100%;
+    min-height:100vh;
+}
+
+/* ==========================================================
+   CONTEÚDO PRINCIPAL
+========================================================== */
+
+.main-content{
+
+    margin-left:280px;
+
+    width:calc(100% - 280px);
+
+    min-height:100vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    transition:.3s;
+
+    background:#f4f6f9;
 
 }
+}
+

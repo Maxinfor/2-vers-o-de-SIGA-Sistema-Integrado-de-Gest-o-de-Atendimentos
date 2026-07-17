@@ -1,4 +1,8 @@
 :root {
+    --primary: #2563eb;
+    --radius: 12px;
+}
+:root {
     --primary: #2563eb;       /* Azul profissional */
     --bg-app: #f8fafc;        /* Cinza muito claro */
     --sidebar: #0f172a;       /* Azul quase preto (dark theme) */

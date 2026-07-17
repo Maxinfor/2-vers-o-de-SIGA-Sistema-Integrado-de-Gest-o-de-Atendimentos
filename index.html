@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SIGACTPAR - Sistema Integrado de Gestão de Atendimentos do Conselho Tutelar do Paranoá">
     <title>SIGACTPAR</title>
+
+    <!-- ÍCONES -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/header.css">
@@ -13,7 +18,9 @@
 </head>
 <body>
     <div class="container">
-        <aside class="sidebar">
+        
+        <!-- MENU LATERAL -->
+        <aside class="sidebar" id="sidebar">
             <div class="logo">
                 <i class="fa-solid fa-scale-balanced"></i>
                 <div class="logo-texto">
@@ -21,12 +28,14 @@
                     <span>Conselho Tutelar do Paranoá</span>
                 </div>
             </div>
+
             <nav class="menu">
                 <ul>
-                    <li class="ativo"><a href="#"><i class="fa-solid fa-house"></i> <span>Dashboard</span></a></li>
-                    <li><a href="#"><i class="fa-solid fa-file-lines"></i> <span>Atendimentos</span></a></li>
+                    <li class="ativo"><a href="#" data-page="dashboard"><i class="fa-solid fa-house"></i> <span>Dashboard</span></a></li>
+                    <li><a href="#" data-page="atendimentos"><i class="fa-solid fa-file-lines"></i> <span>Atendimentos</span></a></li>
                 </ul>
             </nav>
+
             <div class="perfil-sidebar">
                 <div class="perfil-info">
                     <strong>Administrador</strong>
@@ -35,14 +44,22 @@
             </div>
         </aside>
 
-        <main class="principal">
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="principal" id="principal">
+
             <header class="header-principal">
-                <h2>Dashboard</h2>
+                <div class="header-titulo">
+                    <h2 id="tituloPagina">Dashboard</h2>
+                </div>
                 <div class="header-acoes">
-                    <div class="busca"><i class="fa-solid fa-magnifying-glass"></i> <input type="text" placeholder="Buscar..."></div>
+                    <div class="busca">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Buscar atendimentos...">
+                    </div>
                 </div>
             </header>
 
+            <!-- DASHBOARD CARDS -->
             <div class="dashboard-cards">
                 <div class="card"><h3>Atendimentos</h3><p class="numero">12</p></div>
                 <div class="card"><h3>Casos</h3><p class="numero">45</p></div>
@@ -50,17 +67,32 @@
                 <div class="card"><h3>Urgências</h3><p class="numero">3</p></div>
             </div>
 
+            <!-- TABELA DE ATENDIMENTOS -->
             <div class="container-tabela">
-                <h3>Atendimentos Recentes</h3>
+                <div class="header-tabela">
+                    <h3>Atendimentos Recentes</h3>
+                </div>
                 <table>
-                    <thead><tr><th>ID</th><th>Data</th><th>Responsável</th><th>Status</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data</th>
+                            <th>Responsável</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        <tr><td>#001</td><td>17/07/2026</td><td>João</td><td>Em análise</td></tr>
+                        <!-- Preenchido via JavaScript -->
                     </tbody>
                 </table>
             </div>
+
         </main>
     </div>
+
+    <!-- JAVASCRIPT -->
+    <script src="js/banco.js"></script>
+    <script src="js/dashboard.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

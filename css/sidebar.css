@@ -1,0 +1,258 @@
+/* ==========================================================
+   SIDEBAR
+   SIGACTPAR
+========================================================== */
+
+.sidebar{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:var(--sidebar);
+
+    height:100vh;
+
+    background:linear-gradient(180deg,#0F172A,#1E3A8A);
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+
+    color:#FFF;
+
+    box-shadow:5px 0 20px rgba(0,0,0,.15);
+
+    z-index:1000;
+
+}
+
+/* ==========================================================
+   LOGO
+========================================================== */
+
+.logo{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    padding:25px;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+.logo i{
+
+    font-size:42px;
+
+    color:#60A5FA;
+
+}
+
+.logo h2{
+
+    font-size:22px;
+
+    font-weight:700;
+
+}
+
+.logo span{
+
+    font-size:13px;
+
+    opacity:.75;
+
+}
+
+/* ==========================================================
+   MENU
+========================================================== */
+
+.menu{
+
+    flex:1;
+
+    margin-top:20px;
+
+}
+
+.menu ul{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.menu li{
+
+    margin:4px 12px;
+
+}
+
+.menu a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    padding:14px 18px;
+
+    border-radius:12px;
+
+    transition:.25s;
+
+}
+
+.menu a i{
+
+    width:22px;
+
+    text-align:center;
+
+    font-size:18px;
+
+}
+
+.menu a span{
+
+    font-size:15px;
+
+    font-weight:500;
+
+}
+
+/* Hover */
+
+.menu a:hover{
+
+    background:rgba(255,255,255,.10);
+
+}
+
+/* Item ativo */
+
+.menu li.ativo a{
+
+    background:#2563EB;
+
+    box-shadow:0 5px 15px rgba(37,99,235,.35);
+
+}
+
+/* ==========================================================
+   PERFIL
+========================================================== */
+
+.perfil{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:20px;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+}
+
+.perfil img{
+
+    width:52px;
+
+    height:52px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:3px solid rgba(255,255,255,.30);
+
+}
+
+.perfil strong{
+
+    display:block;
+
+    font-size:15px;
+
+}
+
+.perfil small{
+
+    display:block;
+
+    margin-top:4px;
+
+    font-size:12px;
+
+    opacity:.70;
+
+}
+
+/* ==========================================================
+   MENU INFERIOR
+========================================================== */
+
+.menu-inferior{
+
+    padding:15px;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+}
+
+.menu-inferior a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:12px 15px;
+
+    border-radius:10px;
+
+    transition:.25s;
+
+    font-size:14px;
+
+}
+
+.menu-inferior a:hover{
+
+    background:rgba(255,255,255,.10);
+
+}
+
+/* ==========================================================
+   SCROLL
+========================================================== */
+
+.sidebar::-webkit-scrollbar{
+
+    width:6px;
+
+}
+
+.sidebar::-webkit-scrollbar-thumb{
+
+    background:rgba(255,255,255,.20);
+
+    border-radius:20px;
+
+}

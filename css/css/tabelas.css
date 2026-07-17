@@ -1,64 +1,17 @@
-/* --- CONTAINER DA TABELA --- */
 .container-tabela {
-    background: #ffffff;
-    padding: 24px;
-    border-radius: var(--radius, 12px);
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    overflow-x: auto; /* Permite scroll horizontal em telas pequenas */
+    background: var(--white); padding: 25px; border-radius: var(--radius);
+    border: 1px solid #e2e8f0; overflow-x: auto;
 }
 
-/* --- ESTILO DA TABELA --- */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    text-align: left;
-}
+table { width: 100%; border-collapse: collapse; }
 
-table th, table td {
-    padding: 16px;
-    border-bottom: 1px solid #e2e8f0;
-    font-size: 0.9rem;
-}
+th { text-align: left; padding: 15px; color: #64748b; font-size: 0.8rem; border-bottom: 2px solid #f1f5f9; text-transform: uppercase; }
 
-table th {
-    color: #64748b;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-}
+td { padding: 20px 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
 
-table tbody tr:hover {
-    background-color: #f8fafc;
-}
+tbody tr:hover { background: #f8fafc; cursor: pointer; }
 
-/* --- BOTÃO DE AÇÃO (DENTRO DA TABELA) --- */
 .btn-acao {
-    background: var(--primary, #2563eb);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 500;
-    transition: background 0.3s;
-}
-
-.btn-acao:hover {
-    background: var(--primary-hover, #1d4ed8);
-}
-
-/* --- AJUSTES RESPONSIVOS --- */
-@media (max-width: 640px) {
-    table th, table td {
-        padding: 12px 8px;
-        font-size: 0.85rem;
-    }
-    
-    .container-tabela {
-        padding: 15px;
-    }
+    background: var(--primary); color: white; border: none; padding: 10px 20px;
+    border-radius: 6px; cursor: pointer; font-weight: 600;
 }

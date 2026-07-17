@@ -1,3 +1,8 @@
+<button class="btn-acao" onclick="document.getElementById('modalCadastro').style.display='block'">
+    <i class="fa-solid fa-plus"></i> Novo Atendimento
+</button>
+
+
 .busca {
     background: #ffffff;
     border: 1px solid #e2e8f0;

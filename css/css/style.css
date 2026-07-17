@@ -1,10 +1,12 @@
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-body { background-color: #f4f7f6; }
-.container { display: flex; }
-.principal { margin-left: 260px; width: calc(100% - 260px); padding: 20px; }
-body { 
-    background-color: #f4f7f6; 
-    animation: fadeIn 0.5s ease-in; 
+:root {
+    --primary: #2563eb;       /* Azul profissional */
+    --bg-app: #f8fafc;        /* Cinza muito claro */
+    --sidebar: #0f172a;       /* Azul quase preto (dark theme) */
+    --text-main: #334155;     /* Cinza escuro para leitura */
+    --radius: 12px;           /* Arredondamento padrão */
+}
+
+body { background-color: var(--bg-app); color: var(--text-main); }
 }
 
 @keyframes fadeIn {

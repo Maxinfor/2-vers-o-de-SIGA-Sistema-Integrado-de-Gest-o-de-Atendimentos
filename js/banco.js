@@ -1,25 +1,70 @@
-// js/banco.js
+/* ==========================================================
+   SIGACTPAR
+   BANCO DE DADOS LOCAL
+========================================================== */
 
-// Verifica se já existem dados no navegador, caso contrário, usa os dados iniciais
-const dadosIniciais = {
-    atendimentosHoje: 12,
-    casosAbertos: 45,
-    processos: 108,
-    urgencias: 3
+const Banco = {
+
+    chave: "SIGACTPAR",
+
+    dados: {
+
+        atendimentos: [],
+        criancas: [],
+        responsaveis: [],
+        processos: [],
+        agenda: [],
+        veiculos: [],
+        patrimonio: []
+
+    }
+
 };
 
-// Dados de atendimentos (simulando uma base de dados)
-let atendimentosRecentes = JSON.parse(localStorage.getItem('atendimentos')) || [
-    { id: '#001', data: '17/07/2026', responsavel: 'João da Silva', status: 'Em análise' },
-    { id: '#002', data: '17/07/2026', responsavel: 'Maria Oliveira', status: 'Concluído' }
-];
+/* ==========================================================
+   INICIALIZA
+========================================================== */
 
-// Função para salvar no LocalStorage (sempre que adicionarmos algo)
-function salvarDados() {
-    localStorage.setItem('atendimentos', JSON.stringify(atendimentosRecentes));
+function iniciarBanco(){
+
+    const banco = localStorage.getItem(Banco.chave);
+
+    if(banco){
+
+        Banco.dados = JSON.parse(banco);
+
+    }else{
+
+        salvarBanco();
+
+    }
+
 }
 
-// Exporta as variáveis para serem usadas pelos outros arquivos JS
-window.dadosDashboard = dadosIniciais;
-window.atendimentosRecentes = atendimentosRecentes;
-window.salvarDados = salvarDados;
+/* ==========================================================
+   SALVAR
+========================================================== */
+
+function salvarBanco(){
+
+    localStorage.setItem(
+
+        Banco.chave,
+
+        JSON.stringify(Banco.dados)
+
+    );
+
+}
+
+/* ==========================================================
+   LIMPAR
+========================================================== */
+
+function limparBanco(){
+
+    localStorage.removeItem(Banco.chave);
+
+    iniciarBanco();
+
+}

@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function iniciarSistema(){
 
+    iniciarBanco();
+
     carregarPagina("dashboard");
 
     configurarMenu();

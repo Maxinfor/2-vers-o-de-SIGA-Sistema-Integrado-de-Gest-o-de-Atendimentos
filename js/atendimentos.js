@@ -114,58 +114,61 @@ function salvarAtendimento(e){
 
 function atualizarTabela(){
 
-    const tbody=document.getElementById("listaAtendimentos");
+    const tbody = document.getElementById("listaAtendimentos");
 
     if(!tbody) return;
 
-    tbody.innerHTML="";
+    tbody.innerHTML = "";
 
-    if(Banco.dados.atendimentos.length===0){
+    if(Banco.dados.atendimentos.length === 0){
 
-        tbody.innerHTML=`
-        <tr>
-
-        <td colspan="6">
-
-        Nenhum atendimento cadastrado.
-
-        </td>
-
-        </tr>
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    Nenhum atendimento cadastrado.
+                </td>
+            </tr>
         `;
 
         return;
-
     }
 
     Banco.dados.atendimentos.forEach(item=>{
 
-        tbody.innerHTML+=`
+        tbody.innerHTML += `
+            <tr>
 
-        <tr>
+                <td>${item.id}</td>
 
-        <td>${item.id}</td>
+                <td>${formatarData(item.data)}</td>
 
-        <td>${item.data}</td>
+                <td>${item.crianca}</td>
 
-        <td>${item.crianca}</td>
+                <td>${item.responsavel}</td>
 
-        <td>${item.responsavel}</td>
+                <td>
+                    <span class="status ${corStatus(item.status)}">
+                        ${item.status}
+                    </span>
+                </td>
 
-        <td>${item.status}</td>
+                <td>
 
-        <td>
+                    <button onclick="visualizar(${item.id})">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
 
-        <button>
+                    <button onclick="editar(${item.id})">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
 
-        <i class="fa fa-eye"></i>
+                    <button onclick="excluir(${item.id})">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
 
-        </button>
+                </td>
 
-        </td>
-
-        </tr>
-
+            </tr>
         `;
 
     });

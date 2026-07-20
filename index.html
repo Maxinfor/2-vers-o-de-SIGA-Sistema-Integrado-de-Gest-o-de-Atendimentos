@@ -16,7 +16,7 @@
     <!-- Chart.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- CSS (Mantendo todos os seus arquivos originais) -->
+    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/header.css">
@@ -48,6 +48,9 @@
                 </div>
             </div>
 
+            <!-- ======================================================
+                                        MENU
+            ======================================================= -->
             <nav class="menu">
                 <ul>
                     <li class="ativo">
@@ -99,7 +102,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" data-page="patrimonio" title="Patrimônio">
+                        <a href="#" data-page="patrimônio" title="Patrimônio">
                             <i class="fa-solid fa-box-archive"></i>
                             <span>Patrimônio</span>
                         </a>
@@ -107,6 +110,9 @@
                 </ul>
             </nav>
 
+            <!-- ======================================================
+                                        PERFIL
+            ======================================================= -->
             <div class="perfil">
                 <img src="img/avatar.png" alt="Administrador">
                 <div>
@@ -115,10 +121,22 @@
                 </div>
             </div>
 
+            <!-- ======================================================
+                                    MENU INFERIOR
+            ======================================================= -->
             <div class="menu-inferior">
-                <a href="#"><i class="fa-solid fa-gear"></i> Configurações</a>
-                <a href="#"><i class="fa-solid fa-circle-question"></i> Ajuda</a>
-                <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
+                <a href="#">
+                    <i class="fa-solid fa-gear"></i>
+                    Configurações
+                </a>
+                <a href="#">
+                    <i class="fa-solid fa-circle-question"></i>
+                    Ajuda
+                </a>
+                <a href="#">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Sair
+                </a>
             </div>
         </aside>
 
@@ -127,20 +145,32 @@
         =========================================================== -->
         <div class="main">
 
+            <!-- ======================================================
+                                        HEADER
+            ======================================================= -->
             <header class="header">
                 <div class="header-esquerda">
-                    <button id="btnMenu" type="button"><i class="fa-solid fa-bars"></i></button>
-                    <h1 id="tituloPagina">Dashboard</h1>
+                    <button id="btnMenu" type="button">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h1 id="tituloPagina">
+                        Dashboard
+                    </h1>
                 </div>
 
                 <div class="header-direita">
+                    <!-- Pesquisa -->
                     <div class="pesquisa">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input id="pesquisaGlobal" type="search" placeholder="Pesquisar no sistema...">
                     </div>
 
-                    <button class="notificacao" type="button"><i class="fa-solid fa-bell"></i></button>
+                    <!-- Notificações -->
+                    <button class="notificacao" type="button">
+                        <i class="fa-solid fa-bell"></i>
+                    </button>
 
+                    <!-- Usuário -->
                     <div class="usuario">
                         <img src="img/avatar.png" alt="Administrador">
                         <div>
@@ -151,18 +181,33 @@
                 </div>
             </header>
 
+            <!-- ======================================================
+                                        LOADING
+            ======================================================= -->
             <div id="loading" class="loading oculto">
                 <div class="spinner"></div>
             </div>
 
+            <!-- ======================================================
+                                CONTEÚDO DINÂMICO
+            ======================================================= -->
             <main id="conteudo" class="conteudo">
-                <!-- Conteúdo dinâmico carregado via JS -->
+                <!-- dashboard.html será carregado aqui -->
             </main>
 
+            <!-- ======================================================
+                                            FOOTER
+            ======================================================= -->
             <footer class="footer">
-                <div>SIGACTPAR © 2026</div>
-                <div>Sistema Integrado de Gestão de Atendimentos</div>
-                <div>Conselho Tutelar do Paranoá</div>
+                <div>
+                    SIGACTPAR © 2026
+                </div>
+                <div>
+                    Sistema Integrado de Gestão de Atendimentos
+                </div>
+                <div>
+                    Conselho Tutelar do Paranoá
+                </div>
             </footer>
 
         </div>
@@ -172,19 +217,22 @@
     <!-- ==========================================================
                                 JAVASCRIPT
     ========================================================== -->
-    <!-- 1º Banco de Dados (Sempre primeiro) -->
-  <!-- Módulos do Sistema -->
-<script defer src="js/dashboard.js"></script>
-<script defer src="js/atendimentos.js"></script>
-<script defer src="js/criancas.js"></script>
-<script defer src="js/responsaveis.js"></script> <!-- ESSA LINHA É A REFERÊNCIA DO MÓDULO -->
-<script defer src="js/processos.js"></script>
-<script defer src="js/agenda.js"></script>
+    <!-- Banco de Dados -->
+    <script defer src="js/banco.js"></script>
 
-<!-- Inicialização -->
-<script defer src="js/menu.js"></script>
-<script defer src="js/app.js"></script>
-<script defer src="js/responsaveis.js"></script>
+    <!-- Sistema -->
+    <script defer src="js/menu.js"></script>
+    <script defer src="js/modal.js"></script>
+    <script defer src="js/dashboard.js"></script>
+    <script defer src="js/atendimentos.js"></script>
+    <script defer src="js/criancas.js"></script>
+    <script defer src="js/responsaveis.js"></script>
+    <script defer src="js/processos.js"></script>
+    <script defer src="js/agenda.js"></script>
+
+    <!-- Inicialização -->
+    <script defer src="js/app.js"></script>
+
 </body>
 
 </html>

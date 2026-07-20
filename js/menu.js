@@ -48,9 +48,10 @@ function configurarMenuNavegacao() {
     if (elementoData) {
         const hoje = new Date();
         elementoData.textContent = hoje.toLocaleDateString("pt-BR", {
-            weekday: "short",
+            weekday: "long",
             day: "2-digit",
-            month: "short"
+            month: "long",
+            year: "numeric"
         });
     }
 }
@@ -118,7 +119,7 @@ async function carregarPagina(nomePagina) {
             <div class="painel" style="text-align: center; padding: 40px;">
                 <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: var(--vermelho); margin-bottom: 15px;"></i>
                 <h2>Página não encontrada</h2>
-                <p style="color: var(--texto-secundario); margin-top: 10px;">Não foi possível carregar o conteúdo solicitado (${nomePagina}).</p>
+                <p style="color: var(--texto-secundario); margin-top: 10px;">Não foi possível carregar o conteúdo solicitado (${nomePagina}). Verifique se o arquivo correspondente existe na pasta pages/.</p>
             </div>
         `;
     } finally {
@@ -150,6 +151,15 @@ function executarInicializadorModulo(modulo) {
             break;
         case "agenda":
             if (typeof iniciarAgenda === "function") iniciarAgenda();
+            break;
+        case "relatorios":
+            if (typeof iniciarRelatorios === "function") iniciarRelatorios();
+            break;
+        case "veiculos":
+            if (typeof iniciarVeiculos === "function") iniciarVeiculos();
+            break;
+        case "patrimonio":
+            if (typeof iniciarPatrimonio === "function") iniciarPatrimonio();
             break;
         default:
             console.warn(`Nenhum inicializador encontrado para o módulo: ${modulo}`);

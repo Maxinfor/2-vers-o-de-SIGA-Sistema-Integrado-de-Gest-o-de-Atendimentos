@@ -1,0 +1,200 @@
+<!-- ==========================================================
+    RESPONSÁVEIS - SIGACTPAR
+=========================================================== -->
+
+<div class="pagina">
+
+    <!-- ==========================================================
+        CABEÇALHO DA PÁGINA & AÇÕES
+    =========================================================== -->
+    <div class="titulo-pagina">
+        <div>
+            <h2>Responsáveis Legais</h2>
+            <small>Cadastro e acompanhamento de pais, mães e responsáveis legais pelas crianças e adolescentes.</small>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button id="btnAtualizarResponsaveis" class="btn-padrao" style="background: var(--cor-fundo); color: var(--texto); border: 1px solid var(--borda);">
+                <i class="fa-solid fa-rotate"></i> Atualizar
+            </button>
+            <button id="btnNovoResponsavel" class="btn-padrao">
+                <i class="fa-solid fa-plus"></i> Novo Responsável
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+        CARDS / INDICADORES
+    =========================================================== -->
+    <div class="dashboard-cards">
+        <div class="card azul">
+            <div class="card-icone"><i class="fa-solid fa-people-group"></i></div>
+            <div class="card-info">
+                <span>Total Cadastrados</span>
+                <h3 id="cardTotalResponsaveis">0</h3>
+                <small>Registros no sistema</small>
+            </div>
+        </div>
+
+        <div class="card verde">
+            <div class="card-icone"><i class="fa-solid fa-phone"></i></div>
+            <div class="card-info">
+                <span>Com Contato Ativo</span>
+                <h3 id="cardComContato">0</h3>
+                <small>Telefone / WhatsApp registrado</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+        PAINEL DE PESQUISA
+    =========================================================== -->
+    <div class="painel">
+        <div class="grupo-campo" style="margin-bottom: 0;">
+            <label for="pesquisaResponsavel">Pesquisar Responsável</label>
+            <input type="text" id="pesquisaResponsavel" placeholder="Pesquisar Responsável...">
+        </div>
+    </div>
+
+    <!-- ==========================================================
+        TABELA DE REGISTROS
+    =========================================================== -->
+    <div class="painel">
+        <div class="painel-header" style="margin-bottom: 15px;">
+            <h3><i class="fa-solid fa-list"></i> Lista de Responsáveis Legais</h3>
+        </div>
+
+        <div class="tabela-container">
+            <table class="tabela-dashboard">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome Completo</th>
+                        <th>CPF</th>
+                        <th>Telefone / WhatsApp</th>
+                        <th>Endereço</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="listaResponsaveis">
+                    <!-- Preenchido via responsaveis.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ==========================================================
+    MODAL DE CADASTRO / EDIÇÃO
+=========================================================== -->
+<div id="modalResponsavel" class="modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Formulário de Responsável Legal</h2>
+            <button id="fecharModalResponsavel" class="fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form id="formResponsavel">
+            <div class="modal-body">
+                <div class="form-grid">
+                    
+                    <div class="form-group full">
+                        <label for="nomeResponsavel">Nome Completo <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="nomeResponsavel" placeholder="Nome completo do responsável" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cpfResponsavel">CPF <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="cpfResponsavel" placeholder="000.000.000-00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefoneResponsavel">Telefone / WhatsApp <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="telefoneResponsavel" placeholder="(61) 90000-0000" required>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="enderecoResponsavel">Endereço Residencial <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="enderecoResponsavel" placeholder="Quadra, Conjunto, Casa / Logradouro no Paranoá" required>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="observacoesResponsavel">Observações / Vínculo Familiar</label>
+                        <textarea id="observacoesResponsavel" placeholder="Grau de parentesco (Pai, Mãe, Avô/Avó...) e anotações relevantes..."></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="cancelarResponsavel" class="btn-cancelar">Cancelar</button>
+                <button type="submit" class="btn-salvar"><i class="fa-solid fa-floppy-disk"></i> Salvar Responsável</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ==========================================================
+    MODAL DE VISUALIZAÇÃO
+=========================================================== -->
+<div id="modalVisualizarResponsavel" class="modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Detalhes do Responsável</h2>
+            <button id="fecharVisualizarResponsavel" class="fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ID do Registro</label>
+                    <input type="text" id="verIdResponsavel" readonly>
+                </div>
+                <div class="form-group">
+                    <label>CPF</label>
+                    <input type="text" id="verCpfResponsavel" readonly>
+                </div>
+                <div class="form-group full">
+                    <label>Nome Completo</label>
+                    <input type="text" id="verNomeResponsavel" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Telefone / WhatsApp</label>
+                    <input type="text" id="verTelefoneResponsavel" readonly>
+                </div>
+                <div class="form-group full">
+                    <label>Endereço</label>
+                    <input type="text" id="verEnderecoResponsavel" readonly>
+                </div>
+                <div class="form-group full">
+                    <label>Observações / Vínculo</label>
+                    <textarea id="verObservacoesResponsavel" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" id="fecharVisualizarResponsavelRodape" class="btn-cancelar">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+    MODAL DE EXCLUSÃO
+=========================================================== -->
+<div id="modalExcluirResponsavel" class="modal">
+    <div class="modal-box" style="width: 450px;">
+        <div class="modal-header">
+            <h2>Confirmar Exclusão</h2>
+            <button id="fecharExcluirResponsavel" class="fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" style="text-align: center; padding: 25px;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: var(--vermelho); margin-bottom: 15px;"></i>
+            <p style="font-size: 15px; color: var(--texto);">Deseja realmente excluir este cadastro de responsável?</p>
+        </div>
+        <div class="modal-footer" style="justify-content: center;">
+            <button type="button" id="cancelarExcluirResponsavel" class="btn-cancelar" style="width: 45%;">Cancelar</button>
+            <button type="button" id="confirmarExcluirResponsavel" class="btn-salvar" style="width: 45%; background: var(--vermelho);">Sim, Excluir</button>
+        </div>
+    </div>
+</div>

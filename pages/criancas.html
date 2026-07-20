@@ -4,13 +4,11 @@
 
 <div class="pagina">
 
-    <!-- ==========================================================
-        CABEÇALHO DA PÁGINA & AÇÕES
-    =========================================================== -->
+    <!-- CABEÇALHO DA PÁGINA & AÇÕES -->
     <div class="titulo-pagina">
         <div>
             <h2>Crianças e Adolescentes</h2>
-            <small>Cadastro e acompanhamento de crianças e adolescentes atendidos.</small>
+            <small>Cadastro e acompanhamento de crianças e adolescentes atendidos pelo Conselho Tutelar.</small>
         </div>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <button id="btnAtualizarCriancas" class="btn-padrao" style="background: var(--cor-fundo); color: var(--texto); border: 1px solid var(--borda);">
@@ -22,9 +20,7 @@
         </div>
     </div>
 
-    <!-- ==========================================================
-        CARDS / INDICADORES
-    =========================================================== -->
+    <!-- CARDS / INDICADORES -->
     <div class="dashboard-cards">
         <div class="card azul">
             <div class="card-icone"><i class="fa-solid fa-child"></i></div>
@@ -38,35 +34,22 @@
         <div class="card verde">
             <div class="card-icone"><i class="fa-solid fa-school"></i></div>
             <div class="card-info">
-                <span>Com Evasão Regularizada</span>
-                <h3 id="cardEscolarizados">0</h3>
-                <small>Frequência escolar ativa</small>
-            </div>
-        </div>
-
-        <div class="card laranja">
-            <div class="card-icone"><i class="fa-solid fa-house-chimney-user"></i></div>
-            <div class="card-info">
-                <span>Em Medida Protetiva</span>
-                <h3 id="cardProtetivas">0</h3>
-                <small>Art. 101 do ECA</small>
+                <span>Com Escola Vinculada</span>
+                <h3 id="cardComEscola">0</h3>
+                <small>Frequência escolar informada</small>
             </div>
         </div>
     </div>
 
-    <!-- ==========================================================
-        PAINEL DE PESQUISA
-    =========================================================== -->
+    <!-- PAINEL DE PESQUISA -->
     <div class="painel">
         <div class="grupo-campo" style="margin-bottom: 0;">
             <label for="pesquisaCrianca">Pesquisar Criança ou Adolescente</label>
-            <input type="text" id="pesquisaCrianca" placeholder="Digite o nome, CPF ou NIS...">
+            <input type="text" id="pesquisaCrianca" placeholder="Digite o nome, CPF ou escola...">
         </div>
     </div>
 
-    <!-- ==========================================================
-        TABELA DE REGISTROS
-    =========================================================== -->
+    <!-- TABELA DE REGISTROS -->
     <div class="painel">
         <div class="painel-header" style="margin-bottom: 15px;">
             <h3><i class="fa-solid fa-list"></i> Lista de Crianças e Adolescentes</h3>
@@ -78,10 +61,9 @@
                     <tr>
                         <th>ID</th>
                         <th>Nome Completo</th>
-                        <th>Data de Nascimento</th>
-                        <th>Idade</th>
-                        <th>Responsável Principal</th>
-                        <th>Escola / Rede</th>
+                        <th>Data de Nasc.</th>
+                        <th>Escola</th>
+                        <th>Responsável</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -95,7 +77,7 @@
 </div>
 
 <!-- ==========================================================
-    MODAL DE CADASTRO / EDIÇÃO
+    MODAL DE CADASTRO / EDIÇÃO DE CRIANÇA
 =========================================================== -->
 <div id="modalCrianca" class="modal">
     <div class="modal-box">
@@ -119,43 +101,23 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="sexoCrianca">Sexo</label>
-                        <select id="sexoCrianca">
-                            <option value="">Selecione...</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Feminino">Feminino</option>
-                            <option value="Outro">Outro</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
                         <label for="cpfCrianca">CPF (Opcional)</label>
                         <input type="text" id="cpfCrianca" placeholder="000.000.000-00">
                     </div>
 
-                    <div class="form-group">
-                        <label for="nisCrianca">NIS (Opcional)</label>
-                        <input type="text" id="nisCrianca" placeholder="Número do NIS">
+                    <div class="form-group full">
+                        <label for="escolaCrianca">Escola / Unidade de Ensino <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="escolaCrianca" placeholder="Nome da Escola Classe ou Centro de Ensino" required>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group full">
                         <label for="responsavelCrianca">Responsável Legal <span style="color:var(--vermelho);">*</span></label>
-                        <input type="text" id="responsavelCrianca" placeholder="Nome do responsável" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="telefoneCrianca">Telefone de Contato</label>
-                        <input type="text" id="telefoneCrianca" placeholder="(61) 90000-0000">
+                        <input type="text" id="responsavelCrianca" placeholder="Nome do pai, mãe ou responsável legal" required>
                     </div>
 
                     <div class="form-group full">
-                        <label for="escolaCrianca">Unidade Escolar / Instituição de Ensino</label>
-                        <input type="text" id="escolaCrianca" placeholder="Nome da escola onde estuda">
-                    </div>
-
-                    <div class="form-group full">
-                        <label for="observacoesCrianca">Observações / Condição de Saúde ou Social</label>
-                        <textarea id="observacoesCrianca" placeholder="Informações relevantes sobre a criança..."></textarea>
+                        <label for="observacoesCrianca">Observações / Situação de Atendimento</label>
+                        <textarea id="observacoesCrianca" placeholder="Anotações relevantes sobre a demanda ou acompanhamento..."></textarea>
                     </div>
 
                 </div>
@@ -194,32 +156,16 @@
                     <input type="text" id="verNomeCrianca" readonly>
                 </div>
                 <div class="form-group">
-                    <label>Sexo</label>
-                    <input type="text" id="verSexoCrianca" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Idade Atual</label>
-                    <input type="text" id="verIdadeCrianca" readonly>
-                </div>
-                <div class="form-group">
                     <label>CPF</label>
                     <input type="text" id="verCpfCrianca" readonly>
                 </div>
                 <div class="form-group">
-                    <label>NIS</label>
-                    <input type="text" id="verNisCrianca" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Responsável Legal</label>
-                    <input type="text" id="verResponsavelCrianca" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Telefone</label>
-                    <input type="text" id="verTelefoneCrianca" readonly>
-                </div>
-                <div class="form-group full">
                     <label>Escola</label>
                     <input type="text" id="verEscolaCrianca" readonly>
+                </div>
+                <div class="form-group full">
+                    <label>Responsável Legal</label>
+                    <input type="text" id="verResponsavelCrianca" readonly>
                 </div>
                 <div class="form-group full">
                     <label>Observações</label>

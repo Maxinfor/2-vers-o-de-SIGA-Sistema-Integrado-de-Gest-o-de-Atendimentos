@@ -1,277 +1,318 @@
 /* ==========================================================
-   ATENDIMENTOS
+   SIGACTPAR
+   MÓDULO DE ATENDIMENTOS
+   Parte 1 - Estrutura Inicial
 ========================================================== */
 
-function iniciarAtendimentos(){
+let atendimentoEditando = null;
+let atendimentoExcluir = null;
+
+/* ==========================================================
+   INICIAR MÓDULO
+========================================================== */
+
+function iniciarAtendimentos() {
+
+    configurarEventos();
 
     atualizarTabela();
 
-    const btn = document.getElementById("btnNovo");
+    atualizarIndicadores();
 
-    if(btn){
+}
 
-        btn.onclick = abrirModal;
+/* ==========================================================
+   CONFIGURA EVENTOS
+========================================================== */
+
+function configurarEventos() {
+
+    // Novo Atendimento
+    const btnNovo = document.getElementById("btnNovo");
+
+    if (btnNovo) {
+        btnNovo.onclick = novoAtendimento;
+    }
+
+    // Atualizar
+    const btnAtualizar = document.getElementById("btnAtualizar");
+
+    if (btnAtualizar) {
+
+        btnAtualizar.onclick = () => {
+
+            atualizarTabela();
+
+            atualizarIndicadores();
+
+        };
 
     }
 
-    const fechar = document.getElementById("fecharModal");
+    // Fechar Modal Cadastro
+    const fecharModalCadastro = document.getElementById("fecharModal");
 
-    if(fechar){
+    if (fecharModalCadastro) {
 
-        fechar.onclick = fecharModal;
+        fecharModalCadastro.onclick = fecharModal;
 
     }
 
+    // Cancelar Cadastro
     const cancelar = document.getElementById("cancelar");
 
-    if(cancelar){
+    if (cancelar) {
 
         cancelar.onclick = fecharModal;
 
     }
 
-    const form = document.getElementById("formAtendimento");
+    // Fechar Modal Visualização
+    const fecharVisualizar = document.getElementById("fecharVisualizar");
 
-    if(form){
+    if (fecharVisualizar) {
 
-        form.onsubmit = salvarAtendimento;
+        fecharVisualizar.onclick = fecharVisualizacao;
+
+    }
+
+    // Botão Fechar Rodapé
+    const fecharRodape = document.getElementById("fecharVisualizarRodape");
+
+    if (fecharRodape) {
+
+        fecharRodape.onclick = fecharVisualizacao;
+
+    }
+
+    // Pesquisa
+    const pesquisa = document.getElementById("pesquisa");
+
+    if (pesquisa) {
+
+        pesquisa.onkeyup = atualizarTabela;
+
+    }
+
+    // Filtro Status
+    const filtroStatus = document.getElementById("filtroStatus");
+
+    if (filtroStatus) {
+
+        filtroStatus.onchange = atualizarTabela;
+
+    }
+
+    // Filtro Tipo
+    const filtroTipo = document.getElementById("filtroTipo");
+
+    if (filtroTipo) {
+
+        filtroTipo.onchange = atualizarTabela;
+
+    }
+
+    // Filtro Plantonista
+    const filtroPlantonista = document.getElementById("filtroPlantonista");
+
+    if (filtroPlantonista) {
+
+        filtroPlantonista.onchange = atualizarTabela;
+
+    }
+
+    // Formulário
+    const formulario = document.getElementById("formAtendimento");
+
+    if (formulario) {
+
+        formulario.onsubmit = salvarAtendimento;
 
     }
 
 }
+
 /* ==========================================================
-   PESQUISA
+   NOVO ATENDIMENTO
 ========================================================== */
 
-const pesquisa = document.getElementById("pesquisa");
+function novoAtendimento() {
 
-if(pesquisa){
+    atendimentoEditando = null;
 
-    pesquisa.addEventListener("keyup", atualizarTabela);
+    const form = document.getElementById("formAtendimento");
+
+    if (form) {
+
+        form.reset();
+
+    }
+
+    const numero = document.getElementById("numero");
+
+    if (numero) {
+
+        numero.value = gerarNumero();
+
+    }
+
+    const data = document.getElementById("data");
+
+    if (data) {
+
+        data.value = new Date().toISOString().substring(0, 10);
+
+    }
+
+    const hora = document.getElementById("hora");
+
+    if (hora) {
+
+        hora.value = new Date().toLocaleTimeString("pt-BR", {
+
+            hour: "2-digit",
+
+            minute: "2-digit"
+
+        });
+
+    }
+
+    abrirModal();
 
 }
 
 /* ==========================================================
-   FILTRO STATUS
+   MODAIS
 ========================================================== */
 
-const filtro = document.getElementById("filtroStatus");
-
-if(filtro){
-
-    filtro.addEventListener("change", atualizarTabela);
-
-}
-
-/* ==========================================================
-   MODAL
-========================================================== */
-
-function abrirModal(){
+function abrirModal() {
 
     document
-
-    .getElementById("modalAtendimento")
-
-    .classList
-
-    .add("ativo");
+        .getElementById("modalAtendimento")
+        .classList
+        .add("ativo");
 
 }
 
-function fecharModal(){
+function fecharModal() {
 
     document
+        .getElementById("modalAtendimento")
+        .classList
+        .remove("ativo");
 
-    .getElementById("modalAtendimento")
+}
 
-    .classList
+function abrirVisualizacao() {
 
-    .remove("ativo");
+    document
+        .getElementById("modalVisualizar")
+        .classList
+        .add("ativo");
+
+}
+
+function fecharVisualizacao() {
+
+    document
+        .getElementById("modalVisualizar")
+        .classList
+        .remove("ativo");
 
 }
 
 /* ==========================================================
-   SALVAR
+   GERAR NÚMERO DO ATENDIMENTO
 ========================================================== */
 
-function salvarAtendimento(e){
+function gerarNumero() {
+
+    const numero = Banco.dados.atendimentos.length + 1;
+
+    return "AT-" + String(numero).padStart(6, "0");
+
+}
+
+/* ==========================================================
+   ATUALIZAR INDICADORES
+========================================================== */
+
+function atualizarIndicadores() {
+
+    // Será implementado na Parte 2
+
+}
+
+/* ==========================================================
+   SALVAR ATENDIMENTO
+========================================================== */
+
+function salvarAtendimento(e) {
 
     e.preventDefault();
 
-    const atendimento={
-
-        id: Banco.dados.atendimentos.length + 1,
-
-        data: document.getElementById("data").value,
-
-        hora: document.getElementById("hora").value,
-
-        crianca: document.getElementById("crianca").value,
-
-        responsavel: document.getElementById("responsavel").value,
-
-        telefone: document.getElementById("telefone").value,
-
-        status: document.getElementById("status").value,
-
-        relato: document.getElementById("relato").value
-
-    };
-
-    Banco.dados.atendimentos.push(atendimento);
-
-    salvarBanco();
-
-    atualizarTabela();
-
-    fecharModal();
-
-    e.target.reset();
+    // Será implementado na Parte 2
 
 }
 
 /* ==========================================================
-   TABELA
+   ATUALIZAR TABELA
 ========================================================== */
 
-/* ==========================================================
-   ATUALIZA TABELA
-========================================================== */
+function atualizarTabela() {
 
-function atualizarTabela(){
-
-    const tbody = document.getElementById("listaAtendimentos");
-
-    if(!tbody) return;
-
-    tbody.innerHTML = "";
-
-    const texto = document
-        .getElementById("pesquisa")
-        .value
-        .toLowerCase();
-
-    const statusSelecionado =
-        document.getElementById("filtroStatus").value;
-
-    const lista = Banco.dados.atendimentos.filter(item => {
-
-        const pesquisa =
-
-            item.crianca.toLowerCase().includes(texto) ||
-
-            item.responsavel.toLowerCase().includes(texto);
-
-        const status =
-
-            statusSelecionado === "" ||
-
-            item.status === statusSelecionado;
-
-        return pesquisa && status;
-
-    });
-
-    if(lista.length === 0){
-
-        tbody.innerHTML = `
-
-            <tr>
-
-                <td colspan="6">
-
-                    Nenhum atendimento encontrado.
-
-                </td>
-
-            </tr>
-
-        `;
-
-        return;
-
-    }
-
-    lista.forEach(item => {
-
-        tbody.innerHTML += `
-
-            <tr>
-
-                <td>${item.id}</td>
-
-                <td>${formatarData(item.data)}</td>
-
-                <td>${item.crianca}</td>
-
-                <td>${item.responsavel}</td>
-
-                <td>
-
-                    <span class="status ${corStatus(item.status)}">
-
-                        ${item.status}
-
-                    </span>
-
-                </td>
-
-                <td>
-
-                    <button
-                        onclick="visualizar(${item.id})"
-                        title="Visualizar">
-
-                        <i class="fa-solid fa-eye"></i>
-
-                    </button>
-
-                    <button
-                        onclick="editar(${item.id})"
-                        title="Editar">
-
-                        <i class="fa-solid fa-pen"></i>
-
-                    </button>
-
-                    <button
-                        onclick="excluir(${item.id})"
-                        title="Excluir">
-
-                        <i class="fa-solid fa-trash"></i>
-
-                    </button>
-
-                </td>
-
-            </tr>
-
-        `;
-
-    });
+    // Será implementado na Parte 3
 
 }
+
 /* ==========================================================
-   FORMATA DATA
+   VISUALIZAR
 ========================================================== */
 
-function formatarData(data){
+function visualizar(id) {
 
-    if(!data) return "";
+    // Será implementado na Parte 4
+
+}
+
+/* ==========================================================
+   EDITAR
+========================================================== */
+
+function editar(id) {
+
+    // Será implementado na Parte 5
+
+}
+
+/* ==========================================================
+   EXCLUIR
+========================================================== */
+
+function excluir(id) {
+
+    // Será implementado na Parte 6
+
+}
+
+/* ==========================================================
+   FUNÇÕES AUXILIARES
+========================================================== */
+
+function formatarData(data) {
+
+    if (!data) return "";
 
     const partes = data.split("-");
 
     return partes[2] + "/" + partes[1] + "/" + partes[0];
 
 }
-/* ==========================================================
-   COR DO STATUS
-========================================================== */
 
-function corStatus(status){
+function corStatus(status) {
 
-    switch(status){
+    switch (status) {
 
         case "Concluído":
             return "status-verde";
@@ -286,75 +327,5 @@ function corStatus(status){
             return "status-azul";
 
     }
-
-}
-/* ==========================================================
-   EXCLUIR
-========================================================== */
-
-function excluir(id){
-
-    const confirmar = confirm(
-        "Deseja realmente excluir este atendimento?"
-    );
-
-    if(!confirmar) return;
-
-    Banco.dados.atendimentos =
-        Banco.dados.atendimentos.filter(
-            atendimento => atendimento.id != id
-        );
-
-    salvarBanco();
-
-    atualizarTabela();
-
-}/* ==========================================================
-   VISUALIZAR
-========================================================== */
-
-function visualizar(id){
-
-    const atendimento =
-        Banco.dados.atendimentos.find(
-            atendimento => atendimento.id == id
-        );
-
-    if(!atendimento) return;
-
-    alert(
-
-`ATENDIMENTO
-
-Data: ${formatarData(atendimento.data)}
-
-Hora: ${atendimento.hora}
-
-Criança:
-${atendimento.crianca}
-
-Responsável:
-${atendimento.responsavel}
-
-Telefone:
-${atendimento.telefone}
-
-Status:
-${atendimento.status}
-
-Relato:
-${atendimento.relato}`
-
-    );
-
-}/* ==========================================================
-   EDITAR
-========================================================== */
-
-function editar(id){
-
-    alert(
-        "A edição será implementada na próxima etapa."
-    );
 
 }

@@ -1,0 +1,127 @@
+<!-- ==========================================================
+    PROCESSOS - SIGACTPAR
+=========================================================== -->
+
+<div class="pagina">
+
+    <!-- CABEÇALHO DA PÁGINA & AÇÕES -->
+    <div class="titulo-pagina">
+        <div>
+            <h2>Processos e Procedimentos</h2>
+            <small>Gerenciamento de procedimentos administrativos e ofícios do Conselho Tutelar.</small>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button id="btnAtualizarProcessos" class="btn-padrao" style="background: var(--cor-fundo); color: var(--texto); border: 1px solid var(--borda);">
+                <i class="fa-solid fa-rotate"></i> Atualizar
+            </button>
+            <button id="btnNovoProcesso" class="btn-padrao">
+                <i class="fa-solid fa-plus"></i> Novo Processo
+            </button>
+        </div>
+    </div>
+
+    <!-- CARDS / INDICADORES -->
+    <div class="dashboard-cards">
+        <div class="card azul">
+            <div class="card-icone"><i class="fa-solid fa-folder-open"></i></div>
+            <div class="card-info">
+                <span>Total de Processos</span>
+                <h3 id="cardTotalProcessos">0</h3>
+                <small>Registrados no sistema</small>
+            </div>
+        </div>
+
+        <div class="card amarelo">
+            <div class="card-icone"><i class="fa-solid fa-clock"></i></div>
+            <div class="card-info">
+                <span>Em Andamento</span>
+                <h3 id="cardProcessosAndamento">0</h3>
+                <small>Aguardando providências</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAINEL DE PESQUISA -->
+    <div class="painel">
+        <div class="grupo-campo" style="margin-bottom: 0;">
+            <label for="pesquisaProcesso">Pesquisar Processo</label>
+            <input type="text" id="pesquisaProcesso" placeholder="Número do processo, assunto ou interessado...">
+        </div>
+    </div>
+
+    <!-- TABELA DE REGISTROS -->
+    <div class="painel">
+        <div class="painel-header" style="margin-bottom: 15px;">
+            <h3><i class="fa-solid fa-list"></i> Lista de Processos</h3>
+        </div>
+
+        <div class="tabela-container">
+            <table class="tabela-dashboard">
+                <thead>
+                    <tr>
+                        <th>Nº Processo</th>
+                        <th>Assunto</th>
+                        <th>Interessado</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="listaProcessos">
+                    <!-- Preenchido via processos.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL DE CADASTRO / EDIÇÃO -->
+<div id="modalProcesso" class="modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Formulário de Processo</h2>
+            <button id="fecharModalProcesso" class="fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form id="formProcesso">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="numeroProcesso">Número / Ano <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="numeroProcesso" placeholder="Ex: 001/2026" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="statusProcesso">Status <span style="color:var(--vermelho);">*</span></label>
+                        <select id="statusProcesso" required>
+                            <option value="Em Andamento">Em Andamento</option>
+                            <option value="Concluído">Concluído</option>
+                            <option value="Arquivado">Arquivado</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="assuntoProcesso">Assunto <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="assuntoProcesso" placeholder="Assunto principal do processo" required>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="interessadoProcesso">Interessado / Parte Envolvida <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="interessadoProcesso" placeholder="Nome da criança, família ou instituição" required>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="descricaoProcesso">Descrição / Providências</label>
+                        <textarea id="descricaoProcesso" placeholder="Detalhes e histórico das providências adotadas..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="cancelarProcesso" class="btn-cancelar">Cancelar</button>
+                <button type="submit" class="btn-salvar"><i class="fa-solid fa-floppy-disk"></i> Salvar Processo</button>
+            </div>
+        </form>
+    </div>
+</div>

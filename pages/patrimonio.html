@@ -1,11 +1,132 @@
+<!-- ==========================================================
+    PATRIMÔNIO - SIGACTPAR
+=========================================================== -->
+
 <div class="pagina">
+
+    <!-- CABEÇALHO DA PÁGINA & AÇÕES -->
     <div class="titulo-pagina">
-        <h2>Controle de Patrimônio</h2>
-        <small>Inventário de bens móveis e equipamentos da unidade.</small>
+        <div>
+            <h2>Controle de Patrimônio</h2>
+            <small>Inventário de bens móveis, equipamentos e materiais da unidade.</small>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button id="btnAtualizarPatrimonio" class="btn-padrao" style="background: var(--cor-fundo); color: var(--texto); border: 1px solid var(--borda);">
+                <i class="fa-solid fa-rotate"></i> Atualizar
+            </button>
+            <button id="btnNovoPatrimonio" class="btn-padrao">
+                <i class="fa-solid fa-plus"></i> Novo Item
+            </button>
+        </div>
     </div>
-    <div class="painel" style="padding: 30px; text-align: center;">
-        <i class="fa-solid fa-box-archive" style="font-size: 48px; color: var(--azul); margin-bottom: 15px;"></i>
-        <h3>Inventário de Bens</h3>
-        <p style="color: var(--texto-secundario); margin-top: 10px;">Bens patrimoniais sob responsabilidade da unidade.</p>
+
+    <!-- CARDS / INDICADORES -->
+    <div class="dashboard-cards">
+        <div class="card azul">
+            <div class="card-icone"><i class="fa-solid fa-box-archive"></i></div>
+            <div class="card-info">
+                <span>Total de Itens</span>
+                <h3 id="cardTotalPatrimonio">0</h3>
+                <small>Bens cadastrados</small>
+            </div>
+        </div>
+
+        <div class="card verde">
+            <div class="card-icone"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="card-info">
+                <span>Em Bom Estado</span>
+                <h3 id="cardPatrimonioBom">0</h3>
+                <small>Disponíveis para uso</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAINEL DE PESQUISA -->
+    <div class="painel">
+        <div class="grupo-campo" style="margin-bottom: 0;">
+            <label for="pesquisaPatrimonio">Pesquisar Bem Patrimonial</label>
+            <input type="text" id="pesquisaPatrimonio" placeholder="Digite o tombamento, nome do equipamento ou descrição...">
+        </div>
+    </div>
+
+    <!-- TABELA DE REGISTROS -->
+    <div class="painel">
+        <div class="painel-header" style="margin-bottom: 15px;">
+            <h3><i class="fa-solid fa-list"></i> Inventário da Unidade</h3>
+        </div>
+
+        <div class="tabela-container">
+            <table class="tabela-dashboard">
+                <thead>
+                    <tr>
+                        <th>Nº Tombamento</th>
+                        <th>Descrição do Bem</th>
+                        <th>Categoria</th>
+                        <th>Estado</th>
+                        <th>Localização</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="listaPatrimonio">
+                    <!-- Preenchido via patrimonio.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL DE CADASTRO / EDIÇÃO -->
+<div id="modalPatrimonio" class="modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Formulário de Bem Patrimonial</h2>
+            <button id="fecharModalPatrimonio" class="fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form id="formPatrimonio">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="tombamentoPatrimonio">Nº de Tombamento <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="tombamentoPatrimonio" placeholder="Ex: TB-2026-001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoriaPatrimonio">Categoria <span style="color:var(--vermelho);">*</span></label>
+                        <select id="categoriaPatrimonio" required>
+                            <option value="Informática">Informática</option>
+                            <option value="Mobiliário">Mobiliário</option>
+                            <option value="Eletrônico">Eletrônico</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="descricaoPatrimonio">Descrição do Bem <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="descricaoPatrimonio" placeholder="Ex: Notebook Dell Latitude i5" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estadoPatrimonio">Estado de Conservação <span style="color:var(--vermelho);">*</span></label>
+                        <select id="estadoPatrimonio" required>
+                            <option value="Bom">Bom</option>
+                            <option value="Regular">Regular</option>
+                            <option value="Danificado">Danificado</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="localizacaoPatrimonio">Localização na Unidade <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="localizacaoPatrimonio" placeholder="Ex: Sala de Atendimento 01" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="cancelarPatrimonio" class="btn-cancelar">Cancelar</button>
+                <button type="submit" class="btn-salvar"><i class="fa-solid fa-floppy-disk"></i> Salvar Item</button>
+            </div>
+        </form>
     </div>
 </div>

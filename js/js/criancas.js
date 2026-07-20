@@ -1,6 +1,5 @@
 /* ==========================================================
-   SIGACTPAR
-   MÓDULO DE CRIANÇAS E ADOLESCENTES
+   SIGACTPAR - MÓDULO DE CRIANÇAS E ADOLESCENTES
 ========================================================== */
 
 let criancaEditando = null;
@@ -24,7 +23,7 @@ function configurarEventosCriancas() {
         };
     }
 
-    // Fechar modais
+    // Fechar e cancelar modais
     const fecharModalCadastro = document.getElementById("fecharModalCrianca");
     const cancelar = document.getElementById("cancelarCrianca");
     if (fecharModalCadastro) fecharModalCadastro.onclick = fecharModalCrianca;
@@ -42,11 +41,11 @@ function configurarEventosCriancas() {
     if (cancelarExc) cancelarExc.onclick = fecharModalExcluirCrianca;
     if (confirmarExc) confirmarExc.onclick = confirmarExclusaoCrianca;
 
-    // Pesquisa
+    // Pesquisa em tempo real
     const pesquisa = document.getElementById("pesquisaCrianca");
     if (pesquisa) pesquisa.onkeyup = atualizarTabelaCriancas;
 
-    // Submit formulário
+    // Submit do formulário de cadastro/edição
     const form = document.getElementById("formCrianca");
     if (form) form.onsubmit = salvarCrianca;
 }
@@ -85,22 +84,17 @@ function fecharModalExcluirCrianca() {
     if (modal) modal.classList.remove("ativo");
 }
 
-function calcularIdade(dataNascimento) {
-    if (!dataNascimento) return "--";
-    const hoje = new Date();
-    const nascimento = new Date(dataNascimento);
-    let idade = hoje.getFullYear() - nascimento.getFullYear();
-    const m = hoje.getMonth() - nascimento.getMonth();
-    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
-        idade--;
-    }
-    return `${idade} anos`;
-}
-
 function atualizarIndicadoresCriancas() {
+    if (!Banco || !Banco.dados || !Banco.dados.criancas) return;
+
     const total = Banco.dados.criancas.length;
+    const comEscola = Banco.dados.criancas.filter(c => c.escola && c.escola.trim() !== "").length;
+
     const cardTotal = document.getElementById("cardTotalCriancas");
+    const cardEscola = document.getElementById("cardComEscola");
+
     if (cardTotal) cardTotal.textContent = total;
+    if (cardEscola) cardEscola.textContent = comEscola;
 }
 
 function salvarCrianca(e) {
@@ -110,16 +104,13 @@ function salvarCrianca(e) {
         id: criancaEditando ?? gerarId("crianca"),
         nome: document.getElementById("nomeCrianca").value.trim(),
         nascimento: document.getElementById("nascimentoCrianca").value,
-        sexo: document.getElementById("sexoCrianca").value,
         cpf: document.getElementById("cpfCrianca").value.trim(),
-        nis: document.getElementById("nisCrianca").value.trim(),
-        responsavel: document.getElementById("responsavelCrianca").value.trim(),
-        telefone: document.getElementById("telefoneCrianca").value.trim(),
         escola: document.getElementById("escolaCrianca").value.trim(),
+        responsavel: document.getElementById("responsavelCrianca").value.trim(),
         observacoes: document.getElementById("observacoesCrianca").value.trim()
     };
 
-    if (!objeto.nome || !objeto.nascimento || !objeto.responsavel) {
+    if (!objeto.nome || !objeto.nascimento || !objeto.escola || !objeto.responsavel) {
         alert("Preencha todos os campos obrigatórios (*).");
         return;
     }
@@ -140,13 +131,16 @@ function atualizarTabelaCriancas() {
     if (!tbody) return;
 
     tbody.innerHTML = "";
+
+    if (!Banco || !Banco.dados || !Banco.dados.criancas) return;
+
     const termo = document.getElementById("pesquisaCrianca")?.value.toLowerCase() || "";
 
     let lista = Banco.dados.criancas.filter(item => {
         return (
             (item.nome && item.nome.toLowerCase().includes(termo)) ||
-            (item.cpf && item.cpf.toLowerCase().includes(termo)) ||
-            (item.nis && item.nis.toLowerCase().includes(termo))
+            (item.escola && item.escola.toLowerCase().includes(termo)) ||
+            (item.cpf && item.cpf.toLowerCase().includes(termo))
         );
     });
 
@@ -155,7 +149,7 @@ function atualizarTabelaCriancas() {
     if (lista.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="vazio">Nenhuma criança ou adolescente cadastrada.</td>
+                <td colspan="6" class="vazio" style="text-align: center; padding: 20px; color: var(--texto-secundario);">Nenhuma criança cadastrada.</td>
             </tr>
         `;
         return;
@@ -165,10 +159,9 @@ function atualizarTabelaCriancas() {
         <tr>
             <td><strong>#${item.id}</strong></td>
             <td>${item.nome}</td>
-            <td>${formatarData(item.nascimento)}</td>
-            <td>${calcularIdade(item.nascimento)}</td>
+            <td>${item.nascimento ? item.nascimento.split('-').reverse().join('/') : ''}</td>
+            <td>${item.escola}</td>
             <td>${item.responsavel}</td>
-            <td>${item.escola || "Não informada"}</td>
             <td>
                 <div class="tabela-acoes">
                     <button class="btn-acao-tabela btn-visualizar" onclick="visualizarCrianca(${item.id})" title="Visualizar">
@@ -186,20 +179,21 @@ function atualizarTabelaCriancas() {
     `).join("");
 }
 
+function buscarCrianca(id) {
+    if (!Banco || !Banco.dados || !Banco.dados.criancas) return null;
+    return Banco.dados.criancas.find(item => item.id === id);
+}
+
 function visualizarCrianca(id) {
     const item = buscarCrianca(id);
     if (!item) return;
 
     document.getElementById("verIdCrianca").value = `#${item.id}`;
-    document.getElementById("verNascimentoCrianca").value = formatarData(item.nascimento);
-    document.getElementById("verNomeCrianca").value = item.nome;
-    document.getElementById("verSexoCrianca").value = item.sexo || "Não informado";
-    document.getElementById("verIdadeCrianca").value = calcularIdade(item.nascimento);
+    document.getElementById("verNascimentoCrianca").value = item.nascimento ? item.nascimento.split('-').reverse().join('/') : '';
     document.getElementById("verCpfCrianca").value = item.cpf || "Não informado";
-    document.getElementById("verNisCrianca").value = item.nis || "Não informado";
+    document.getElementById("verNomeCrianca").value = item.nome;
+    document.getElementById("verEscolaCrianca").value = item.escola;
     document.getElementById("verResponsavelCrianca").value = item.responsavel;
-    document.getElementById("verTelefoneCrianca").value = item.telefone || "Não informado";
-    document.getElementById("verEscolaCrianca").value = item.escola || "Não informada";
     document.getElementById("verObservacoesCrianca").value = item.observacoes || "Nenhuma observação registrada.";
 
     abrirModalVisualizacaoCrianca();
@@ -212,13 +206,10 @@ function editarCrianca(id) {
     criancaEditando = item.id;
     document.getElementById("nomeCrianca").value = item.nome;
     document.getElementById("nascimentoCrianca").value = item.nascimento;
-    document.getElementById("sexoCrianca").value = item.sexo;
-    document.getElementById("cpfCrianca").value = item.cpf;
-    document.getElementById("nisCrianca").value = item.nis;
-    document.getElementById("responsavelCrianca").value = item.responsavel;
-    document.getElementById("telefoneCrianca").value = item.telefone;
+    document.getElementById("cpfCrianca").value = item.cpf || "";
     document.getElementById("escolaCrianca").value = item.escola;
-    document.getElementById("observacoesCrianca").value = item.observacoes;
+    document.getElementById("responsavelCrianca").value = item.responsavel;
+    document.getElementById("observacoesCrianca").value = item.observacoes || "";
 
     abrirModalCrianca();
 }

@@ -1,0 +1,52 @@
+<!-- ==========================================================
+    IMPORTAÇÃO DE ATENDIMENTOS VIA PDF - SIGACTPAR
+=========================================================== -->
+
+<div class="pagina">
+
+    <div class="titulo-pagina">
+        <div>
+            <h2>Importação Inteligente de PDFs</h2>
+            <small>Carregue um ou vários documentos de atendimento para extração automática de dados.</small>
+        </div>
+    </div>
+
+    <!-- PAINEL DE UPLOAD -->
+    <div class="painel" style="text-align: center; padding: 40px; border: 2px dashed var(--borda); background: var(--cor-fundo);">
+        <i class="fa-solid fa-file-pdf" style="font-size: 56px; color: var(--vermelho); margin-bottom: 15px;"></i>
+        <h3>Arraste os arquivos PDF aqui ou selecione no botão abaixo</h3>
+        <p style="color: var(--texto-secundario); margin: 10px 0 20px 0;">O sistema identificará automaticamente Tipo de Atendimento, Criança, D.N., Responsável, Telefone, Endereço, Assunto e Data.</p>
+        
+        <input type="file" id="inputPdfFiles" accept="application/pdf" multiple style="display: none;">
+        <button type="button" class="btn-padrao" onclick="document.getElementById('inputPdfFiles').click()">
+            <i class="fa-solid fa-folder-open"></i> Selecionar Arquivos PDF
+        </button>
+    </div>
+
+    <!-- PAINEL DE RESULTADOS / STATUS -->
+    <div class="painel" style="margin-top: 20px;">
+        <div class="painel-header" style="margin-bottom: 15px;">
+            <h3><i class="fa-solid fa-list-check"></i> Relatório de Importação e Extração</h3>
+        </div>
+
+        <div class="tabela-container">
+            <table class="tabela-dashboard">
+                <thead>
+                    <tr>
+                        <th>Arquivo PDF</th>
+                        <th>Criança / Adolescente</th>
+                        <th>Tipo / Assunto</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="listaImportacaoPdf">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px; color: var(--texto-secundario);">Nenhum documento processado ainda.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

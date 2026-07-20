@@ -1,9 +1,10 @@
 /* ==========================================================
-   SIGACTPAR - MÓDULO DE IMPORTAÇÃO DE PDFS
+   SIGACTPAR - MÓDULO DE IMPORTAÇÃO E EXTRAÇÃO INTELIGENTE DE PDFS
 ========================================================== */
 
-function iniciarImportar() {
+function iniciarRelatorios() {
     configurarEventosImportacao();
+    atualizarIndicadoresRelatorios();
 }
 
 function configurarEventosImportacao() {
@@ -24,30 +25,32 @@ async function processarArquivosPdf(arquivos) {
 
     tbody.innerHTML = "";
     let resultadosHtml = "";
+    let totalImportados = 0;
 
     for (let arquivo of arquivos) {
         try {
             const textoPdf = await extrairTextoDoPdf(arquivo);
             const dadosExtraidos = interpretarTextoDocumento(textoPdf);
 
-            // Inserir automaticamente nos registros de Atendimentos / Crianças / Responsáveis
+            // Salva de forma automática nas tabelas do sistema
             salvarDadosImportadosNoSistema(dadosExtraidos);
+            totalImportados++;
 
             resultadosHtml += `
                 <tr>
                     <td><strong>${arquivo.name}</strong></td>
-                    <td>${dadosExtraidos.crianca || 'Não identificado'}</td>
-                    <td><span class="badge azul">${dadosExtraidos.tipoAtendimento || 'Geral'}</span> / ${dadosExtraidos.assunto || 'Não esp.'}</td>
-                    <td>${dadosExtraidos.dataAtendimento || '-'}</td>
-                    <td><span class="badge verde"><i class="fa-solid fa-check"></i> Importado com Sucesso</span></td>
+                    <td>${dadosExtraidos.crianca}</td>
+                    <td><span class="badge azul">${dadosExtraidos.tipoAtendimento}</span> / ${dadosExtraidos.assunto}</td>
+                    <td>${dadosExtraidos.dataAtendimento}</td>
+                    <td><span class="badge verde"><i class="fa-solid fa-check"></i> Importado</span></td>
                 </tr>
             `;
         } catch (erro) {
-            console.error("Erro ao ler PDF:", erro);
+            console.error("Erro ao processar PDF:", erro);
             resultadosHtml += `
                 <tr>
                     <td><strong>${arquivo.name}</strong></td>
-                    <td colspan="3" style="color: var(--vermelho);">Erro ao processar documento.</td>
+                    <td colspan="3" style="color: var(--vermelho);">Erro ao extrair dados do documento.</td>
                     <td><span class="badge vermelho">Falha</span></td>
                 </tr>
             `;
@@ -55,6 +58,12 @@ async function processarArquivosPdf(arquivos) {
     }
 
     tbody.innerHTML = resultadosHtml;
+
+    // Atualiza contador de importados na tela
+    const cardImportados = document.getElementById("cardTotalImportados");
+    if (cardImportados) cardImportados.textContent = totalImportados;
+    
+    atualizarIndicadoresRelatorios();
 }
 
 async function extrairTextoDoPdf(arquivo) {
@@ -73,33 +82,35 @@ async function extrairTextoDoPdf(arquivo) {
 }
 
 function interpretarTextoDocumento(texto) {
-    // Função auxiliar para procurar padrões próximos a rótulos
     const limpar = (str) => str ? str.trim() : "";
 
-    // Regex aproximadas para buscar os campos solicitados
-    // Exemplo: busca campos como "Criança:", "Nome:", "D.N:", etc.
     const extrairCampo = (regex) => {
         const match = texto.match(regex);
         return match ? limpar(match[1]) : "";
     };
 
-    // Buscas flexíveis no texto extraído do PDF
-    let crianca = extrairCampo(/(?:Criança|Criança\/Adolescente|Nome)\s*[:=]\s*([^,\n]+)/i);
+    // 1. Extração dos campos solicitados
+    let crianca = extrairCampo(/(?:Criança|Criança\/Adolescente|Nome da Criança|Nome)\s*[:=]\s*([^,\n]+)/i);
     let nascimento = extrairCampo(/(?:D\.?N\.?|Nascimento|Data de Nasc\.?)\s*[:=]\s*(\d{2}\/\d{2}\/\d{4})/i);
     let responsavel = extrairCampo(/(?:Responsável|Responsável Legal|Pai\/Mãe)\s*[:=]\s*([^,\n]+)/i);
     let telefone = extrairCampo(/(?:Telefone|Tel|Contato|WhatsApp)\s*[:=]\s*([\(\)\d\s\-\.]+)/i);
     let endereco = extrairCampo(/(?:Endereço|End\.|Residência)\s*[:=]\s*([^,\n]+)/i);
     let dataAtendimento = extrairCampo(/(?:Data|Data do Atendimento)\s*[:=]\s*(\d{2}\/\d{2}\/\d{4})/i);
 
-    // Tratamento para Tipo de Atendimento e Assunto (marcado com X ou digitado em Outro)
+    // 2. Tipo de Atendimento (busca marcação [x] ou campo "Outro")
     let tipoAtendimento = "Demanda Espontânea";
     if (/\[\s*x\s*\]\s*Denúncia/i.test(texto) || /Denúncia/i.test(texto)) tipoAtendimento = "Denúncia";
     if (/\[\s*x\s*\]\s*Plantão/i.test(texto) || /Plantão/i.test(texto)) tipoAtendimento = "Plantão";
+    let outroTipo = extrairCampo(/Tipo de Atendimento.*?[Oo]utro\s*[:=]\s*([^,\n]+)/i);
+    if (outroTipo) tipoAtendimento = outroTipo;
 
+    // 3. Assunto (busca marcação [x] ou campo "Outro")
     let assunto = "Acompanhamento Geral";
     if (/\[\s*x\s*\]\s*Escolar/i.test(texto) || /Frequência Escolar/i.test(texto)) assunto = "Frequência Escolar";
-    if (/\[\s*x\s*\]\s*Saúde/i.test(texto) || /Saúde/i.test(texto)) assunto = "Saúde / Atendimento Médico";
-    if (/\[\s*x\s*\]\s*Abrigo/i.test(texto) || /Medida protetiva/i.test(texto)) assunto = "Medida Protetiva / Abrigo";
+    if (/\[\s*x\s*\]\s*Saúde/i.test(texto) || /Saúde/i.test(texto)) assunto = "Saúde";
+    if (/\[\s*x\s*\]\s*Abrigo/i.test(texto) || /Medida protetiva/i.test(texto)) assunto = "Medida Protetiva";
+    let outroAssunto = extrairCampo(/[Aa]ssunto.*?[Oo]utro\s*[:=]\s*([^,\n]+)/i);
+    if (outroAssunto) assunto = outroAssunto;
 
     return {
         crianca: crianca || "Não informado",
@@ -116,10 +127,9 @@ function interpretarTextoDocumento(texto) {
 function salvarDadosImportadosNoSistema(dados) {
     if (!Banco || !Banco.dados) return;
 
-    // 1. Salvar Responsável caso não exista
-    let respId = gerarId("responsavel");
+    // Salva o Responsável
     inserirRegistro("responsaveis", {
-        id: respId,
+        id: gerarId("responsavel"),
         nome: dados.responsavel,
         cpf: "000.000.000-00",
         telefone: dados.telefone,
@@ -127,25 +137,24 @@ function salvarDadosImportadosNoSistema(dados) {
         observacoes: "Importado via PDF"
     });
 
-    // 2. Salvar Criança/Adolescente
-    let criancaId = gerarId("crianca");
+    // Converte a data de nascimento de DD/MM/AAAA para formato aceito no input date (AAAA-MM-DD)
     let partesData = dados.nascimento.split("/");
     let nascIso = partesData.length === 3 ? `${partesData[2]}-${partesData[1]}-${partesData[0]}` : "2015-01-01";
-    
+
+    // Salva a Criança/Adolescente
     inserirRegistro("criancas", {
-        id: criancaId,
+        id: gerarId("crianca"),
         nome: dados.crianca,
         nascimento: nascIso,
         cpf: "",
-        escola: "Escola Pública do Paranoá",
+        escola: "Escola do Paranoá",
         responsavel: dados.responsavel,
-        observacoes: "Cadastrado via importação de PDF"
+        observacoes: "Importado via PDF"
     });
 
-    // 3. Salvar Atendimento
-    let atendimentoId = gerarId("atendimentos");
+    // Salva o Atendimento
     inserirRegistro("atendimentos", {
-        id: atendimentoId,
+        id: gerarId("atendimentos"),
         tipo: dados.tipoAtendimento,
         crianca: dados.crianca,
         responsavel: dados.responsavel,
@@ -153,4 +162,14 @@ function salvarDadosImportadosNoSistema(dados) {
         data: dados.dataAtendimento,
         status: "Em Andamento"
     });
+}
+
+function atualizarIndicadoresRelatorios() {
+    if (!Banco || !Banco.dados) return;
+    const totalGeral = (Banco.dados.atendimentos?.length || 0) + 
+                       (Banco.dados.criancas?.length || 0) + 
+                       (Banco.dados.responsaveis?.length || 0);
+
+    const cardTotal = document.getElementById("cardTotalRelatorio");
+    if (cardTotal) cardTotal.textContent = totalGeral;
 }

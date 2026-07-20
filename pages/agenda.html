@@ -1,0 +1,68 @@
+<!-- ==========================================================
+    AGENDA - SIGACTPAR
+=========================================================== -->
+
+<div class="pagina">
+    <div class="titulo-pagina">
+        <div>
+            <h2>Agenda de Compromissos</h2>
+            <small>Controle de diligências, reuniões e audiências do Conselho Tutelar.</small>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="btnNovoCompromisso" class="btn-padrao"><i class="fa-solid fa-plus"></i> Novo Compromisso</button>
+        </div>
+    </div>
+
+    <div class="painel">
+        <div class="painel-header">
+            <h3><i class="fa-solid fa-calendar-days"></i> Compromissos Agendados</h3>
+        </div>
+        <div class="tabela-container">
+            <table class="tabela-dashboard">
+                <thead>
+                    <tr>
+                        <th>Data / Hora</th>
+                        <th>Compromisso</th>
+                        <th>Local</th>
+                        <th>Responsável</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="listaAgenda">
+                    <!-- Preenchido via agenda.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="modalAgenda" class="modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Novo Compromisso</h2>
+            <button id="fecharModalAgenda" class="fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="formAgenda">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label for="tituloAgenda">Título do Compromisso *</label>
+                        <input type="text" id="tituloAgenda" required placeholder="Ex: Diligência Escolar">
+                    </div>
+                    <div class="form-group">
+                        <label for="dataAgenda">Data e Hora *</label>
+                        <input type="datetime-local" id="dataAgenda" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="localAgenda">Local *</label>
+                        <input type="text" id="localAgenda" required placeholder="Ex: Escola Classe 01">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancelarAgenda" class="btn-cancelar">Cancelar</button>
+                <button type="submit" class="btn-salvar">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,221 @@
+<!-- ==========================================================
+    PROCESSOS - SIGACTPAR
+=========================================================== -->
+
+<div class="pagina">
+
+    <!-- ==========================================================
+        CABEÇALHO DA PÁGINA & AÇÕES
+    =========================================================== -->
+    <div class="titulo-pagina">
+        <div>
+            <h2>Processos e Procedimentos</h2>
+            <small>Gerenciamento de procedimentos administrativos e medidas aplicadas.</small>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button id="btnAtualizarProcessos" class="btn-padrao" style="background: var(--cor-fundo); color: var(--texto); border: 1px solid var(--borda);">
+                <i class="fa-solid fa-rotate"></i> Atualizar
+            </button>
+            <button id="btnNovoProcesso" class="btn-padrao">
+                <i class="fa-solid fa-plus"></i> Novo Processo
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+        CARDS / INDICADORES
+    =========================================================== -->
+    <div class="dashboard-cards">
+        <div class="card azul">
+            <div class="card-icone"><i class="fa-solid fa-folder-open"></i></div>
+            <div class="card-info">
+                <span>Total de Processos</span>
+                <h3 id="cardTotalProcessos">0</h3>
+                <small>Registros gerais</small>
+            </div>
+        </div>
+
+        <div class="card laranja">
+            <div class="card-icone"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div class="card-info">
+                <span>Em Andamento</span>
+                <h3 id="cardProcessosAndamento">0</h3>
+                <small>Aguardando conclusão</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+        PAINEL DE PESQUISA E FILTROS
+    =========================================================== -->
+    <div class="painel">
+        <div class="form-grid-2" style="gap: 15px;">
+            <div class="grupo-campo" style="margin-bottom: 0;">
+                <label for="pesquisaProcesso">Pesquisar Processo</label>
+                <input type="text" id="pesquisaProcesso" placeholder="Número, Assunto ou Envolvido...">
+            </div>
+
+            <div class="grupo-campo" style="margin-bottom: 0;">
+                <label for="filtroStatusProcesso">Filtrar por Status</label>
+                <select id="filtroStatusProcesso">
+                    <option value="">Todos os Status</option>
+                    <option value="Em Andamento">Em Andamento</option>
+                    <option value="Concluído">Concluído</option>
+                    <option value="Arquivado">Arquivado</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+        TABELA DE REGISTROS
+    =========================================================== -->
+    <div class="painel">
+        <div class="painel-header" style="margin-bottom: 15px;">
+            <h3><i class="fa-solid fa-list"></i> Lista de Processos</h3>
+        </div>
+
+        <div class="tabela-container">
+            <table class="tabela-dashboard">
+                <thead>
+                    <tr>
+                        <th>Nº Processo</th>
+                        <th>Data Abertura</th>
+                        <th>Assunto / Medida</th>
+                        <th>Interessado</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="listaProcessos">
+                    <!-- Preenchido via processos.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ==========================================================
+    MODAL DE CADASTRO / EDIÇÃO
+=========================================================== -->
+<div id="modalProcesso" class="modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Formulário de Processo / Procedimento</h2>
+            <button id="fecharModalProcesso" class="fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form id="formProcesso">
+            <div class="modal-body">
+                <div class="form-grid">
+                    
+                    <div class="form-group">
+                        <label for="numeroProcesso">Número do Processo <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="numeroProcesso" placeholder="Ex: PROC-2026/001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dataProcesso">Data de Abertura <span style="color:var(--vermelho);">*</span></label>
+                        <input type="date" id="dataProcesso" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="statusProcesso">Status <span style="color:var(--vermelho);">*</span></label>
+                        <select id="statusProcesso" required>
+                            <option value="Em Andamento">Em Andamento</option>
+                            <option value="Concluído">Concluído</option>
+                            <option value="Arquivado">Arquivado</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="interessadoProcesso">Interessado / Envolvido <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="interessadoProcesso" placeholder="Nome da criança ou família" required>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="assuntoProcesso">Assunto Principal <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="assuntoProcesso" placeholder="Ex: Medida Protetiva, Encaminhamento Escolar..." required>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="descricaoProcesso">Descrição e Deliberacões <span style="color:var(--vermelho);">*</span></label>
+                        <textarea id="descricaoProcesso" placeholder="Descreva o andamento ou deliberação do processo..." required></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="cancelarProcesso" class="btn-cancelar">Cancelar</button>
+                <button type="submit" class="btn-salvar"><i class="fa-solid fa-floppy-disk"></i> Salvar Processo</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ==========================================================
+    MODAL DE VISUALIZAÇÃO
+=========================================================== -->
+<div id="modalVisualizarProcesso" class="modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Detalhes do Processo</h2>
+            <button id="fecharVisualizarProcesso" class="fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Número do Processo</label>
+                    <input type="text" id="verNumeroProcesso" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Data de Abertura</label>
+                    <input type="text" id="verDataProcesso" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <input type="text" id="verStatusProcesso" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Interessado</label>
+                    <input type="text" id="verInteressadoProcesso" readonly>
+                </div>
+                <div class="form-group full">
+                    <label>Assunto</label>
+                    <input type="text" id="verAssuntoProcesso" readonly>
+                </div>
+                <div class="form-group full">
+                    <label>Descrição e Deliberações</label>
+                    <textarea id="verDescricaoProcesso" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" id="fecharVisualizarProcessoRodape" class="btn-cancelar">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+    MODAL DE EXCLUSÃO
+=========================================================== -->
+<div id="modalExcluirProcesso" class="modal">
+    <div class="modal-box" style="width: 450px;">
+        <div class="modal-header">
+            <h2>Confirmar Exclusão</h2>
+            <button id="fecharExcluirProcesso" class="fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" style="text-align: center; padding: 25px;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: var(--vermelho); margin-bottom: 15px;"></i>
+            <p style="font-size: 15px; color: var(--texto);">Deseja realmente excluir permanentemente este processo?</p>
+        </div>
+        <div class="modal-footer" style="justify-content: center;">
+            <button type="button" id="cancelarExcluirProcesso" class="btn-cancelar" style="width: 45%;">Cancelar</button>
+            <button type="button" id="confirmarExcluirProcesso" class="btn-salvar" style="width: 45%; background: var(--vermelho);">Sim, Excluir</button>
+        </div>
+    </div>
+</div>

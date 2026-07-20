@@ -1,261 +1,152 @@
 <!-- ==========================================================
-    DASHBOARD
+    DASHBOARD - SIGACTPAR
 =========================================================== -->
 
 <section class="dashboard">
 
     <!-- ==========================
-            CARDS
-    =========================== -->
+                CARDS
+    ================================ -->
 
     <section class="dashboard-cards">
 
         <div class="card azul">
-
             <div class="card-icone">
-
                 <i class="fa-solid fa-file-lines"></i>
-
             </div>
-
             <div class="card-info">
-
                 <span>Total de Atendimentos</span>
-
                 <h2 id="totalAtendimentos">0</h2>
-
                 <small>Todos os registros</small>
-
             </div>
-
         </div>
 
         <div class="card verde">
-
             <div class="card-icone">
-
                 <i class="fa-solid fa-calendar-day"></i>
-
             </div>
-
             <div class="card-info">
-
                 <span>Atendimentos Hoje</span>
-
                 <h2 id="atendimentosHoje">0</h2>
-
                 <small>Dia atual</small>
-
             </div>
-
         </div>
 
         <div class="card laranja">
-
             <div class="card-icone">
-
                 <i class="fa-solid fa-folder-open"></i>
-
             </div>
-
             <div class="card-info">
-
                 <span>Processos</span>
-
                 <h2 id="totalProcessos">0</h2>
-
                 <small>Em andamento</small>
-
             </div>
-
         </div>
 
         <div class="card vermelho">
-
             <div class="card-icone">
-
                 <i class="fa-solid fa-triangle-exclamation"></i>
-
             </div>
-
             <div class="card-info">
-
                 <span>Pendências</span>
-
                 <h2 id="totalPendencias">0</h2>
-
                 <small>Aguardando providências</small>
-
             </div>
-
         </div>
 
     </section>
 
     <!-- ==========================
-            GRID
-    =========================== -->
+                GRID 1
+    ================================ -->
 
     <section class="dashboard-grid">
 
         <!-- Últimos Atendimentos -->
-
         <div class="painel painel-grande">
-
             <div class="painel-header">
-
                 <h3>
-
                     <i class="fa-solid fa-clock-rotate-left"></i>
-
                     Últimos Atendimentos
-
                 </h3>
-
-                <button class="btn-padrao">
-
-                    Ver Todos
-
+                <button class="btn-padrao" data-page="atendimentos" title="Ver todos os atendimentos">
+                    <i class="fa-solid fa-arrow-right"></i> Ver Todos
                 </button>
-
             </div>
 
-            <table class="tabela-dashboard">
-
-                <thead>
-
-                    <tr>
-
-                        <th>Data</th>
-
-                        <th>Criança</th>
-
-                        <th>Responsável</th>
-
-                        <th>Status</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="ultimosAtendimentos">
-
-                    <tr>
-
-                        <td colspan="4">
-
-                            Nenhum atendimento cadastrado.
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
+            <div class="tabela-dashboard-container">
+                <table class="tabela-dashboard">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Criança</th>
+                            <th>Responsável</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ultimosAtendimentos">
+                        <tr>
+                            <td colspan="4" class="vazio">
+                                Nenhum atendimento cadastrado.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Agenda -->
-
         <div class="painel">
-
             <div class="painel-header">
-
                 <h3>
-
                     <i class="fa-solid fa-calendar-check"></i>
-
                     Agenda de Hoje
-
                 </h3>
-
             </div>
-
             <div id="agendaHoje" class="vazio">
-
                 Nenhum compromisso agendado.
-
             </div>
-
         </div>
 
     </section>
 
     <!-- ==========================
-            SEGUNDA LINHA
-    =========================== -->
+                GRID 2
+    ================================ -->
 
     <section class="dashboard-grid">
 
         <!-- Veículos -->
-
         <div class="painel">
-
             <div class="painel-header">
-
                 <h3>
-
                     <i class="fa-solid fa-car-side"></i>
-
                     Veículos
-
                 </h3>
-
             </div>
-
             <div class="status">
-
                 <div>
-
                     <strong>Disponíveis</strong>
-
-                    <span id="veiculosDisponiveis">
-
-                        0
-
-                    </span>
-
+                    <span id="veiculosDisponiveis">0</span>
                 </div>
-
                 <div>
-
                     <strong>Manutenção</strong>
-
-                    <span id="veiculosManutencao">
-
-                        0
-
-                    </span>
-
+                    <span id="veiculosManutencao">0</span>
                 </div>
-
             </div>
-
         </div>
 
         <!-- Avisos -->
-
         <div class="painel">
-
             <div class="painel-header">
-
                 <h3>
-
                     <i class="fa-solid fa-bullhorn"></i>
-
                     Avisos
-
                 </h3>
-
             </div>
-
             <div id="avisosSistema" class="vazio">
-
                 Nenhum aviso disponível.
-
             </div>
-
         </div>
 
     </section>

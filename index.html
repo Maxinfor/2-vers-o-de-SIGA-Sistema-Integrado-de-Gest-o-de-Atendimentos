@@ -1,440 +1,159 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <meta
-        name="description"
-        content="SIGACTPAR - Sistema Integrado de Gestão de Atendimentos do Conselho Tutelar do Paranoá">
-
-    <title>SIGACTPAR | Sistema Integrado de Gestão do Conselho Tutelar</title>
-
-    <!-- Favicon -->
-
-    <link
-        rel="icon"
-        href="img/favicon.ico">
-
-    <!-- Font Awesome -->
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-    <!-- Chart.js -->
-
-    <script
-        defer
-        src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- CSS -->
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGACTPAR - Sistema de Gestão do Conselho Tutelar</title>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos do Sistema -->
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/sidebar.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/cards.css">
-    <link rel="stylesheet" href="css/formularios.css">
-    <link rel="stylesheet" href="css/tabelas.css">
-    <link rel="stylesheet" href="css/modais.css">
-    <link rel="stylesheet" href="css/footer.css">
-    <link rel="stylesheet" href="css/responsivo.css">
-
 </head>
-
-<body data-theme="light">
+<body>
 
     <!-- ==========================================================
-                                LAYOUT
+        TELA DE CARREGAMENTO (SPINNER)
     =========================================================== -->
+    <div id="loading" class="loading-overlay oculto">
+        <div class="spinner"></div>
+    </div>
 
-    <div class="layout">
+    <!-- ==========================================================
+        ESTRUTURA PRINCIPAL (LAYOUT)
+    =========================================================== -->
+    <div class="app-container">
 
         <!-- ==========================================================
-                                    SIDEBAR
+            BARRA LATERAL / MENU (SIDEBAR)
         =========================================================== -->
-
-        <aside
-            class="sidebar"
-            id="sidebar">
-
-            <!-- Logo -->
-
-            <div class="logo">
-
-                <i class="fa-solid fa-scale-balanced"></i>
-
-                <div>
-
-                    <h2>SIGACTPAR</h2>
-
-                    <span>Conselho Tutelar do Paranoá</span>
-
-                </div>
-
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fa-solid fa-shield-child"></i> <span>SIGACTPAR</span></h2>
+                <small>Conselho Tutelar</small>
             </div>
 
-            <!-- ======================================================
-                                        MENU
-            ======================================================= -->
+            <div class="sidebar-user">
+                <div class="user-avatar"><i class="fa-solid fa-user-tie"></i></div>
+                <div class="user-info">
+                    <span id="nomeUsuarioLogado">Conselheiro(a)</span>
+                    <small id="dataAtual">Carregando...</small>
+                </div>
+            </div>
 
             <nav class="menu">
-
                 <ul>
-
                     <li class="ativo">
-
-                        <a
-                            href="#"
-                            data-page="dashboard"
-                            title="Dashboard">
-
-                            <i class="fa-solid fa-house"></i>
-
+                        <a href="#" data-page="dashboard">
+                            <i class="fa-solid fa-chart-pie"></i>
                             <span>Dashboard</span>
-
                         </a>
-
                     </li>
-
                     <li>
-
-                        <a
-                            href="#"
-                            data-page="atendimentos"
-                            title="Atendimentos">
-
-                            <i class="fa-solid fa-file-lines"></i>
-
+                        <a href="#" data-page="atendimentos">
+                            <i class="fa-solid fa-clipboard-user"></i>
                             <span>Atendimentos</span>
-
                         </a>
-
                     </li>
-
                     <li>
-
-                        <a href="#" data-page="criancas" title="Crianças e Adolescentes">
+                        <a href="#" data-page="criancas">
                             <i class="fa-solid fa-child"></i>
-                            <span>Crianças e Adolescentes</span>
+                            <span>Crianças / Adolescentes</span>
                         </a>
-
                     </li>
-
                     <li>
-
-                        <a
-                            href="#"
-                            data-page="responsaveis"
-                            title="Responsáveis">
-
+                        <a href="#" data-page="responsaveis">
                             <i class="fa-solid fa-people-group"></i>
-
                             <span>Responsáveis</span>
-
                         </a>
-
                     </li>
-
                     <li>
-
-                        <a
-                            href="#"
-                            data-page="processos"
-                            title="Processos">
-
+                        <a href="#" data-page="processos">
                             <i class="fa-solid fa-folder-open"></i>
-
                             <span>Processos</span>
-
                         </a>
-
                     </li>
-
                     <li>
-
-                        <a
-                            href="#"
-                            data-page="agenda"
-                            title="Agenda">
-
+                        <a href="#" data-page="agenda">
                             <i class="fa-solid fa-calendar-days"></i>
-
                             <span>Agenda</span>
-
                         </a>
-
                     </li>
-
                     <li>
-
-                        <a
-                            href="#"
-                            data-page="relatorios"
-                            title="Relatórios">
-
-                            <i class="fa-solid fa-chart-column"></i>
-
+                        <a href="#" data-page="relatorios">
+                            <i class="fa-solid fa-file-lines"></i>
                             <span>Relatórios</span>
-
                         </a>
-
                     </li>
-
                     <li>
-
-                        <a
-                            href="#"
-                            data-page="veiculos"
-                            title="Veículos">
-
-                            <i class="fa-solid fa-car-side"></i>
-
+                        <a href="#" data-page="veiculos">
+                            <i class="fa-solid fa-car"></i>
                             <span>Veículos</span>
-
                         </a>
-
                     </li>
-
                     <li>
-
-                        <a
-                            href="#"
-                            data-page="patrimonio"
-                            title="Patrimônio">
-
-                            <i class="fa-solid fa-box-archive"></i>
-
+                        <a href="#" data-page="patrimonio">
+                            <i class="fa-solid fa-boxes-stacked"></i>
                             <span>Patrimônio</span>
-
                         </a>
-
                     </li>
-
                 </ul>
-
             </nav>
 
-            <!-- ======================================================
-                                        PERFIL
-            ======================================================= -->
-
-            <div class="perfil">
-
-                <img
-                    src="img/avatar.png"
-                    alt="Administrador">
-
-                <div>
-
-                    <strong>Administrador</strong>
-
-                    <small id="dataAtual"></small>
-
-                </div>
-
+            <div class="sidebar-footer">
+                <button id="btnSairSistema" class="btn-sair" title="Sair do Sistema">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Sair do Sistema</span>
+                </button>
             </div>
-
-            <!-- ======================================================
-                                    MENU INFERIOR
-            ======================================================= -->
-
-            <div class="menu-inferior">
-
-                <a href="#">
-
-                    <i class="fa-solid fa-gear"></i>
-
-                    Configurações
-
-                </a>
-
-                <a href="#">
-
-                    <i class="fa-solid fa-circle-question"></i>
-
-                    Ajuda
-
-                </a>
-
-                <a href="#">
-
-                    <i class="fa-solid fa-right-from-bracket"></i>
-
-                    Sair
-
-                </a>
-
-            </div>
-
         </aside>
 
         <!-- ==========================================================
-                                ÁREA PRINCIPAL
+            CONTEÚDO PRINCIPAL
         =========================================================== -->
-
-        <div class="main">
-
-            <!-- ======================================================
-                                        HEADER
-            ======================================================= -->
-
-            <header class="header">
-
-                <div class="header-esquerda">
-
-                    <button
-                        id="btnMenu"
-                        type="button">
-
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button id="btnMenu" class="btn-menu-mobile" title="Abrir menu">
                         <i class="fa-solid fa-bars"></i>
-
                     </button>
-
-                    <h1 id="tituloPagina">
-
-                        Dashboard
-
-                    </h1>
-
+                    <h1 id="tituloPagina">Dashboard</h1>
                 </div>
 
-                <div class="header-direita">
-
-                    <!-- Pesquisa -->
-
-                    <div class="pesquisa">
-
-                        <i class="fa-solid fa-magnifying-glass"></i>
-
-                        <input
-                            id="pesquisaGlobal"
-                            type="search"
-                            placeholder="Pesquisar no sistema...">
-
-                    </div>
-
-                    <!-- Notificações -->
-
-                    <button
-                        class="notificacao"
-                        type="button">
-
-                        <i class="fa-solid fa-bell"></i>
-
-                    </button>
-
-                    <!-- Usuário -->
-
-                    <div class="usuario">
-
-                        <img
-                            src="img/avatar.png"
-                            alt="Administrador">
-
-                        <div>
-
-                            <strong>Administrador</strong>
-
-                            <small>Conselheiro Tutelar</small>
-
-                        </div>
-
-                    </div>
-
+                <div class="topbar-actions">
+                    <span class="badge-versao">v1.0 A1</span>
                 </div>
-
             </header>
 
-            <!-- ======================================================
-                                        LOADING
-            ======================================================= -->
-
-            <div
-                id="loading"
-                class="loading oculto">
-
-                <div class="spinner"></div>
-
+            <!-- Área dinâmica onde as páginas (HTML) são injetadas -->
+            <div id="conteudo" class="conteudo-dinamico">
+                <!-- O conteúdo da página ativa carrega aqui via JS -->
             </div>
-
-            <!-- ======================================================
-                                CONTEÚDO DINÂMICO
-            ======================================================= -->
-
-            <main
-                id="conteudo"
-                class="conteudo">
-
-                <!-- dashboard.html será carregado aqui -->
-
-            </main>
-
-            <!-- ======================================================
-                                            FOOTER
-            ======================================================= -->
-
-            <footer class="footer">
-
-                <div>
-
-                    SIGACTPAR © 2026
-
-                </div>
-
-                <div>
-
-                    Sistema Integrado de Gestão de Atendimentos
-
-                </div>
-
-                <div>
-
-                    Conselho Tutelar do Paranoá
-
-                </div>
-
-            </footer>
-
-        </div>
+        </main>
 
     </div>
 
     <!-- ==========================================================
-                                JAVASCRIPT
-    ========================================================== -->
-
-    <!-- Banco de Dados -->
-
+        SCRIPTS DO SISTEMA (ORDEM DE DEPENDÊNCIA)
+    =========================================================== -->
+    <!-- Banco de dados local / Mock -->
     <script defer src="js/banco.js"></script>
 
-    <!-- Sistema -->
-
-    <script defer src="js/menu.js"></script>
-
-    <script defer src="js/modal.js"></script>
-
+    <!-- Controladores dos módulos -->
     <script defer src="js/dashboard.js"></script>
-
     <script defer src="js/atendimentos.js"></script>
-
     <script defer src="js/criancas.js"></script>
-
-   
+    <script defer src="js/responsaveis.js"></script>
     <script defer src="js/processos.js"></script>
     <script defer src="js/agenda.js"></script>
-    <script defer src="js/responsaveis.js"></script>
 
-    <!-- Inicialização -->
-
+    <!-- Roteador e Menu (deve vir por último para carregar as páginas) -->
+    <script defer src="js/menu.js"></script>
     <script defer src="js/app.js"></script>
 
 </body>
-
 </html>

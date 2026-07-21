@@ -15,7 +15,8 @@ function configurarEventosPatrimonio() {
     if (btnNovo) {
         btnNovo.onclick = () => {
             patrimonioEditando = null;
-            document.getElementById("formPatrimonio").reset();
+            const form = document.getElementById("formPatrimonio");
+            if (form) form.reset();
             abrirModalPatrimonio();
         };
     }
@@ -48,6 +49,7 @@ function abrirModalPatrimonio() {
 function fecharModalPatrimonio() {
     const modal = document.getElementById("modalPatrimonio");
     if (modal) modal.classList.remove("ativo");
+    patrimonioEditando = null;
 }
 
 function atualizarIndicadoresPatrimonio() {
@@ -96,7 +98,8 @@ function atualizarTabelaPatrimonio() {
     let lista = Banco.dados.patrimonio.filter(item => 
         (item.tombamento && item.tombamento.toLowerCase().includes(termo)) ||
         (item.descricao && item.descricao.toLowerCase().includes(termo)) ||
-        (item.categoria && item.categoria.toLowerCase().includes(termo))
+        (item.categoria && item.categoria.toLowerCase().includes(termo)) ||
+        (item.localizacao && item.localizacao.toLowerCase().includes(termo))
     );
 
     if (lista.length === 0) {

@@ -1,0 +1,508 @@
+/* ==========================================================
+   PAINEL
+   SIGACTPAR
+========================================================== */
+
+/* ==========================================================
+   PÁGINA
+========================================================== */
+
+.pagina{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:25px;
+
+}
+
+/* ==========================================================
+   TÍTULO DA PÁGINA
+========================================================== */
+
+.titulo-pagina{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:20px;
+
+    flex-wrap:wrap;
+
+}
+
+.titulo-pagina h1{
+
+    font-size:30px;
+
+    font-weight:700;
+
+}
+
+.titulo-pagina h2{
+
+    font-size:16px;
+
+    font-weight:400;
+
+    color:var(--texto-secundario);
+
+    max-width:800px;
+
+}
+
+/* ==========================================================
+   CARDS
+========================================================== */
+
+.dashboard-cards{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+
+    gap:20px;
+
+}
+
+.card{
+
+    background:var(--cor-card);
+
+    border-radius:var(--raio);
+
+    padding:22px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    box-shadow:var(--sombra);
+
+    transition:var(--transicao);
+
+    border:1px solid transparent;
+
+}
+
+.card:hover{
+
+    transform:translateY(-5px);
+
+    border-color:var(--borda);
+
+}
+
+.card-icone{
+
+    width:65px;
+
+    height:65px;
+
+    border-radius:15px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:#FFF;
+
+    font-size:26px;
+
+    flex-shrink:0;
+
+}
+
+.card-info{
+
+    flex:1;
+
+}
+
+.card-info span{
+
+    display:block;
+
+    color:var(--texto-secundario);
+
+    font-size:14px;
+
+    margin-bottom:5px;
+
+}
+
+.card-info h2,
+
+.card-info h3{
+
+    font-size:34px;
+
+    color:var(--texto);
+
+    margin-bottom:5px;
+
+}
+
+.card-info small{
+
+    color:var(--texto-secundario);
+
+}
+
+/* ==========================================================
+   CORES DOS CARDS
+========================================================== */
+
+.card.azul .card-icone{
+
+    background:#2563EB;
+
+}
+
+.card.verde .card-icone{
+
+    background:#10B981;
+
+}
+
+.card.laranja .card-icone{
+
+    background:#F59E0B;
+
+}
+
+.card.vermelho .card-icone{
+
+    background:#EF4444;
+
+}
+
+.card.roxo .card-icone{
+
+    background:#7C3AED;
+
+}
+
+/* ==========================================================
+   GRID
+========================================================== */
+
+.dashboard-grid{
+
+    display:grid;
+
+    grid-template-columns:2fr 1fr;
+
+    gap:20px;
+
+}
+
+.dashboard-graficos{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:20px;
+
+}
+
+.dashboard-inferior{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:20px;
+
+}
+
+/* ==========================================================
+   PAINÉIS
+========================================================== */
+
+.painel{
+
+    background:var(--cor-card);
+
+    border-radius:var(--raio);
+
+    box-shadow:var(--sombra);
+
+    padding:20px;
+
+}
+
+.painel-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.painel-header h3{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    font-size:18px;
+
+}
+
+.painel-header i{
+
+    color:var(--cor-secundaria);
+
+}
+
+/* ==========================================================
+   TABELAS
+========================================================== */
+
+.tabela-container{
+
+    overflow:auto;
+
+}
+
+.tabela-dashboard{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+.tabela-dashboard thead{
+
+    background:#F8FAFC;
+
+}
+
+.tabela-dashboard th{
+
+    padding:14px;
+
+    text-align:left;
+
+    color:var(--texto-secundario);
+
+    font-size:14px;
+
+    border-bottom:1px solid var(--borda);
+
+}
+
+.tabela-dashboard td{
+
+    padding:14px;
+
+    border-bottom:1px solid var(--borda);
+
+}
+
+.tabela-dashboard tbody tr{
+
+    transition:var(--transicao);
+
+}
+
+.tabela-dashboard tbody tr:hover{
+
+    background:#F9FAFB;
+
+}
+
+/* ==========================================================
+   STATUS
+========================================================== */
+
+.status{
+
+    display:inline-flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    min-width:90px;
+
+    padding:6px 12px;
+
+    border-radius:30px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+.status-verde{
+
+    background:#D1FAE5;
+
+    color:#065F46;
+
+}
+
+.status-vermelho{
+
+    background:#FEE2E2;
+
+    color:#991B1B;
+
+}
+
+.status-laranja{
+
+    background:#FEF3C7;
+
+    color:#92400E;
+
+}
+
+.status-azul{
+
+    background:#DBEAFE;
+
+    color:#1E40AF;
+
+}
+
+/* ==========================================================
+   GRÁFICOS
+========================================================== */
+
+.grafico{
+
+    width:100%;
+
+    min-height:320px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+canvas{
+
+    max-width:100%;
+
+}
+
+/* ==========================================================
+   LISTAS
+========================================================== */
+
+.lista-dashboard{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+.lista-dashboard li{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:14px;
+
+    background:#F8FAFC;
+
+    border-radius:10px;
+
+}
+
+/* ==========================================================
+   VAZIO
+========================================================== */
+
+.vazio{
+
+    padding:50px;
+
+    text-align:center;
+
+    color:var(--texto-secundario);
+
+}
+
+/* ==========================================================
+   INDICADORES
+========================================================== */
+
+.indicadores{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+
+    gap:20px;
+
+}
+
+.indicador{
+
+    background:var(--cor-card);
+
+    border-radius:var(--raio);
+
+    padding:18px;
+
+    text-align:center;
+
+    box-shadow:var(--sombra);
+
+}
+
+.indicador h2{
+
+    font-size:32px;
+
+    margin-bottom:8px;
+
+}
+
+.indicador span{
+
+    color:var(--texto-secundario);
+
+}
+
+/* ==========================================================
+   ANIMAÇÃO
+========================================================== */
+
+.card,
+
+.painel{
+
+    animation:fade .35s ease;
+
+}

@@ -188,3 +188,62 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     });
 });
+/* ==========================================================
+   ATUALIZADOR GLOBAL DE BOTÕES
+========================================================== */
+document.addEventListener("click", function(e) {
+    // Procura se o elemento clicado é um botão de atualizar ou possui o ID/classe correspondente
+    const btn = e.target.closest("#btnAtualizar, .btn-atualizar, [id^='btnAtualizar']");
+    if (!btn) return;
+
+    // Descobre qual página está ativa no momento pelo menu
+    const linkAtivo = document.querySelector(".menu li.ativo a, .sidebar .menu li.ativo a");
+    const paginaAtual = linkAtivo ? linkAtivo.getAttribute("data-page") : "dashboard";
+
+    // Executa a função de atualização específica de cada módulo
+    switch(paginaAtual) {
+        case "dashboard":
+            if (typeof iniciarDashboard === "function") iniciarDashboard();
+            break;
+        case "atendimentos":
+            const pesquisaAtend = document.getElementById("pesquisaAtendimento");
+            if (pesquisaAtend) pesquisaAtend.value = "";
+            if (typeof atualizarTabelaAtendimentos === "function") atualizarTabelaAtendimentos();
+            if (typeof calcularIndicadoresAtendimentos === "function") calcularIndicadoresAtendimentos();
+            break;
+        case "criancas":
+            if (typeof atualizarTabelaCriancas === "function") atualizarTabelaCriancas();
+            break;
+        case "responsaveis":
+            if (typeof atualizarTabelaResponsaveis === "function") atualizarTabelaResponsaveis();
+            break;
+        case "processos":
+            if (typeof atualizarTabelaProcessos === "function") atualizarTabelaProcessos();
+            break;
+        case "agenda":
+            if (typeof iniciarAgenda === "function") iniciarAgenda();
+            break;
+        case "relatorios":
+            if (typeof gerarRelatorios === "function") gerarRelatorios();
+            break;
+        case "veiculos":
+            if (typeof atualizarTabelaVeiculos === "function") atualizarTabelaVeiculos();
+            break;
+        case "patrimonio":
+            if (typeof atualizarTabelaPatrimonio === "function") atualizarTabelaPatrimonio();
+            break;
+        default:
+            // Fallback geral: reinicializa o banco e recarrega a página atual
+            if (typeof Banco !== "undefined" && Banco.inicializar) Banco.inicializar();
+            location.reload();
+            break;
+    }
+
+    // Feedback visual opcional (dispara um pequeno efeito no botão)
+    const icone = btn.querySelector("i");
+    if (icone) {
+        icone.classList.add("fa-spin");
+        setTimeout(() => icone.classList.remove("fa-spin"), 600);
+    }
+});
+

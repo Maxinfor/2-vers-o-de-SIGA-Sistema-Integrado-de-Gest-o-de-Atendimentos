@@ -1,6 +1,8 @@
 /* ==========================================================
-   SIGACTPAR - MÓDULO DE AGENDA
+   SIGACTPAR - MÓDULO DE AGENDA (COMPLETO COM EDIÇÃO)
 ========================================================== */
+
+let agendaEditando = null;
 
 function iniciarAgenda() {
     configurarEventosAgenda();
@@ -12,6 +14,7 @@ function configurarEventosAgenda() {
     const btnNovo = document.getElementById("btnNovoCompromisso");
     if (btnNovo) {
         btnNovo.onclick = () => {
+            agendaEditando = null;
             const form = document.getElementById("formAgenda");
             if (form) form.reset();
             const modal = document.getElementById("modalAgenda");
@@ -33,12 +36,14 @@ function configurarEventosAgenda() {
         fechar.onclick = () => {
             const modal = document.getElementById("modalAgenda");
             if (modal) modal.classList.remove("ativo");
+            agendaEditando = null;
         };
     }
     if (cancelar) {
         cancelar.onclick = () => {
             const modal = document.getElementById("modalAgenda");
             if (modal) modal.classList.remove("ativo");
+            agendaEditando = null;
         };
     }
 
@@ -74,7 +79,7 @@ function salvarCompromisso(e) {
     }
 
     const objeto = {
-        id: gerarId("agenda"),
+        id: agendaEditando ?? gerarId("agenda"),
         titulo: document.getElementById("tituloAgenda").value.trim(),
         dataHoraRaw: dataHoraRaw,
         dataHora: dataFormatada,
@@ -82,13 +87,39 @@ function salvarCompromisso(e) {
         responsavel: document.getElementById("responsavelAgenda").value.trim() || "Conselheiro(a) Plantonista"
     };
 
-    inserirRegistro("agenda", objeto);
+    if (agendaEditando === null) {
+        inserirRegistro("agenda", objeto);
+    } else {
+        atualizarRegistro("agenda", objeto);
+    }
 
     const modal = document.getElementById("modalAgenda");
     if (modal) modal.classList.remove("ativo");
+    agendaEditando = null;
 
     atualizarTabelaAgenda();
     atualizarIndicadoresAgenda();
+}
+
+function editarCompromisso(id) {
+    if (!Banco || !Banco.dados || !Banco.dados.agenda) return;
+    const item = Banco.dados.agenda.find(a => Number(a.id) === Number(id));
+    if (!item) return;
+
+    agendaEditando = item.id;
+
+    const inputTitulo = document.getElementById("tituloAgenda");
+    const inputData = document.getElementById("dataAgenda");
+    const inputLocal = document.getElementById("localAgenda");
+    const inputResponsavel = document.getElementById("responsavelAgenda");
+
+    if (inputTitulo) inputTitulo.value = item.titulo || "";
+    if (inputData) inputData.value = item.dataHoraRaw || "";
+    if (inputLocal) inputLocal.value = item.local || "";
+    if (inputResponsavel) inputResponsavel.value = item.responsavel || "";
+
+    const modal = document.getElementById("modalAgenda");
+    if (modal) modal.classList.add("ativo");
 }
 
 function atualizarTabelaAgenda() {
@@ -117,6 +148,9 @@ function atualizarTabelaAgenda() {
             <td>${item.responsavel}</td>
             <td>
                 <div class="tabela-acoes">
+                    <button class="btn-acao-tabela btn-editar" onclick="editarCompromisso(${item.id})" title="Editar">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
                     <button class="btn-acao-tabela btn-excluir" onclick="removerRegistro('agenda', ${item.id}); atualizarTabelaAgenda(); atualizarIndicadoresAgenda();" title="Excluir">
                         <i class="fa-solid fa-trash"></i>
                     </button>

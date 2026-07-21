@@ -1,6 +1,7 @@
 /* ==========================================================
    SIGACTPAR
    ESTILO GLOBAL
+   Arquivo: style.css
 ========================================================== */
 
 /* ==========================================================
@@ -18,72 +19,93 @@
 }
 
 /* ==========================================================
-   VARIÁVEIS
+   VARIÁVEIS GLOBAIS
 ========================================================== */
 
 :root{
 
-    /* CORES PRINCIPAIS */
+    /* ======================================================
+       CORES PRINCIPAIS
+    ====================================================== */
 
     --cor-primaria:#1E3A8A;
     --cor-secundaria:#2563EB;
     --cor-hover:#1D4ED8;
 
-    /* STATUS */
+    /* ======================================================
+       CORES DE STATUS
+    ====================================================== */
 
     --verde:#10B981;
     --laranja:#F59E0B;
     --vermelho:#EF4444;
     --roxo:#7C3AED;
 
-    /* FUNDOS */
+    /* ======================================================
+       FUNDOS
+    ====================================================== */
 
     --cor-fundo:#F4F6F9;
     --cor-card:#FFFFFF;
 
-    /* TEXTOS */
+    /* ======================================================
+       TEXTOS
+    ====================================================== */
 
     --texto:#1F2937;
     --texto-secundario:#6B7280;
 
-    /* BORDAS */
+    /* ======================================================
+       BORDAS
+    ====================================================== */
 
     --borda:#E5E7EB;
 
-    /* TAMANHOS */
+    /* ======================================================
+       TAMANHOS
+    ====================================================== */
 
     --sidebar:270px;
     --header:75px;
 
-    /* EFEITOS */
+    /* ======================================================
+       ESPAÇAMENTOS
+    ====================================================== */
+
+    --esp-5:5px;
+    --esp-10:10px;
+    --esp-15:15px;
+    --esp-20:20px;
+    --esp-25:25px;
+    --esp-30:30px;
+    --esp-40:40px;
+    --esp-50:50px;
+
+    /* ======================================================
+       BORDAS
+    ====================================================== */
 
     --raio:14px;
+    --raio-pequeno:8px;
+    --raio-grande:20px;
+
+    /* ======================================================
+       SOMBRAS
+    ====================================================== */
+
     --sombra:0 6px 18px rgba(0,0,0,.08);
+
+    /* ======================================================
+       TRANSIÇÕES
+    ====================================================== */
+
     --transicao:.30s ease;
 
-}
+    /* ======================================================
+       FONTES
+    ====================================================== */
 
-/* ==========================================================
-   TEMA ESCURO
-========================================================== */
-
-body[data-theme="dark"]{
-
-    --cor-fundo:#111827;
-    --cor-card:#1F2937;
-    --texto:#F9FAFB;
-    --texto-secundario:#D1D5DB;
-    --borda:#374151;
-
-}
-
-/* ==========================================================
-   BODY
-========================================================== */
-
-body{
-
-    font-family:
+    --fonte:
 
         "Segoe UI",
 
@@ -94,6 +116,48 @@ body{
         Verdana,
 
         sans-serif;
+
+    /* ======================================================
+       CAMADAS
+    ====================================================== */
+
+    --z-sidebar:1000;
+
+    --z-header:1100;
+
+    --z-modal:3000;
+
+    --z-loading:5000;
+
+    --z-toast:6000;
+
+}
+
+/* ==========================================================
+   TEMA ESCURO
+========================================================== */
+
+body[data-theme="dark"]{
+
+    --cor-fundo:#111827;
+
+    --cor-card:#1F2937;
+
+    --texto:#F9FAFB;
+
+    --texto-secundario:#D1D5DB;
+
+    --borda:#374151;
+
+}
+
+/* ==========================================================
+   BODY
+========================================================== */
+
+body{
+
+    font-family:var(--fonte);
 
     background:var(--cor-fundo);
 
@@ -113,13 +177,16 @@ a{
 
     text-decoration:none;
 
+    transition:var(--transicao);
+
 }
 
 /* ==========================================================
    LISTAS
 ========================================================== */
 
-ul{
+ul,
+ol{
 
     list-style:none;
 
@@ -135,9 +202,9 @@ button{
 
     outline:none;
 
-    cursor:pointer;
-
     background:none;
+
+    cursor:pointer;
 
     transition:var(--transicao);
 
@@ -153,15 +220,15 @@ textarea{
 
     width:100%;
 
-    font:inherit;
-
-    color:var(--texto);
+    border:none;
 
     outline:none;
 
-    border:none;
-
     background:transparent;
+
+    color:var(--texto);
+
+    font:inherit;
 
 }
 
@@ -174,6 +241,8 @@ img{
     display:block;
 
     max-width:100%;
+
+    height:auto;
 
 }
 
@@ -201,11 +270,11 @@ img{
 
     margin-left:var(--sidebar);
 
-    min-height:100vh;
-
     display:flex;
 
     flex-direction:column;
+
+    min-height:100vh;
 
     transition:var(--transicao);
 
@@ -219,7 +288,7 @@ img{
 
     flex:1;
 
-    padding:25px;
+    padding:var(--esp-25);
 
     overflow-y:auto;
 
@@ -235,7 +304,21 @@ img{
 
     flex-direction:column;
 
-    gap:25px;
+    gap:var(--esp-25);
+
+}
+
+/* ==========================================================
+   CONTAINER
+========================================================== */
+
+.container{
+
+    width:100%;
+
+    max-width:1800px;
+
+    margin:auto;
 
 }
 
@@ -251,161 +334,20 @@ img{
 
     box-shadow:var(--sombra);
 
-    padding:20px;
+    padding:var(--esp-20);
 
 }
 
 /* ==========================================================
-   TÍTULOS
+   CARDS
 ========================================================== */
 
-h1,
-h2,
-h3,
-h4{
+.card{
 
-    color:var(--texto);
+    background:var(--cor-card);
 
-    font-weight:600;
+    border-radius:var(--raio);
 
-}
-
-/* ==========================================================
-   TEXTOS
-========================================================== */
-
-small{
-
-    color:var(--texto-secundario);
-
-}
-
-/* ==========================================================
-   UTILITÁRIOS
-========================================================== */
-
-.oculto{
-
-    display:none !important;
-
-}
-
-.centralizar{
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-}
-
-.full{
-
-    grid-column:1/-1;
-
-}
-
-.texto-centro{
-
-    text-align:center;
-
-}
-
-/* ==========================================================
-   LOADING
-========================================================== */
-
-.loading{
-
-    position:fixed;
-
-    inset:0;
-
-    background:rgba(255,255,255,.60);
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    z-index:9999;
-
-}
-
-.spinner{
-
-    width:45px;
-
-    height:45px;
-
-    border:5px solid #E5E7EB;
-
-    border-top:5px solid var(--cor-secundaria);
-
-    border-radius:50%;
-
-    animation:girar 1s linear infinite;
-
-}
-
-@keyframes girar{
-
-    to{
-
-        transform:rotate(360deg);
-
-    }
-
-}
-
-/* ==========================================================
-   SCROLLBAR
-========================================================== */
-
-::-webkit-scrollbar{
-
-    width:10px;
-
-}
-
-::-webkit-scrollbar-track{
-
-    background:#F3F4F6;
-
-}
-
-::-webkit-scrollbar-thumb{
-
-    background:#C5C5C5;
-
-    border-radius:30px;
-
-}
-
-::-webkit-scrollbar-thumb:hover{
-
-    background:#9CA3AF;
-
-}
-
-/* ==========================================================
-   RESPONSIVO
-========================================================== */
-
-@media(max-width:992px){
-
-    .main{
-
-        margin-left:0;
-
-    }
-
-    #conteudo{
-
-        padding:18px;
-
-    }
+    box-shadow:var(--sombra);
 
 }

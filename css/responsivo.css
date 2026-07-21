@@ -1,0 +1,117 @@
+/* ==========================================================
+   RESPONSIVO GLOBAL - SIGACTPAR
+========================================================== */
+
+/* Ajustes gerais para telas médias (Tablets / Laptops compactos) */
+@media(max-width: 1024px) {
+    .main {
+        margin-left: 0;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.ativo {
+        transform: translateX(0);
+    }
+
+    .pesquisa {
+        width: 250px;
+    }
+}
+
+/* Ajustes para Dispositivos Móveis (Smartphones) */
+@media(max-width: 768px) {
+    .header {
+        padding: 0 15px;
+    }
+
+    .pesquisa {
+        display: none; /* Oculta a barra de pesquisa expandida no mobile */
+    }
+
+    #tituloPagina {
+        font-size: 20px;
+    }
+
+    .usuario div {
+        display: none; /* Oculta o texto do usuário no header, exibindo apenas o avatar */
+    }
+
+    #conteudo {
+        padding: 15px;
+    }
+
+    /* Gráficos e grids em pilha única */
+    .dashboard-grid,
+    .dashboard-graficos,
+    .dashboard-inferior,
+    .form-grid,
+    .form-grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    /* Modais ocupando a tela de forma otimizada */
+    .modal {
+        padding: 10px;
+    }
+
+    .modal-box {
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 12px;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 15px 18px;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .modal-footer button {
+        width: 100%;
+    }
+
+    /* Tabelas responsivas */
+    .tabela-container {
+        border-radius: 10px;
+    }
+
+    .tabela-dashboard th,
+    .tabela-dashboard td {
+        padding: 12px 10px;
+        font-size: 13px;
+    }
+}
+
+/* Ajustes para Smartphones Pequenos */
+@media(max-width: 480px) {
+    .logo h2 {
+        font-size: 18px;
+    }
+
+    .logo i {
+        font-size: 32px;
+    }
+
+    .card-icone {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    .card-info h2,
+    .card-info h3 {
+        font-size: 24px;
+    }
+
+    .btn-padrao {
+        width: 100%;
+        justify-content: center;
+    }
+}

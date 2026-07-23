@@ -1,50 +1,34 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Se o seu sistema chama uma função específica para carregar a página de relatórios:
-    carregarPaginaRelatorios();
+    observarCarregamentoRelatorios();
 });
 
-function carregarPaginaRelatorios() {
-    const conteudo = document.getElementById("conteudo");
-    if (!conteudo) return;
+// Como o sistema carrega as páginas dinamicamente via menu, usamos um observador ou verificador
+function observarCarregamentoRelatorios() {
+    // Tenta configurar imediatamente caso já esteja na tela
+    configurarLeitorPdf();
 
-    // Injeta o HTML estruturado corretamente sem quebrar o JavaScript
-    conteudo.innerHTML = `
-        <div class="pagina">
-            <div class="titulo-pagina">
-                <h2>Relatórios Estatísticos</h2>
-                <small>Geração de relatórios gerenciais das ocorrências e atendimentos.</small>
-            </div>
-            
-            <div class="painel" style="padding: 30px; text-align: center;"> 
-                <i class="fa-solid fa-chart-column" style="font-size: 48px; color: var(--azul); margin-bottom: 15px;"></i>
-                <h3>Módulo de Relatórios Integrados</h3>
-                <p style="color: var(--texto-secundario); margin-top: 10px; margin-bottom: 25px;">Utilize os filtros globais para exportar dados estatísticos consolidados do Conselho Tutelar ou importe um PDF preenchido.</p>
-                
-                <div class="secao-importacao-pdf" style="margin-top: 20px; padding: 20px; border: 1px dashed var(--borda, #ccc); border-radius: 8px; background: var(--fundo-card, #f9f9f9);">
-                    <h4 style="margin-bottom: 8px;">Importar Ficha de Atendimento via PDF</h4>
-                    <p style="font-size: 14px; color: var(--texto-secundario); margin-bottom: 15px;">Selecione o PDF preenchido para o sistema extrair e carregar os dados automaticamente.</p>
-                    
-                    <input type="file" id="inputPdfImport" accept="application/pdf" style="display: none;">
-                    
-                    <button type="button" id="btnImportarPdfRelatorios" class="btn-primario" style="padding: 10px 20px; cursor: pointer;">
-                        <i class="fa-solid fa-file-pdf"></i> Importar PDF
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
+    // Cria um observador para caso o usuário navegue para a aba de relatórios pelo menu
+    const observer = new MutationObserver(() => {
+        const btnImportar = document.getElementById("btnImportarPdfRelatorios");
+        if (btnImportar && !btnImportar.dataset.configurado) {
+            configurarLeitorPdf();
+        }
+    });
 
-    // Inicializa os eventos do botão após o HTML ser injetado na tela
-    inicializarLeitorPdfRelatorios();
+    observer.observe(document.body, { childList: true, subtree: true });
 }
 
-function inicializarLeitorPdfRelatorios() {
+function configurarLeitorPdf() {
     const btnImportar = document.getElementById("btnImportarPdfRelatorios");
     const inputFile = document.getElementById("inputPdfImport");
 
     if (!btnImportar || !inputFile) return;
 
-    btnImportar.onclick = () => {
+    // Marca para evitar duplicidade de eventos
+    btnImportar.dataset.configurado = "true";
+
+    btnImportar.onclick = (e) => {
+        e.preventDefault();
         inputFile.click();
     };
 
@@ -54,7 +38,7 @@ function inicializarLeitorPdfRelatorios() {
 
         try {
             if (typeof pdfjsLib === 'undefined') {
-                alert("A biblioteca PDF.js não foi encontrada no index.html.");
+                alert("A biblioteca PDF.js não foi encontrada no index.html. Verifique se adicionou os scripts do PDF.js.");
                 return;
             }
 
@@ -75,7 +59,7 @@ function inicializarLeitorPdfRelatorios() {
 
         } catch (erro) {
             console.error("Erro ao processar o PDF:", erro);
-            alert("Erro ao ler o arquivo PDF.");
+            alert("Erro ao ler o arquivo PDF. Certifique-se de que é um PDF válido.");
         } finally {
             inputFile.value = "";
         }
@@ -111,5 +95,5 @@ function processarExtracaoPdf(texto) {
     };
 
     console.log("=== DADOS EXTRAÍDOS DO PDF ===", dadosFormulario);
-    alert("PDF lido com sucesso! Abra o console (F12) para ver os dados.");
+    alert("PDF lido com sucesso! Abra o console do navegador (F12) para visualizar os dados extraídos.");
 }

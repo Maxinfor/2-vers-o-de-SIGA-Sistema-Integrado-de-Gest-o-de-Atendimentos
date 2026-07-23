@@ -1,109 +1,115 @@
 document.addEventListener("DOMContentLoaded", () => {
-    inicializarLeitorPdfRelatorios();
+    // Se o seu sistema chama uma função específica para carregar a página de relatórios:
+    carregarPaginaRelatorios();
 });
 
-function inicializarLeitorPdfRelatorios() {
-    // Usamos um pequeno atraso ou verificação para garantir que o DOM dinâmico carregou os elementos
-    setTimeout(() => {
-        const btnImportar = document.getElementById("btnImportarPdfRelatorios");
-        const inputFile = document.getElementById("inputPdfImport");
+function carregarPaginaRelatorios() {
+    const conteudo = document.getElementById("conteudo");
+    if (!conteudo) return;
 
-        if (!btnImportar || !inputFile) return;
-
-        // Evita duplicação de eventos caso a função seja chamada mais de uma vez
-        btnImportar.onclick = () => {
-            inputFile.click();
-        };
-
-        inputFile.onchange = async (event) => {
-            const arquivo = event.target.files[0];
-            if (!arquivo) return;
-
-            try {
-                // Valida se o PDF.js está carregado no index.html
-                if (typeof pdfjsLib === 'undefined') {
-                    alert("A biblioteca PDF.js não foi encontrada no index.html.");
-                    return;
-                }
-
-                const arrayBuffer = await arquivo.arrayBuffer();
-                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-                const pdfDoc = await loadingTask.promise;
+    // Injeta o HTML estruturado corretamente sem quebrar o JavaScript
+    conteudo.innerHTML = `
+        <div class="pagina">
+            <div class="titulo-pagina">
+                <h2>Relatórios Estatísticos</h2>
+                <small>Geração de relatórios gerenciais das ocorrências e atendimentos.</small>
+            </div>
+            
+            <div class="painel" style="padding: 30px; text-align: center;"> 
+                <i class="fa-solid fa-chart-column" style="font-size: 48px; color: var(--azul); margin-bottom: 15px;"></i>
+                <h3>Módulo de Relatórios Integrados</h3>
+                <p style="color: var(--texto-secundario); margin-top: 10px; margin-bottom: 25px;">Utilize os filtros globais para exportar dados estatísticos consolidados do Conselho Tutelar ou importe um PDF preenchido.</p>
                 
-                let textoPdf = "";
+                <div class="secao-importacao-pdf" style="margin-top: 20px; padding: 20px; border: 1px dashed var(--borda, #ccc); border-radius: 8px; background: var(--fundo-card, #f9f9f9);">
+                    <h4 style="margin-bottom: 8px;">Importar Ficha de Atendimento via PDF</h4>
+                    <p style="font-size: 14px; color: var(--texto-secundario); margin-bottom: 15px;">Selecione o PDF preenchido para o sistema extrair e carregar os dados automaticamente.</p>
+                    
+                    <input type="file" id="inputPdfImport" accept="application/pdf" style="display: none;">
+                    
+                    <button type="button" id="btnImportarPdfRelatorios" class="btn-primario" style="padding: 10px 20px; cursor: pointer;">
+                        <i class="fa-solid fa-file-pdf"></i> Importar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
 
-                // Varrer todas as páginas do documento PDF
-                for (let i = 1; i <= pdfDoc.numPages; i++) {
-                    const pagina = await pdfDoc.getPage(i);
-                    const conteudo = await pagina.getTextContent();
-                    const textosPagina = conteudo.items.map(item => item.str);
-                    textoPdf += textosPagina.join(" ") + "\n";
-                }
+    // Inicializa os eventos do botão após o HTML ser injetado na tela
+    inicializarLeitorPdfRelatorios();
+}
 
-                // Processa a extração dos dados mapeados
-                processarExtracaoPdf(textoPdf);
+function inicializarLeitorPdfRelatorios() {
+    const btnImportar = document.getElementById("btnImportarPdfRelatorios");
+    const inputFile = document.getElementById("inputPdfImport");
 
-            } catch (erro) {
-                console.error("Erro ao processar o PDF:", erro);
-                alert("Erro ao ler o arquivo PDF. Certifique-se de que é um documento válido.");
-            } finally {
-                // Limpa o input para permitir reenvio do mesmo arquivo se necessário
-                inputFile.value = "";
+    if (!btnImportar || !inputFile) return;
+
+    btnImportar.onclick = () => {
+        inputFile.click();
+    };
+
+    inputFile.onchange = async (event) => {
+        const arquivo = event.target.files[0];
+        if (!arquivo) return;
+
+        try {
+            if (typeof pdfjsLib === 'undefined') {
+                alert("A biblioteca PDF.js não foi encontrada no index.html.");
+                return;
             }
-        };
-    }, 300);
+
+            const arrayBuffer = await arquivo.arrayBuffer();
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdfDoc = await loadingTask.promise;
+            
+            let textoPdf = "";
+
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                const pagina = await pdfDoc.getPage(i);
+                const conteudo = await pagina.getTextContent();
+                const textosPagina = conteudo.items.map(item => item.str);
+                textoPdf += textosPagina.join(" ") + "\n";
+            }
+
+            processarExtracaoPdf(textoPdf);
+
+        } catch (erro) {
+            console.error("Erro ao processar o PDF:", erro);
+            alert("Erro ao ler o arquivo PDF.");
+        } finally {
+            inputFile.value = "";
+        }
+    };
 }
 
 function processarExtracaoPdf(texto) {
-    // 1. Data do atendimento
     const matchData = texto.match(/Data[:\s]*(\d{2}\/\d{2}\/\d{4})/i);
     const dataAtendimento = matchData ? matchData[1] : "";
 
-    // 2. Criança / Adolescente (Busca o nome após o campo)
     const matchCrianca = texto.match(/(?:Criança|Adolescente|Nome)[:\s]*([A-Za-zÀ-ú\s]+?)(?=(Data|Nascimento|Responsável|Endereço|Contato|$))/i);
     const nomeCrianca = matchCrianca ? matchCrianca[1].trim() : "";
 
-    // 3. Data de Nascimento (dia/mês/ano)
     const matchNasc = texto.match(/(?:Nascimento|Dt\.?\s*Nasc\.?)[:\s]*(\d{2}\/\d{2}\/\d{4})/i);
     const dataNascimento = matchNasc ? matchNasc[1] : "";
 
-    // 4. Responsável
     const matchResp = texto.match(/Responsável[:\s]*([A-Za-zÀ-ú\s]+?)(?=(Endereço|Contato|Telefone|$))/i);
     const responsavel = matchResp ? matchResp[1].trim() : "";
 
-    // 5. Endereço
     const matchEnd = texto.match(/Endereço[:\s]*([A-Za-zÀ-ú0-9,\.\-\s]+?)(?=(Contato|Telefone|Responsável|$))/i);
     const endereco = matchEnd ? matchEnd[1].trim() : "";
 
-    // 6. Contato
     const matchContato = texto.match(/Contato[:\s]*([\d\(\)\-\s]+)/i);
     const contato = matchContato ? matchContato[1].trim() : "";
 
-    // 7. Tipos de Atendimento (Verifica marcações de X)
-    const presencial = /presencial[^\w]*[xX]/i.test(texto) || /\([xX]\)\s*presencial/i.test(texto);
-    const telefone = /(telefone|telefônico)[^\w]*[xX]/i.test(texto) || /\([xX]\)\s*(telefone|telefônico)/i.test(texto);
-    const outroAtendimento = /outro[^\w]*[xX]/i.test(texto) || /\([xX]\)\s*outro/i.test(texto);
-
-    // 8. Motivos da Ocorrência (Verifica marcações de X)
-    const suspeitaAbuso = /suspeita de abuso[^\w]*[xX]/i.test(texto) || /\([xX]\)\s*suspeita de abuso/i.test(texto);
-    const violenciaFisica = /violência física[^\w]*[xX]/i.test(texto) || /\([xX]\)\s*violência física/i.test(texto);
-    const abandonoIncapaz = /abandono de incapaz[^\w]*[xX]/i.test(texto) || /\([xX]\)\s*abandono de incapaz/i.test(texto);
-    const outroMotivo = /outro motivo[^\w]*[xX]/i.test(texto) || /\([xX]\)\s*outro motivo/i.test(texto);
-
-    // Consolidando os dados extraídos
     const dadosFormulario = {
         dataAtendimento,
         nomeCrianca,
         dataNascimento,
         responsavel,
         endereco,
-        contato,
-        tiposAtendimento: { presencial, telefone, outroAtendimento },
-        motivos: { suspeitaAbuso, violenciaFisica, abandonoIncapaz, outroMotivo }
+        contato
     };
 
     console.log("=== DADOS EXTRAÍDOS DO PDF ===", dadosFormulario);
-
-    // Notifica o usuário e exibe no console para validação
-    alert("PDF lido com sucesso! Os dados foram processados. Abra o console do navegador (F12) para inspecionar os valores extraídos.");
+    alert("PDF lido com sucesso! Abra o console (F12) para ver os dados.");
 }

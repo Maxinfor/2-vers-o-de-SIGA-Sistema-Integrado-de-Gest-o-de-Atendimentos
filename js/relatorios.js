@@ -1,28 +1,32 @@
-// Delegação global de eventos: Funciona mesmo se a página for carregada dinamicamente via menu
-document.addEventListener("click", async (event) => {
-    // 1. Quando clicar no botão "Importar PDF"
-    if (event.target.closest("#btnImportarPdfRelatorios")) {
-        event.preventDefault();
-        const inputFile = document.getElementById("inputPdfImport");
-        if (inputFile) {
-            inputFile.click();
-        } else {
-            console.error("Input de arquivo #inputPdfImport não foi encontrado no HTML.");
+// Carrega a biblioteca PDF.js dinamicamente se ela já não existir na página
+function carregarBibliotecaPdfJs() {
+    return new Promise((resolve, reject) => {
+        if (window.pdfjsLib) {
+            resolve(window.pdfjsLib);
+            return;
         }
-    }
-});
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        script.onload = () => {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            resolve(window.pdfjsLib);
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
 
-// 2. Quando um arquivo PDF for selecionado no input
+// Escuta a seleção do arquivo em qualquer momento (mesmo se o HTML carregar depois)
 document.addEventListener("change", async (event) => {
     if (event.target && event.target.id === "inputPdfImport") {
         const arquivo = event.target.files[0];
         if (!arquivo) return;
 
+        console.log("Iniciando leitura do arquivo:", arquivo.name);
+
         try {
-            if (typeof pdfjsLib === 'undefined') {
-                alert("A biblioteca PDF.js não foi encontrada no index.html. Verifique a instalação.");
-                return;
-            }
+            // Garante que o motor do PDF está pronto
+            const pdfjsLib = await carregarBibliotecaPdfJs();
 
             const arrayBuffer = await arquivo.arrayBuffer();
             const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
@@ -30,7 +34,7 @@ document.addEventListener("change", async (event) => {
             
             let textoPdf = "";
 
-            // Varre todas as páginas do PDF extraindo os textos
+            // Varre todas as páginas do PDF recolhendo os textos
             for (let i = 1; i <= pdfDoc.numPages; i++) {
                 const pagina = await pdfDoc.getPage(i);
                 const conteudo = await pagina.getTextContent();
@@ -42,15 +46,16 @@ document.addEventListener("change", async (event) => {
 
         } catch (erro) {
             console.error("Erro ao processar o PDF:", erro);
-            alert("Erro ao ler o arquivo PDF. Certifique-se de que é um documento válido.");
+            alert("Não foi possível ler este arquivo PDF. Verifique se o arquivo está íntegro.");
         } finally {
-            // Limpa o input para permitir importar o mesmo arquivo novamente se precisar
+            // Limpa o input para permitir nova seleção se precisar
             event.target.value = "";
         }
     }
 });
 
 function processarExtracaoPdf(texto) {
+    // Expressões regulares inteligentes para capturar os dados do documento
     const matchData = texto.match(/Data[:\s]*(\d{2}\/\d{2}\/\d{4})/i);
     const dataAtendimento = matchData ? matchData[1] : "";
 
@@ -78,6 +83,8 @@ function processarExtracaoPdf(texto) {
         contato
     };
 
-    console.log("=== DADOS EXTRAÍDOS DO PDF ===", dadosFormulario);
-    alert("PDF lido com sucesso! Abra o console do navegador (F12) para visualizar os dados extraídos.");
+    console.log("=== DADOS EXTRAÍDOS COM SUCESSO ===", dadosFormulario);
+    
+    // Alerta informativo com os dados encontrados para validação imediata
+    alert(`PDF Lido com Sucesso!\n\nCriança: ${nomeCrianca || 'Não identificado'}\nResponsável: ${responsavel || 'Não identificado'}\nData: ${dataAtendimento || 'Não identificada'}\n\n(Abra o F12 > Console para ver o objeto completo)`);
 }

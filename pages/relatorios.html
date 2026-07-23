@@ -7,20 +7,15 @@
     <div class="painel" style="padding: 30px; text-align: center;"> 
         <i class="fa-solid fa-chart-column" style="font-size: 48px; color: var(--azul); margin-bottom: 15px;"></i>
         <h3>Módulo de Relatórios Integrados</h3>
-        <p style="color: var(--texto-secundario); margin-top: 10px; margin-bottom: 25px;">Utilize os filtros globais para exportar dados estatísticos consolidados do Conselho Tutelar ou importe um PDF preenchido.</p>
+        <p style="color: var(--texto-secundario); margin-top: 10px; margin-bottom: 25px;">Utilize os filtros globais para exportar dados estatísticos consolidados do Conselho Tutelar.</p>
         
-        <!-- Bloco do Botão e Leitor de PDF -->
-        <div class="secao-importacao-pdf" style="margin-top: 20px; padding: 20px; border: 1px dashed var(--borda, #ccc); border-radius: 8px; background: var(--fundo-card, #f9f9f9);">
-            <h4 style="margin-bottom: 8px;">Importar Ficha de Atendimento via PDF</h4>
-            <p style="font-size: 14px; color: var(--texto-secundario); margin-bottom: 15px;">Selecione o PDF preenchido para o sistema extrair e carregar os dados automaticamente.</p>
+        <!-- Bloco de Importação de Ficha via PDF -->
+        <div class="secao-importacao-pdf" style="margin-top: 20px; padding: 20px; border: 1px dashed var(--borda, #ccc); border-radius: 8px; background: var(--fundo-card, #f9f9f9); display: inline-block; width: 100%; max-width: 600px; box-sizing: border-box;">
+            <h4 style="margin-bottom: 8px; color: var(--texto-principal, #333);">Importar Ficha de Atendimento via PDF</h4>
+            <p style="font-size: 14px; color: var(--texto-secundario); margin-bottom: 15px;">Selecione o arquivo PDF preenchido para o sistema extrair os dados automaticamente.</p>
             
-            <!-- Input de arquivo oculto acionado pelo botão -->
-            <input type="file" id="inputPdfImport" accept="application/pdf" style="display: none;">
-            
-            <!-- Botão oficial -->
-            <button type="button" id="btnImportarPdfRelatorios" class="btn-primario" style="padding: 10px 20px; cursor: pointer;">
-                <i class="fa-solid fa-file-pdf"></i> Importar PDF
-            </button>
+            <!-- Input nativo de arquivos que aciona a leitura automática do JS -->
+            <input type="file" id="inputPdfImport" accept="application/pdf" style="padding: 10px; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; width: 100%; max-width: 400px;">
         </div>
     </div>
 </div>

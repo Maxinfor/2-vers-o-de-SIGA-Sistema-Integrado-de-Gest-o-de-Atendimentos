@@ -1,12 +1,27 @@
-
 <div class="pagina">
     <div class="titulo-pagina">
         <h2>Relatórios Estatísticos</h2>
         <small>Geração de relatórios gerenciais das ocorrências e atendimentos.</small>
     </div>
-    <div class="painel" style="padding: 30px; text-align: center;">
+    
+    <div class="painel" style="padding: 30px; text-align: center;"> 
         <i class="fa-solid fa-chart-column" style="font-size: 48px; color: var(--azul); margin-bottom: 15px;"></i>
         <h3>Módulo de Relatórios Integrados</h3>
-        <p style="color: var(--texto-secundario); margin-top: 10px;">Utilize os filtros globais para exportar dados estatísticos consolidados do Conselho Tutelar.</p>
+        <p style="color: var(--texto-secundario); margin-top: 10px; margin-bottom: 25px;">Utilize os filtros globais para exportar dados estatísticos consolidados do Conselho Tutelar.</p>
+        
+        <!-- ADICIONE ESTE BLOCO AQUI DENTRO DO PAINEL -->
+        <div class="secao-importacao-pdf" style="margin-top: 20px; padding: 20px; border: 1px dashed var(--borda, #ccc); border-radius: 8px; background: var(--fundo-card, #f9f9f9);">
+            <h4 style="margin-bottom: 8px;">Importar Dados de Atendimento via PDF</h4>
+            <p style="font-size: 14px; color: var(--texto-secundario); margin-bottom: 15px;">Selecione a ficha preenchida em PDF para o sistema carregar os campos automaticamente.</p>
+            
+            <!-- Input de arquivo invisível ativado pelo botão -->
+            <input type="file" id="inputPdfImport" accept="application/pdf" style="display: none;">
+            
+            <!-- Botão de importação -->
+            <button type="button" id="btnImportarPdfRelatorios" class="btn-primario" style="padding: 10px 20px; cursor: pointer;">
+                <i class="fa-solid fa-file-pdf"></i> Importar PDF
+            </button>
+        </div>
+        <!-- FIM DO BLOCO ADICIONADO -->
     </div>
 </div>

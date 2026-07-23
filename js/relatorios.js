@@ -1,44 +1,26 @@
-document.addEventListener("DOMContentLoaded", () => {
-    observarCarregamentoRelatorios();
+// Delegação global de eventos: Funciona mesmo se a página for carregada dinamicamente via menu
+document.addEventListener("click", async (event) => {
+    // 1. Quando clicar no botão "Importar PDF"
+    if (event.target.closest("#btnImportarPdfRelatorios")) {
+        event.preventDefault();
+        const inputFile = document.getElementById("inputPdfImport");
+        if (inputFile) {
+            inputFile.click();
+        } else {
+            console.error("Input de arquivo #inputPdfImport não foi encontrado no HTML.");
+        }
+    }
 });
 
-// Como o sistema carrega as páginas dinamicamente via menu, usamos um observador ou verificador
-function observarCarregamentoRelatorios() {
-    // Tenta configurar imediatamente caso já esteja na tela
-    configurarLeitorPdf();
-
-    // Cria um observador para caso o usuário navegue para a aba de relatórios pelo menu
-    const observer = new MutationObserver(() => {
-        const btnImportar = document.getElementById("btnImportarPdfRelatorios");
-        if (btnImportar && !btnImportar.dataset.configurado) {
-            configurarLeitorPdf();
-        }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-}
-
-function configurarLeitorPdf() {
-    const btnImportar = document.getElementById("btnImportarPdfRelatorios");
-    const inputFile = document.getElementById("inputPdfImport");
-
-    if (!btnImportar || !inputFile) return;
-
-    // Marca para evitar duplicidade de eventos
-    btnImportar.dataset.configurado = "true";
-
-    btnImportar.onclick = (e) => {
-        e.preventDefault();
-        inputFile.click();
-    };
-
-    inputFile.onchange = async (event) => {
+// 2. Quando um arquivo PDF for selecionado no input
+document.addEventListener("change", async (event) => {
+    if (event.target && event.target.id === "inputPdfImport") {
         const arquivo = event.target.files[0];
         if (!arquivo) return;
 
         try {
             if (typeof pdfjsLib === 'undefined') {
-                alert("A biblioteca PDF.js não foi encontrada no index.html. Verifique se adicionou os scripts do PDF.js.");
+                alert("A biblioteca PDF.js não foi encontrada no index.html. Verifique a instalação.");
                 return;
             }
 
@@ -48,6 +30,7 @@ function configurarLeitorPdf() {
             
             let textoPdf = "";
 
+            // Varre todas as páginas do PDF extraindo os textos
             for (let i = 1; i <= pdfDoc.numPages; i++) {
                 const pagina = await pdfDoc.getPage(i);
                 const conteudo = await pagina.getTextContent();
@@ -59,12 +42,13 @@ function configurarLeitorPdf() {
 
         } catch (erro) {
             console.error("Erro ao processar o PDF:", erro);
-            alert("Erro ao ler o arquivo PDF. Certifique-se de que é um PDF válido.");
+            alert("Erro ao ler o arquivo PDF. Certifique-se de que é um documento válido.");
         } finally {
-            inputFile.value = "";
+            // Limpa o input para permitir importar o mesmo arquivo novamente se precisar
+            event.target.value = "";
         }
-    };
-}
+    }
+});
 
 function processarExtracaoPdf(texto) {
     const matchData = texto.match(/Data[:\s]*(\d{2}\/\d{2}\/\d{4})/i);

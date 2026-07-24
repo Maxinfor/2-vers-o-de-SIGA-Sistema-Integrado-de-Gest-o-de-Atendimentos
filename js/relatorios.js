@@ -1,12 +1,15 @@
 function processarExtracaoPdf(texto) {
 
-    // Normaliza o texto
-    texto = texto
+    // ==========================================
+    // ETAPA 1: NORMALIZAÇÃO GERAL DO TEXTO
+    // ==========================================
+    // Remove retornos de carro, padroniza espaços e limpa quebras excessivas
+    let textoLimpo = texto
         .replace(/\r/g, "")
         .replace(/[ \t]+/g, " ")
         .replace(/\n{2,}/g, "\n");
 
-    const linhas = texto
+    const linhas = textoLimpo
         .split("\n")
         .map(l => l.trim())
         .filter(l => l !== "");
@@ -23,161 +26,236 @@ function processarExtracaoPdf(texto) {
         atendimento: ""
     };
 
-    // Sinônimos aceitos
-    const campos = {
+    // Função auxiliar para remover acentos, pontuações e transformar em minúsculas
+    function normalizarTexto(str) {
+        if (!str) return "";
+        return str
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+            .replace(/[,.-]/g, " ")          // Substitui vírgulas, pontos e traços por espaço
+            .replace(/\s+/g, " ")            // Padroniza espaços
+            .trim();
+    }
 
+    // ==========================================
+    // ETAPA 2: MAPEAMENTO DE SINÔNIMOS E RÓTULOS
+    // ==========================================
+    const campos = {
         nomeCrianca: [
-            "criança",
-            "criança/adolescente",
+            "crianca",
+            "crianca adolescente",
             "adolescente",
             "nome",
-            "nome da criança",
+            "nome da crianca",
             "nome do adolescente"
         ],
-
         dataNascimento: [
             "data de nascimento",
             "nascimento",
             "dt nasc",
-            "dt. nasc",
-            "data nasc"
+            "dt nasc",
+            "data nasc",
+            "d n", // Identifica "D.N" ou variações
+            "dn"
         ],
-
         responsavel: [
-            "responsável",
-            "responsável legal",
+            "responsavel",
+            "responsavel legal",
             "genitora",
             "genitor",
             "pai",
-            "mãe"
+            "mae"
         ],
-
         endereco: [
-            "endereço",
+            "endereco",
             "logradouro",
-            "residência"
+            "residencia"
         ],
-
         telefone: [
             "telefone",
             "fone",
             "celular"
         ],
-
         contato: [
             "contato"
         ],
-
         assunto: [
             "assunto",
             "motivo",
             "demanda"
         ],
-
         atendimento: [
             "tipo de atendimento",
             "atendimento"
         ],
-
         dataAtendimento: [
             "data",
             "data do atendimento"
         ]
-
     };
 
-    // Procura cada linha
+    // ==========================================
+    // ETAPA 3: VARREDURA LINHA POR LINHA (CAMPOS TEXTUAIS)
+    // ==========================================
     linhas.forEach((linha, indice) => {
-
-        const textoLinha = linha.toLowerCase();
+        const linhaNorm = normalizarTexto(linha);
 
         Object.keys(campos).forEach(campo => {
-
             if (dados[campo] !== "") return;
 
             campos[campo].forEach(nomeCampo => {
-
                 if (dados[campo] !== "") return;
 
-                if (textoLinha.startsWith(nomeCampo)) {
-
+                if (linhaNorm.startsWith(nomeCampo)) {
                     let valor = linha.substring(nomeCampo.length);
-
                     valor = valor.replace(/^[:\- ]+/, "").trim();
 
-                    // Caso o valor esteja na linha seguinte
+                    // Se o valor estiver vazio na linha atual, busca na linha seguinte
                     if (!valor && linhas[indice + 1]) {
-
                         const prox = linhas[indice + 1];
-
                         if (!prox.includes(":"))
                             valor = prox.trim();
-
                     }
 
                     dados[campo] = valor;
-
                 }
-
             });
-
         });
-
     });
 
-    // Procura datas em qualquer parte do documento
-    if (!dados.dataNascimento) {
+    // ==========================================
+    // ETAPA 4: BUSCA INTELIGENTE DE DATAS (DD/MM/AAAA)
+    // ==========================================
+    // Busca todas as ocorrências no formato 15/07/2026 no texto inteiro
+    const regexDatas = /\b(\d{2}\/\d{2}\/\d{4})\b/g;
+    const todasDatas = textoLimpo.match(regexDatas);
 
-        const datas = texto.match(/\d{2}\/\d{2}\/\d{4}/g);
+    if (todasDatas && todasDatas.length > 0) {
+        // Tenta achar especificamente uma data próxima a "nascimento" ou "d.n"
+        linhas.forEach((linha, idx) => {
+            const lNorm = normalizarTexto(linha);
+            if ((lNorm.includes("nascimento") || lNorm.includes("d n")) && !dados.dataNascimento) {
+                // Procura uma data nesta linha ou na próxima
+                const matchLinha = linha.match(regexDatas);
+                if (matchLinha) {
+                    dados.dataNascimento = matchLinha[0];
+                } else if (linhas[idx + 1]) {
+                    const matchProx = linhas[idx + 1].match(regexDatas);
+                    if (matchProx) dados.dataNascimento = matchProx[0];
+                }
+            }
+        });
 
-        if (datas && datas.length > 1)
-            dados.dataNascimento = datas[1];
-
+        // Fallbacks se não achou isoladamente
+        if (!dados.dataNascimento && todasDatas.length > 1) {
+            dados.dataNascimento = todasDatas[1];
+        }
+        if (!dados.dataAtendimento) {
+            dados.dataAtendimento = todasDatas[0];
+        }
     }
 
-    if (!dados.dataAtendimento) {
-
-        const datas = texto.match(/\d{2}\/\d{2}\/\d{4}/g);
-
-        if (datas && datas.length)
-            dados.dataAtendimento = datas[0];
-
-    }
-
-    // Procura telefone
+    // ==========================================
+    // ETAPA 5: BUSCA DE TELEFONE E CONTATO
+    // ==========================================
     if (!dados.telefone) {
-
-        const tel = texto.match(/(\(?\d{2}\)?\s?9?\d{4}\-?\d{4})/);
-
-        if (tel)
-            dados.telefone = tel[1];
-
+        const telMatch = textoLimpo.match(/(\(?\d{2}\)?\s?9?\d{4}\-?\d{4})/);
+        if (telMatch) dados.telefone = telMatch[1];
     }
 
-    // Se contato estiver vazio usa telefone
-    if (!dados.contato)
+    if (!dados.contato) {
         dados.contato = dados.telefone;
+    }
+
+    // ==========================================
+    // ETAPA 6: TRATAMENTO DO TIPO DE ATENDIMENTO
+    // ==========================================
+    // Identifica termos: presencial, telefone, telefonico, contato, online, on-line ou outro (+ texto)
+    const atendimentoTextoNorm = normalizarTexto(textoLimpo);
+    if (!dados.atendimento) {
+        if (atendimentoTextoNorm.includes("atendimento presencial") || atendimentoTextoNorm.includes("presencial")) {
+            dados.atendimento = "Presencial";
+        } else if (atendimentoTextoNorm.includes("atendimento telefonico") || atendimentoTextoNorm.includes("telefonico") || atendimentoTextoNorm.includes("telefone")) {
+            dados.atendimento = "Telefônico";
+        } else if (atendimentoTextoNorm.includes("atendimento online") || atendimentoTextoNorm.includes("on line") || atendimentoTextoNorm.includes("online")) {
+            dados.atendimento = "Online";
+        } else if (atendimentoTextoNorm.includes("contato")) {
+            dados.atendimento = "Contato";
+        } else if (atendimentoTextoNorm.includes("outro")) {
+            // Tenta capturar o texto à frente de "outro" no tipo de atendimento
+            const regexOutroAtend = /outro[:\s]+([^\n]+)/i;
+            const matchOutro = textoLimpo.match(regexOutroAtend);
+            dados.atendimento = matchOutro ? matchOutro[1].trim() : "Outro";
+        }
+    }
+
+    // ==========================================
+    // ETAPA 7: TRATAMENTO DO ASSUNTO (COM SUPORTE A "OUTRO")
+    // ==========================================
+    // Ignora acentos, vírgulas e maiúsculas/minúsculas na busca dos assuntos pedidos
+    const assuntoTextoNorm = normalizarTexto(textoLimpo);
+    if (!dados.assunto) {
+        if (assuntoTextoNorm.includes("suspeita de abuso")) {
+            dados.assunto = "Suspeita de abuso";
+        } else if (assuntoTextoNorm.includes("violencia fisica")) {
+            dados.assunto = "Violência física";
+        } else if (assuntoTextoNorm.includes("abandono de incapaz")) {
+            dados.assunto = "Abandono de incapaz";
+        } else if (assuntoTextoNorm.includes("outro")) {
+            // Se marcado "outro", busca o texto que está logo à frente
+            const regexOutroAssunto = /outro[:\s]+([^\n]+)/i;
+            const matchAssuntoOutro = textoLimpo.match(regexOutroAssunto);
+            dados.assunto = matchAssuntoOutro ? matchAssuntoOutro[1].trim() : "Outro";
+        }
+    }
+
+    // ==========================================
+    // ETAPA 8: FUNÇÃO AUXILIAR PARA FORMATAR DATA PARA O HTML (AAAA-MM-DD)
+    // ==========================================
+    function converterDataParaInput(dataStr) {
+        if (!dataStr || !dataStr.includes("/")) return "";
+        const partes = dataStr.split("/");
+        if (partes.length === 3) {
+            return `${partes[2]}-${partes[1]}-${partes[0]}`; // YYYY-MM-DD
+        }
+        return "";
+    }
 
     console.log("========== DADOS EXTRAÍDOS ==========");
     console.table(dados);
 
-    // Preenche automaticamente o formulário
-    document.getElementById("txtNome")?.value = dados.nomeCrianca;
-    document.getElementById("txtDataNascimento")?.value = dados.dataNascimento;
-    document.getElementById("txtResponsavel")?.value = dados.responsavel;
-    document.getElementById("txtEndereco")?.value = dados.endereco;
-    document.getElementById("txtTelefone")?.value = dados.telefone;
-    document.getElementById("txtContato")?.value = dados.contato;
-    document.getElementById("txtAssunto")?.value = dados.assunto;
+    // ==========================================
+    // ETAPA 9: PREENCHIMENTO AUTOMÁTICO DO FORMULÁRIO HTML
+    // ==========================================
+    document.getElementById("txtNome")?.setAttribute("value", dados.nomeCrianca);
+    if(document.getElementById("txtNome")) document.getElementById("txtNome").value = dados.nomeCrianca;
+
+    document.getElementById("txtDataNascimento")?.setAttribute("value", converterDataParaInput(dados.dataNascimento));
+    if(document.getElementById("txtDataNascimento")) document.getElementById("txtDataNascimento").value = converterDataParaInput(dados.dataNascimento);
+
+    document.getElementById("txtResponsavel")?.setAttribute("value", dados.responsavel);
+    if(document.getElementById("txtResponsavel")) document.getElementById("txtResponsavel").value = dados.responsavel;
+
+    document.getElementById("txtEndereco")?.setAttribute("value", dados.endereco);
+    if(document.getElementById("txtEndereco")) document.getElementById("txtEndereco").value = dados.endereco;
+
+    document.getElementById("txtTelefone")?.setAttribute("value", dados.telefone);
+    if(document.getElementById("txtTelefone")) document.getElementById("txtTelefone").value = dados.telefone;
+
+    document.getElementById("txtContato")?.setAttribute("value", dados.contato);
+    if(document.getElementById("txtContato")) document.getElementById("txtContato").value = dados.contato;
+
+    document.getElementById("txtAssunto")?.setAttribute("value", dados.assunto);
+    if(document.getElementById("txtAssunto")) document.getElementById("txtAssunto").value = dados.assunto;
 
     const tipo = document.getElementById("cmbTipoAtendimento");
-    if (tipo)
-        tipo.value = dados.atendimento;
+    if (tipo) tipo.value = dados.atendimento;
 
-    const data = document.getElementById("txtData");
-    if (data)
-        data.value = dados.dataAtendimento;
+    const dataAtendInput = document.getElementById("txtData");
+    if (dataAtendInput) dataAtendInput.value = converterDataParaInput(dados.dataAtendimento);
 
+    // Alerta de confirmação
     alert(
 `Documento analisado com sucesso!
 
@@ -191,5 +269,4 @@ Assunto: ${dados.assunto || "-"}
 Atendimento: ${dados.atendimento || "-"}
 `
     );
-
 }

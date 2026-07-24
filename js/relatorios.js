@@ -269,22 +269,26 @@ Atendimento: ${dados.atendimento || "-"}
 }
 
 // ==========================================
-// ETAPA 11: LEITOR AUTOMÁTICO DE PDF VIA PDF.JS
+// ETAPA 11: ACIONADO POR BOTÃO DE CONCLUSÃO
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
+    const btnConcluir = document.getElementById("btnConcluirPdf"); // ID do botão de concluir
     const inputFile = document.querySelector("input[type='file']");
     
-    if (inputFile) {
-        inputFile.addEventListener("change", async function(e) {
-            const arquivo = e.target.files[0];
-            if (!arquivo) return;
+    if (btnConcluir && inputFile) {
+        btnConcluir.addEventListener("click", async function() {
+            const arquivo = inputFile.files[0];
+            
+            if (!arquivo) {
+                alert("Por favor, selecione um arquivo PDF antes de concluir.");
+                return;
+            }
 
             try {
                 const leitorArray = await arquivo.arrayBuffer();
                 
-                // Configuração do leitor nativo de PDF
                 if (typeof pdfjsLib === "undefined") {
-                    alert("A biblioteca PDF.js não foi encontrada no seu HTML. Certifique-se de incluí-la.");
+                    alert("A biblioteca PDF.js não foi encontrada no seu HTML.");
                     return;
                 }
 
@@ -300,6 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     textoCompleto += textoPagina + "\n";
                 }
 
+                // Processa apenas quando clica no botão de concluir
                 processarExtracaoPdf(textoCompleto);
 
             } catch (erro) {

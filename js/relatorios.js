@@ -1,4 +1,16 @@
+/**
+ * Função principal para processar o texto extraído do PDF e carregar no sistema
+ */
 function processarExtracaoPdf(texto) {
+
+    // ==========================================
+    // ETAPA 0: VERIFICAÇÃO DE SEGURANÇA DO TEXTO
+    // ==========================================
+    if (!texto || typeof texto !== "string" || texto.trim() === "") {
+        console.error("ERRO: O texto passado para a função está vazio!");
+        alert("Atenção: Nenhum texto foi encontrado ou extraído deste PDF.");
+        return;
+    }
 
     // ==========================================
     // ETAPA 1: NORMALIZAÇÃO GERAL DO TEXTO
@@ -94,7 +106,7 @@ function processarExtracaoPdf(texto) {
     };
 
     // ==========================================
-    // ETAPA 3: VARREDURA LINHA POR LINHA (CAMPOS TEXTUAIS)
+    // ETAPA 3: VARREDURA FLEXÍVEL DE LINHAS
     // ==========================================
     linhas.forEach((linha, indice) => {
         const linhaNorm = normalizarTexto(linha);
@@ -105,17 +117,20 @@ function processarExtracaoPdf(texto) {
             campos[campo].forEach(nomeCampo => {
                 if (dados[campo] !== "") return;
 
-                if (linhaNorm.startsWith(nomeCampo)) {
-                    let valor = linha.substring(nomeCampo.length);
-                    valor = valor.replace(/^[:\- ]+/, "").trim();
+                if (linhaNorm.includes(nomeCampo)) {
+                    let partes = linha.split(new RegExp(nomeCampo, "i"));
+                    let valor = partes[1] ? partes[1].replace(/^[:\- ]+/, "").trim() : "";
 
                     if (!valor && linhas[indice + 1]) {
                         const prox = linhas[indice + 1];
-                        if (!prox.includes(":"))
+                        if (!prox.toLowerCase().includes(":")) {
                             valor = prox.trim();
+                        }
                     }
 
-                    dados[campo] = valor;
+                    if (valor) {
+                        dados[campo] = valor;
+                    }
                 }
             });
         });
@@ -130,7 +145,7 @@ function processarExtracaoPdf(texto) {
     if (todasDatas && todasDatas.length > 0) {
         linhas.forEach((linha, idx) => {
             const lNorm = normalizarTexto(linha);
-            if ((lNorm.includes("nascimento") || lNorm.includes("d n")) && !dados.dataNascimento) {
+            if ((lNorm.includes("nascimento") || lNorm.includes("d n") || lNorm.includes("dn")) && !dados.dataNascimento) {
                 const matchLinha = linha.match(regexDatas);
                 if (matchLinha) {
                     dados.dataNascimento = matchLinha[0];
@@ -182,7 +197,7 @@ function processarExtracaoPdf(texto) {
     }
 
     // ==========================================
-    // ETAPA 7: TRATAMENTO DO ASSUNTO (COM SUPORTE A "OUTRO")
+    // ETAPA 7: TRATAMENTO DO ASSUNTO
     // ==========================================
     const assuntoTextoNorm = normalizarTexto(textoLimpo);
     if (!dados.assunto) {
@@ -200,7 +215,7 @@ function processarExtracaoPdf(texto) {
     }
 
     // ==========================================
-    // ETAPA 8: FUNÇÃO AUXILIAR PARA FORMATAR DATA (AAAA-MM-DD)
+    // ETAPA 8: FORMATADOR DE DATA PARA HTML (AAAA-MM-DD)
     // ==========================================
     function converterDataParaInput(dataStr) {
         if (!dataStr || !dataStr.includes("/")) return "";
@@ -215,7 +230,7 @@ function processarExtracaoPdf(texto) {
     console.table(dados);
 
     // ==========================================
-    // ETAPA 9: PREENCHIMENTO AUTOMÁTICO DO FORMULÁRIO HTML
+    // ETAPA 9: PREENCHIMENTO DO FORMULÁRIO HTML
     // ==========================================
     if(document.getElementById("txtNome")) document.getElementById("txtNome").value = dados.nomeCrianca;
     if(document.getElementById("txtDataNascimento")) document.getElementById("txtDataNascimento").value = converterDataParaInput(dados.dataNascimento);
@@ -234,17 +249,14 @@ function processarExtracaoPdf(texto) {
     // ==========================================
     // ETAPA 10: SALVAMENTO GLOBAL NO APP (LOCALSTORAGE)
     // ==========================================
-    // Salva os dados em formato de texto (JSON) para que qualquer outra tela do app possa ler
     try {
         localStorage.setItem("dadosAtendimentoGlobal", JSON.stringify(dados));
-        console.log("Dados salvos no armazenamento global do aplicativo com sucesso!");
     } catch (e) {
         console.error("Erro ao salvar no localStorage:", e);
     }
 
-    // Alerta de confirmação
     alert(
-`Documento analisado e carregado em todo o aplicativo com sucesso!
+`Documento analisado com sucesso!
 
 Nome: ${dados.nomeCrianca || "-"}
 Nascimento: ${dados.dataNascimento || "-"}
@@ -257,3 +269,41 @@ Atendimento: ${dados.atendimento || "-"}
 `
     );
 }
+
+// ==========================================
+// ETAPA 11: CAPTURA DO ARQUIVO PDF (INPUT FILE)
+// ==========================================
+// Certifique-se de que no seu HTML existe um input com id="inputPdf"
+document.addEventListener("DOMContentLoaded", () => {
+    const inputFile = document.getElementById("inputPdf");
+    
+    if (inputFile) {
+        inputFile.addEventListener("change", async function(e) {
+            const arquivo = e.target.files[0];
+            if (!arquivo) return;
+
+            try {
+                const leitorArray = await arquivo.arrayBuffer();
+                
+                // Utiliza a biblioteca PDF.js integrada para extrair o texto de todas as páginas
+                const carregadorPdf = pdfjsLib.getDocument({ data: leitorArray });
+                const pdfDoc = await carregadorPdf.promise;
+                let textoCompleto = "";
+
+                for (let i = 1; i <= pdfDoc.numPages; i++) {
+                    const pagina = await pdfDoc.getPage(i);
+                    const conteudoTexto = await pagina.getTextContent();
+                    const textoPagina = conteudoTexto.items.map(item => item.str).join(" ");
+                    textoCompleto += textoPagina + "\n";
+                }
+
+                // Executa a função de processamento com o texto real extraído do PDF
+                processarExtracaoPdf(textoCompleto);
+
+            } catch (erro) {
+                console.error("Erro ao ler o arquivo PDF:", erro);
+                alert("Erro ao ler o arquivo PDF. Verifique se o arquivo é válido.");
+            }
+        });
+    }
+});

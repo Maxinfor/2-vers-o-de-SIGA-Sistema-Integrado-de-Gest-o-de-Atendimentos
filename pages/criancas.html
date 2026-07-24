@@ -1,13 +1,16 @@
 <!-- ==========================================================
     CRIANÇAS E ADOLESCENTES - SIGACTPAR
+    VERSÃO COM IMPORTAÇÃO DE PDF
 =========================================================== -->
 
 <div class="pagina">
 
-    <!-- CABEÇALHO DA PÁGINA & AÇÕES -->
+    <!-- ==========================================================
+        CABEÇALHO DA PÁGINA & AÇÕES
+    =========================================================== -->
     <div class="titulo-pagina">
         <div>
-            <h2>Crianças e Adolescentes</h2>
+            <h2><i class="fa-solid fa-child"></i> Crianças e Adolescentes</h2>
             <small>Cadastro e acompanhamento de crianças e adolescentes atendidos pelo Conselho Tutelar.</small>
         </div>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
@@ -20,7 +23,61 @@
         </div>
     </div>
 
-    <!-- CARDS / INDICADORES -->
+    <!-- ==========================================================
+        ÁREA DE IMPORTAÇÃO DE PDF (ADICIONADA)
+    =========================================================== -->
+    <div class="painel" style="margin-bottom: 20px; background: var(--fundo-card); border: 2px dashed var(--cor-primaria);">
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 10px;">
+            
+            <!-- Upload do PDF -->
+            <div style="flex: 1; min-width: 200px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--texto-primario);">
+                    <i class="fa-solid fa-file-pdf" style="color: #dc3545;"></i> Importar PDF
+                </label>
+                <input type="file" id="inputPdfImport" accept=".pdf" 
+                       style="width: 100%; padding: 8px; border: 1px solid var(--borda); border-radius: 6px; background: var(--fundo);">
+            </div>
+            
+            <!-- Botões -->
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="btnImportarPdf" class="btn-padrao" style="background: #dc3545;">
+                    <i class="fa-solid fa-upload"></i> Importar PDF
+                </button>
+                <button id="btnLimparImportacao" class="btn-secundario">
+                    <i class="fa-solid fa-times"></i> Limpar
+                </button>
+            </div>
+            
+            <!-- Status -->
+            <div style="flex: 1; min-width: 150px;">
+                <div id="statusImportacao" style="font-size: 14px; color: var(--texto-secundario);">
+                    <i class="fa-solid fa-info-circle"></i> Aguardando PDF...
+                </div>
+                <progress id="progressoImportacao" value="0" max="100" 
+                          style="display:none; width:100%; height:8px; border-radius: 4px; margin-top: 5px;"></progress>
+            </div>
+        </div>
+        
+        <!-- Pré-visualização dos dados extraídos -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; padding: 15px; background: var(--fundo); border-radius: 8px; margin: 0 10px 10px 10px; border: 1px solid var(--borda);">
+            <div><strong>👤 Nome:</strong> <span id="pdfNome" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📅 Nascimento:</strong> <span id="pdfNascimento" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>👤 Responsável:</strong> <span id="pdfResponsavel" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📍 Endereço:</strong> <span id="pdfEndereco" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📞 Telefone:</strong> <span id="pdfTelefone" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>🏫 Escola:</strong> <span id="pdfEscola" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📚 Série:</strong> <span id="pdfSerie" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📅 Data Atend.:</strong> <span id="pdfData" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📋 Tipo:</strong> <span id="pdfTipo" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📝 Assunto:</strong> <span id="pdfAssunto" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>👨‍💼 Plantonista:</strong> <span id="pdfPlantonista" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>⚖️ Processo:</strong> <span id="pdfProcesso" style="color: var(--cor-primaria);">—</span></div>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+        CARDS / INDICADORES
+    =========================================================== -->
     <div class="dashboard-cards">
         <div class="card azul">
             <div class="card-icone"><i class="fa-solid fa-child"></i></div>
@@ -41,7 +98,9 @@
         </div>
     </div>
 
-    <!-- PAINEL DE PESQUISA -->
+    <!-- ==========================================================
+        PAINEL DE PESQUISA
+    =========================================================== -->
     <div class="painel">
         <div class="grupo-campo" style="margin-bottom: 0;">
             <label for="pesquisaCrianca">Pesquisar Criança ou Adolescente</label>
@@ -49,7 +108,9 @@
         </div>
     </div>
 
-    <!-- TABELA DE REGISTROS -->
+    <!-- ==========================================================
+        TABELA DE REGISTROS
+    =========================================================== -->
     <div class="painel">
         <div class="painel-header" style="margin-bottom: 15px;">
             <h3><i class="fa-solid fa-list"></i> Lista de Crianças e Adolescentes</h3>
@@ -82,7 +143,7 @@
 <div id="modalCrianca" class="modal">
     <div class="modal-box">
         <div class="modal-header">
-            <h2>Formulário de Criança / Adolescente</h2>
+            <h2><i class="fa-solid fa-child"></i> Formulário de Criança / Adolescente</h2>
             <button id="fecharModalCrianca" class="fechar"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
@@ -137,7 +198,7 @@
 <div id="modalVisualizarCrianca" class="modal">
     <div class="modal-box">
         <div class="modal-header">
-            <h2>Detalhes da Criança / Adolescente</h2>
+            <h2><i class="fa-solid fa-eye"></i> Detalhes da Criança / Adolescente</h2>
             <button id="fecharVisualizarCrianca" class="fechar"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
@@ -186,12 +247,13 @@
 <div id="modalExcluirCrianca" class="modal">
     <div class="modal-box" style="width: 450px;">
         <div class="modal-header">
-            <h2>Confirmar Exclusão</h2>
+            <h2><i class="fa-solid fa-triangle-exclamation" style="color: var(--vermelho);"></i> Confirmar Exclusão</h2>
             <button id="fecharExcluirCrianca" class="fechar"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-body" style="text-align: center; padding: 25px;">
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: var(--vermelho); margin-bottom: 15px;"></i>
             <p style="font-size: 15px; color: var(--texto);">Deseja realmente excluir este registro de criança/adolescente?</p>
+            <p style="font-size: 13px; color: var(--texto-secundario);">Esta ação não pode ser desfeita.</p>
         </div>
         <div class="modal-footer" style="justify-content: center;">
             <button type="button" id="cancelarExcluirCrianca" class="btn-cancelar" style="width: 45%;">Cancelar</button>
@@ -199,3 +261,591 @@
         </div>
     </div>
 </div>
+
+<!-- ==========================================================
+    SCRIPT - LÓGICA DE CRIANÇAS COM PDF
+=========================================================== -->
+<script>
+    // ==========================================================
+    // CRIANÇAS - LÓGICA COMPLETA
+    // ==========================================================
+
+    // ==========================================
+    // BANCO DE DADOS LOCAL
+    // ==========================================
+    let criancas = [];
+
+    function carregarCriancas() {
+        try {
+            const dados = localStorage.getItem('criancas');
+            if (dados) {
+                criancas = JSON.parse(dados);
+            } else {
+                criancas = [
+                    {
+                        id: 1,
+                        nome: 'João Silva',
+                        nascimento: '2015-03-15',
+                        cpf: '123.456.789-00',
+                        escola: 'Escola Municipal',
+                        responsavel: 'Maria Silva',
+                        observacoes: 'Suspeita de abuso'
+                    }
+                ];
+                salvarCriancas();
+            }
+        } catch (e) {
+            console.error('Erro ao carregar:', e);
+            criancas = [];
+        }
+        return criancas;
+    }
+
+    function salvarCriancas() {
+        try {
+            localStorage.setItem('criancas', JSON.stringify(criancas));
+        } catch (e) {
+            console.error('Erro ao salvar:', e);
+        }
+    }
+
+    // ==========================================
+    // RENDERIZAR TABELA
+    // ==========================================
+    function renderizarCriancas(filtro = '') {
+        const tbody = document.getElementById('listaCriancas');
+        if (!tbody) return;
+
+        let lista = criancas;
+        
+        if (filtro) {
+            const termo = filtro.toLowerCase();
+            lista = criancas.filter(c => 
+                c.nome.toLowerCase().includes(termo) ||
+                c.escola.toLowerCase().includes(termo) ||
+                c.responsavel.toLowerCase().includes(termo) ||
+                (c.cpf && c.cpf.includes(termo))
+            );
+        }
+
+        if (lista.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--texto-secundario);">
+                <i class="fa-regular fa-inbox" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>
+                Nenhuma criança ou adolescente cadastrado.
+            </td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = lista.map(c => `
+            <tr>
+                <td>${c.id}</td>
+                <td><strong>${c.nome}</strong></td>
+                <td>${formatarData(c.nascimento)}</td>
+                <td>${c.escola || '—'}</td>
+                <td>${c.responsavel || '—'}</td>
+                <td>
+                    <button class="btn-icone" onclick="visualizarCrianca(${c.id})" title="Visualizar">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                    <button class="btn-icone" onclick="editarCrianca(${c.id})" title="Editar">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
+                    <button class="btn-icone" onclick="abrirExcluirCrianca(${c.id})" title="Excluir" style="color: var(--vermelho);">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+
+        atualizarCardsCriancas();
+    }
+
+    // ==========================================
+    // FORMATAR DATA
+    // ==========================================
+    function formatarData(dataStr) {
+        if (!dataStr) return '-';
+        const partes = dataStr.split('-');
+        if (partes.length === 3) {
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+        return dataStr;
+    }
+
+    function formatarDataParaInput(dataStr) {
+        if (!dataStr) return '';
+        const match = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+        if (match) {
+            return `${match[3]}-${match[2]}-${match[1]}`;
+        }
+        return dataStr;
+    }
+
+    // ==========================================
+    // ATUALIZAR CARDS
+    // ==========================================
+    function atualizarCardsCriancas() {
+        const total = criancas.length;
+        const comEscola = criancas.filter(c => c.escola && c.escola.trim() !== '').length;
+
+        const cardTotal = document.getElementById('cardTotalCriancas');
+        const cardEscola = document.getElementById('cardComEscola');
+
+        if (cardTotal) cardTotal.textContent = total;
+        if (cardEscola) cardEscola.textContent = comEscola;
+    }
+
+    // ==========================================
+    // ABRIR MODAL NOVO/EDIÇÃO
+    // ==========================================
+    function abrirModalCrianca(crianca = null) {
+        const modal = document.getElementById('modalCrianca');
+        const form = document.getElementById('formCrianca');
+        if (!modal || !form) return;
+
+        form.reset();
+        delete form.dataset.id;
+
+        if (crianca) {
+            document.querySelector('#modalCrianca .modal-header h2').innerHTML = 
+                '<i class="fa-solid fa-pen-to-square"></i> Editar Criança / Adolescente';
+            
+            document.getElementById('nomeCrianca').value = crianca.nome;
+            document.getElementById('nascimentoCrianca').value = crianca.nascimento;
+            document.getElementById('cpfCrianca').value = crianca.cpf || '';
+            document.getElementById('escolaCrianca').value = crianca.escola || '';
+            document.getElementById('responsavelCrianca').value = crianca.responsavel || '';
+            document.getElementById('observacoesCrianca').value = crianca.observacoes || '';
+            
+            form.dataset.id = crianca.id;
+        } else {
+            document.querySelector('#modalCrianca .modal-header h2').innerHTML = 
+                '<i class="fa-solid fa-child"></i> Formulário de Criança / Adolescente';
+            
+            // Data atual
+            document.getElementById('nascimentoCrianca').value = '';
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    // ==========================================
+    // SALVAR CRIANÇA
+    // ==========================================
+    document.addEventListener('submit', (e) => {
+        if (e.target.id === 'formCrianca') {
+            e.preventDefault();
+            
+            const form = e.target;
+            const nome = document.getElementById('nomeCrianca').value.trim();
+            const nascimento = document.getElementById('nascimentoCrianca').value;
+            const cpf = document.getElementById('cpfCrianca').value.trim();
+            const escola = document.getElementById('escolaCrianca').value.trim();
+            const responsavel = document.getElementById('responsavelCrianca').value.trim();
+            const observacoes = document.getElementById('observacoesCrianca').value.trim();
+
+            if (!nome || !nascimento || !responsavel) {
+                alert('⚠️ Preencha todos os campos obrigatórios!');
+                return;
+            }
+
+            const id = form.dataset.id ? parseInt(form.dataset.id) : null;
+
+            if (id) {
+                const index = criancas.findIndex(c => c.id === id);
+                if (index !== -1) {
+                    criancas[index] = { id, nome, nascimento, cpf, escola, responsavel, observacoes };
+                }
+            } else {
+                const novoId = criancas.length > 0 ? Math.max(...criancas.map(c => c.id)) + 1 : 1;
+                criancas.push({ id: novoId, nome, nascimento, cpf, escola, responsavel, observacoes });
+            }
+
+            salvarCriancas();
+            renderizarCriancas();
+            fecharModal('modalCrianca');
+            
+            alert(id ? '✅ Criança atualizada com sucesso!' : '✅ Criança cadastrada com sucesso!');
+        }
+    });
+
+    // ==========================================
+    // VISUALIZAR CRIANÇA
+    // ==========================================
+    function visualizarCrianca(id) {
+        const crianca = criancas.find(c => c.id === id);
+        if (!crianca) return;
+
+        document.getElementById('verIdCrianca').value = crianca.id;
+        document.getElementById('verNomeCrianca').value = crianca.nome;
+        document.getElementById('verNascimentoCrianca').value = formatarData(crianca.nascimento);
+        document.getElementById('verCpfCrianca').value = crianca.cpf || '—';
+        document.getElementById('verEscolaCrianca').value = crianca.escola || '—';
+        document.getElementById('verResponsavelCrianca').value = crianca.responsavel || '—';
+        document.getElementById('verObservacoesCrianca').value = crianca.observacoes || '—';
+
+        document.getElementById('modalVisualizarCrianca').style.display = 'flex';
+    }
+
+    // ==========================================
+    // EDITAR CRIANÇA
+    // ==========================================
+    function editarCrianca(id) {
+        const crianca = criancas.find(c => c.id === id);
+        if (crianca) {
+            abrirModalCrianca(crianca);
+        }
+    }
+
+    // ==========================================
+    // EXCLUIR CRIANÇA
+    // ==========================================
+    let idExcluirCrianca = null;
+
+    function abrirExcluirCrianca(id) {
+        idExcluirCrianca = id;
+        document.getElementById('modalExcluirCrianca').style.display = 'flex';
+    }
+
+    document.getElementById('confirmarExcluirCrianca')?.addEventListener('click', () => {
+        if (idExcluirCrianca !== null) {
+            criancas = criancas.filter(c => c.id !== idExcluirCrianca);
+            salvarCriancas();
+            renderizarCriancas();
+            fecharModal('modalExcluirCrianca');
+            alert('🗑️ Criança excluída com sucesso!');
+            idExcluirCrianca = null;
+        }
+    });
+
+    // ==========================================
+    // FECHAR MODAIS
+    // ==========================================
+    function fecharModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = 'none';
+    }
+
+    // ==========================================
+    // FUNÇÃO PARA PREENCHER DO PDF
+    // ==========================================
+    window.preencherCriancaDoPDF = function(dados) {
+        console.log('📝 Preenchendo formulário de criança com dados do PDF...');
+        
+        const modal = document.getElementById('modalCrianca');
+        const form = document.getElementById('formCrianca');
+        
+        if (!modal || !form) {
+            console.warn('Modal de criança não encontrado!');
+            return;
+        }
+
+        // Abre o modal
+        modal.style.display = 'flex';
+        
+        // Limpa o form
+        form.reset();
+        delete form.dataset.id;
+
+        // Preenche os campos
+        if (document.getElementById('nomeCrianca') && dados.nome) {
+            document.getElementById('nomeCrianca').value = dados.nome;
+        }
+        
+        if (document.getElementById('nascimentoCrianca') && dados.nascimento) {
+            const dataFormatada = formatarDataParaInput(dados.nascimento);
+            if (dataFormatada) {
+                document.getElementById('nascimentoCrianca').value = dataFormatada;
+            }
+        }
+        
+        if (document.getElementById('escolaCrianca') && dados.escola) {
+            document.getElementById('escolaCrianca').value = dados.escola;
+        }
+        
+        if (document.getElementById('responsavelCrianca') && dados.responsavel) {
+            document.getElementById('responsavelCrianca').value = dados.responsavel;
+        }
+        
+        if (document.getElementById('observacoesCrianca')) {
+            let obs = dados.observacao || '';
+            if (dados.assunto) obs += (obs ? '\n' : '') + `Assunto: ${dados.assunto}`;
+            if (dados.endereco) obs += (obs ? '\n' : '') + `Endereço: ${dados.endereco}`;
+            if (dados.telefone) obs += (obs ? '\n' : '') + `Telefone: ${dados.telefone}`;
+            if (dados.processo) obs += (obs ? '\n' : '') + `Processo: ${dados.processo}`;
+            document.getElementById('observacoesCrianca').value = obs;
+        }
+
+        // Atualiza o título
+        document.querySelector('#modalCrianca .modal-header h2').innerHTML = 
+            '<i class="fa-solid fa-child"></i> Criança / Adolescente (Dados do PDF)';
+
+        console.log('✅ Formulário de criança preenchido!');
+    };
+
+    // ==========================================
+    // EVENTOS
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // Botão nova criança
+        const btnNovo = document.getElementById('btnNovaCrianca');
+        if (btnNovo) {
+            btnNovo.addEventListener('click', () => abrirModalCrianca(null));
+        }
+
+        // Botões fechar modal
+        document.querySelectorAll('.fechar, #cancelarCrianca, #fecharVisualizarCrianca, #fecharVisualizarCriancaRodape, #cancelarExcluirCrianca, #fecharExcluirCrianca')
+            .forEach(btn => {
+                if (btn) {
+                    btn.addEventListener('click', (e) => {
+                        const modal = e.target.closest('.modal');
+                        if (modal) modal.style.display = 'none';
+                    });
+                }
+            });
+
+        // Fechar ao clicar fora
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        // Pesquisa
+        const pesquisa = document.getElementById('pesquisaCrianca');
+        if (pesquisa) {
+            pesquisa.addEventListener('input', (e) => {
+                renderizarCriancas(e.target.value);
+            });
+        }
+
+        // Atualizar
+        const btnAtualizar = document.getElementById('btnAtualizarCriancas');
+        if (btnAtualizar) {
+            btnAtualizar.addEventListener('click', () => {
+                carregarCriancas();
+                renderizarCriancas();
+                alert('🔄 Dados atualizados!');
+            });
+        }
+
+        // Carregar dados iniciais
+        carregarCriancas();
+        renderizarCriancas();
+    });
+
+    // ==========================================
+    // EXPORTA FUNÇÕES PARA O GLOBAL
+    // ==========================================
+    window.visualizarCrianca = visualizarCrianca;
+    window.editarCrianca = editarCrianca;
+    window.abrirExcluirCrianca = abrirExcluirCrianca;
+    window.fecharModal = fecharModal;
+    window.abrirModalCrianca = abrirModalCrianca;
+
+    console.log('👶 Módulo de Crianças carregado com sucesso!');
+</script>
+
+<!-- ==========================================================
+    ESTILOS
+=========================================================== -->
+<style>
+    .dashboard-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .card {
+        background: var(--fundo-card);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-left: 4px solid var(--cor-primaria);
+    }
+    
+    .card.azul {
+        border-left-color: var(--cor-primaria);
+    }
+    
+    .card.verde {
+        border-left-color: var(--verde);
+    }
+    
+    .card-icone {
+        font-size: 28px;
+        color: var(--cor-primaria);
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--fundo);
+        border-radius: 10px;
+    }
+    
+    .card.verde .card-icone {
+        color: var(--verde);
+    }
+    
+    .card-info {
+        flex: 1;
+    }
+    
+    .card-info span {
+        font-size: 13px;
+        color: var(--texto-secundario);
+    }
+    
+    .card-info h3 {
+        font-size: 28px;
+        margin: 5px 0;
+        font-weight: 700;
+    }
+    
+    .card-info small {
+        font-size: 12px;
+        color: var(--texto-secundario);
+    }
+    
+    .painel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .painel-header h3 {
+        margin: 0;
+        font-size: 16px;
+        color: var(--texto-primario);
+    }
+    
+    .tabela-container {
+        overflow-x: auto;
+    }
+    
+    .tabela-dashboard {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+    
+    .tabela-dashboard thead {
+        background: var(--fundo);
+        border-bottom: 2px solid var(--borda);
+    }
+    
+    .tabela-dashboard th {
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--texto-secundario);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .tabela-dashboard td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--borda);
+        color: var(--texto-primario);
+    }
+    
+    .tabela-dashboard tr:hover td {
+        background: var(--fundo-hover);
+    }
+    
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .badge-primary {
+        background: var(--cor-primaria);
+        color: white;
+    }
+    
+    .badge-info {
+        background: var(--cor-secundaria);
+        color: white;
+    }
+    
+    .btn-icone {
+        background: none;
+        border: none;
+        padding: 5px 8px;
+        cursor: pointer;
+        font-size: 16px;
+        color: var(--texto-secundario);
+        transition: all 0.2s;
+        border-radius: 4px;
+    }
+    
+    .btn-icone:hover {
+        background: var(--fundo-hover);
+        color: var(--cor-primaria);
+    }
+    
+    .btn-icone:hover i {
+        transform: scale(1.1);
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: var(--texto-primario);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 10px;
+        border: 1px solid var(--borda);
+        border-radius: 6px;
+        font-size: 14px;
+        background: var(--fundo);
+        color: var(--texto-primario);
+        transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--cor-primaria);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+        font-family: inherit;
+    }
+    
+   

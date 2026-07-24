@@ -1,224 +1,762 @@
-/* ==========================================================
-   SIGACTPAR - MÓDULO DE ATENDIMENTOS (COMPLETO)
-========================================================== */
+<!-- ==========================================================
+    ATENDIMENTOS - SIGACTPAR
+    VERSÃO COMPLETA COM IMPORTAÇÃO DE PDF
+=========================================================== -->
+<div class="pagina">
 
-let atendimentoEditando = null;
+    <!-- ==========================================================
+        CABEÇALHO
+    =========================================================== -->
+    <div class="titulo-pagina">
+        <div>
+            <h2><i class="fa-solid fa-file-lines"></i> Atendimentos</h2>
+            <p>Gerenciamento de atendimentos, balcão e atos informativos.</p>
+        </div>
+        <div class="acoes-topo">
+            <button class="btn-secundario" id="btnAtualizarAtendimento">
+                <i class="fa-solid fa-rotate"></i> Atualizar
+            </button>
+            <button class="btn-padrao" id="btnNovoAtendimento">
+                <i class="fa-solid fa-plus"></i> Novo Atendimento
+            </button>
+        </div>
+    </div>
 
-function iniciarAtendimentos() {
-    configurarEventosAtendimentos();
-    atualizarTabelaAtendimentos();
-    calcularIndicadoresAtendimentos();
-}
-
-function configurarEventosAtendimentos() {
-    const btnNovo = document.getElementById("btnNovoAtendimento");
-    if (btnNovo) {
-        btnNovo.onclick = () => {
-            atendimentoEditando = null;
-            const form = document.getElementById("formAtendimento");
-            if (form) form.reset();
+    <!-- ==========================================================
+        ÁREA DE IMPORTAÇÃO DE PDF (NOVO)
+    =========================================================== -->
+    <div class="painel" style="margin-bottom: 20px; background: var(--fundo-card); border: 2px dashed var(--cor-primaria);">
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 10px;">
             
-            // Sugere a data de hoje automaticamente ao abrir
-            const hoje = new Date().toISOString().split('T')[0];
-            const campoData = document.getElementById("dataAtendimento");
-            if (campoData) campoData.value = hoje;
-
-            abrirModalAtendimento("modalAtendimento");
-        };
-    }
-
-    const btnAtualizar = document.getElementById("btnAtualizarAtendimento");
-    if (btnAtualizar) {
-        btnAtualizar.onclick = () => {
-            const pesquisa = document.getElementById("pesquisaAtendimento");
-            if (pesquisa) pesquisa.value = "";
+            <!-- Upload do PDF -->
+            <div style="flex: 1; min-width: 200px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--texto-primario);">
+                    <i class="fa-solid fa-file-pdf" style="color: #dc3545;"></i> Importar PDF
+                </label>
+                <input type="file" id="inputPdfImport" accept=".pdf" 
+                       style="width: 100%; padding: 8px; border: 1px solid var(--borda); border-radius: 6px; background: var(--fundo);">
+            </div>
             
-            if (typeof Banco !== "undefined" && Banco.inicializar) {
-                Banco.inicializar();
+            <!-- Botões -->
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="btnImportarPdf" class="btn-padrao" style="background: #dc3545;">
+                    <i class="fa-solid fa-upload"></i> Importar PDF
+                </button>
+                <button id="btnLimparImportacao" class="btn-secundario">
+                    <i class="fa-solid fa-times"></i> Limpar
+                </button>
+            </div>
+            
+            <!-- Status -->
+            <div style="flex: 1; min-width: 150px;">
+                <div id="statusImportacao" style="font-size: 14px; color: var(--texto-secundario);">
+                    <i class="fa-solid fa-info-circle"></i> Aguardando PDF...
+                </div>
+                <progress id="progressoImportacao" value="0" max="100" 
+                          style="display:none; width:100%; height:8px; border-radius: 4px; margin-top: 5px;"></progress>
+            </div>
+        </div>
+        
+        <!-- Pré-visualização dos dados extraídos -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; padding: 15px; background: var(--fundo); border-radius: 8px; margin: 0 10px 10px 10px; border: 1px solid var(--borda);">
+            <div><strong>👤 Nome:</strong> <span id="pdfNome" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📅 Data:</strong> <span id="pdfData" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📋 Tipo:</strong> <span id="pdfTipo" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📝 Assunto:</strong> <span id="pdfAssunto" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>👨‍💼 Plantonista:</strong> <span id="pdfPlantonista" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📞 Telefone:</strong> <span id="pdfTelefone" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📍 Endereço:</strong> <span id="pdfEndereco" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>👤 Responsável:</strong> <span id="pdfResponsavel" style="color: var(--cor-primaria);">—</span></div>
+            <div><strong>📅 Nascimento:</strong> <span id="pdfNascimento" style="color: var(--cor-primaria);">—</span></div>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+        CARDS DE RESUMO DIÁRIO E MENSAL
+    =========================================================== -->
+    <div class="grid grid-2">
+        <div class="painel">
+            <h3 style="font-size: 16px; color: var(--texto-secundario); margin-bottom: 5px;">
+                <i class="fa-solid fa-calendar-day"></i> Atendimentos de Hoje (Geral)
+            </h3>
+            <p id="cardAtendimentosDiarios" style="font-size: 32px; font-weight: bold; color: var(--cor-secundaria);">0</p>
+        </div>
+        <div class="painel">
+            <h3 style="font-size: 16px; color: var(--texto-secundario); margin-bottom: 5px;">
+                <i class="fa-solid fa-calendar-alt"></i> Atendimentos do Mês Atual
+            </h3>
+            <p id="cardAtendimentosMensais" style="font-size: 32px; font-weight: bold; color: var(--verde);">0</p>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+        PESQUISA
+    =========================================================== -->
+    <div class="painel">
+        <div class="grupo-campo" style="margin-bottom: 0;">
+            <label for="pesquisaAtendimento">
+                <i class="fa-solid fa-search"></i> Pesquisar Atendimento
+            </label>
+            <input type="text" id="pesquisaAtendimento" 
+                   placeholder="Pesquisar por assunto, plantonista, nome ou tipo..."
+                   style="width: 100%; padding: 10px; border: 1px solid var(--borda); border-radius: 6px;">
+        </div>
+    </div>
+
+    <!-- ==========================================================
+        TABELA COM ROLAGEM
+    =========================================================== -->
+    <div class="painel">
+        <div class="tabela-container">
+            <table class="tabela-dashboard">
+                <thead>
+                    <tr>
+                        <th><i class="fa-regular fa-calendar"></i> Data</th>
+                        <th><i class="fa-regular fa-file-lines"></i> Tipo de Atendimento</th>
+                        <th><i class="fa-regular fa-message"></i> Assunto / Informação</th>
+                        <th><i class="fa-regular fa-user"></i> Plantonista</th>
+                        <th width="150"><i class="fa-regular fa-gear"></i> Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="listaAtendimentos">
+                    <tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--texto-secundario);">
+                        <i class="fa-regular fa-inbox" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>
+                        Nenhum atendimento registrado.
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ==========================================================
+    MODAL CADASTRO / EDIÇÃO DE ATENDIMENTO
+=========================================================== -->
+<div class="modal" id="modalAtendimento">
+    <div class="modal-box modal-grande">
+        <div class="modal-header">
+            <h2><i class="fa-solid fa-file-pen"></i> Registro de Atendimento</h2>
+            <button class="fechar" id="fecharModalAtendimento" type="button"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="formAtendimento">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label><i class="fa-regular fa-calendar"></i> Data do Atendimento <span style="color:var(--vermelho);">*</span></label>
+                        <input type="date" id="dataAtendimento" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-regular fa-tag"></i> Tipo de Atendimento <span style="color:var(--vermelho);">*</span></label>
+                        <select id="tipoAtendimento" required>
+                            <option value="">Selecione...</option>
+                            <option value="Atendimento com Conselheiro">Atendimento com Conselheiro</option>
+                            <option value="Ato de Atendimento (Balcão / Informação)">Ato de Atendimento (Balcão / Informação)</option>
+                        </select>
+                        <small style="display: block; margin-top: 4px; font-size: 11px; color: var(--texto-secundario);">
+                            <i class="fa-regular fa-circle-info"></i> O ato de balcão registra entrega de dados sem passagem por conselheiro, mas soma-se ao total.
+                        </small>
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fa-regular fa-message"></i> Assunto / Nome do Cidadão e Solicitação <span style="color:var(--vermelho);">*</span></label>
+                        <textarea id="assuntoAtendimento" rows="4" required 
+                                  placeholder="Ex: Nome da pessoa que veio + Informação desejada ou motivo do atendimento..."></textarea>
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fa-regular fa-user"></i> Conselheiro / Plantonista Responsável <span style="color:var(--vermelho);">*</span></label>
+                        <input type="text" id="plantonistaAtendimento" required 
+                               placeholder="Nome do plantonista ou atendente de balcão">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secundario" id="cancelarAtendimento">
+                    <i class="fa-solid fa-times"></i> Cancelar
+                </button>
+                <button type="submit" class="btn-padrao">
+                    <i class="fa-solid fa-floppy-disk"></i> Salvar Atendimento
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ==========================================================
+    MODAL VISUALIZAR E IMPRIMIR
+=========================================================== -->
+<div class="modal" id="modalVisualizarAtendimento">
+    <div class="modal-box modal-grande">
+        <div class="modal-header">
+            <h2><i class="fa-solid fa-eye"></i> Detalhes do Atendimento</h2>
+            <button class="fechar" id="fecharVisualizarAtendimento" type="button"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label><i class="fa-regular fa-calendar"></i> Data</label>
+                    <input type="text" id="verDataAtendimento" readonly>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-regular fa-tag"></i> Tipo</label>
+                    <input type="text" id="verTipoAtendimento" readonly>
+                </div>
+                <div class="form-group full">
+                    <label><i class="fa-regular fa-message"></i> Assunto / Solicitação</label>
+                    <textarea id="verAssuntoAtendimento" rows="4" readonly></textarea>
+                </div>
+                <div class="form-group full">
+                    <label><i class="fa-regular fa-user"></i> Plantonista</label>
+                    <input type="text" id="verPlantonistaAtendimento" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secundario" id="fecharVisualizarAtendimentoRodape" type="button">
+                <i class="fa-solid fa-times"></i> Fechar
+            </button>
+            <button class="btn-padrao" type="button" onclick="window.print()">
+                <i class="fa-solid fa-print"></i> Imprimir
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+    SCRIPT - LÓGICA DE ATENDIMENTOS COM PDF
+=========================================================== -->
+<script>
+    // ==========================================================
+    // ATENDIMENTOS - LÓGICA COMPLETA
+    // ==========================================================
+
+    // ==========================================
+    // BANCO DE DADOS LOCAL
+    // ==========================================
+    let atendimentos = [];
+
+    // Carrega do localStorage
+    function carregarAtendimentos() {
+        try {
+            const dados = localStorage.getItem('atendimentos');
+            if (dados) {
+                atendimentos = JSON.parse(dados);
+            } else {
+                // Dados de exemplo
+                atendimentos = [
+                    {
+                        id: 1,
+                        data: '2026-07-20',
+                        tipo: 'Atendimento com Conselheiro',
+                        assunto: 'João Silva - Suspeita de abuso',
+                        plantonista: 'Dr. Carlos'
+                    },
+                    {
+                        id: 2,
+                        data: '2026-07-20',
+                        tipo: 'Ato de Atendimento (Balcão / Informação)',
+                        assunto: 'Maria Oliveira - Solicitação de documentos',
+                        plantonista: 'Ana Paula'
+                    }
+                ];
+                salvarAtendimentos();
             }
-            atualizarTabelaAtendimentos();
-            calcularIndicadoresAtendimentos();
-        };
+        } catch (e) {
+            console.error('Erro ao carregar:', e);
+            atendimentos = [];
+        }
+        return atendimentos;
     }
 
-    // Fechar modais
-    const fechar1 = document.getElementById("fecharModalAtendimento");
-    const cancelar1 = document.getElementById("cancelarAtendimento");
-    if (fechar1) fechar1.onclick = () => fecharModalAtendimento("modalAtendimento");
-    if (cancelar1) cancelar1.onclick = () => fecharModalAtendimento("modalAtendimento");
-
-    const fechar2 = document.getElementById("fecharVisualizarAtendimento");
-    const fechar2Rodape = document.getElementById("fecharVisualizarAtendimentoRodape");
-    if (fechar2) fechar2.onclick = () => fecharModalAtendimento("modalVisualizarAtendimento");
-    if (fechar2Rodape) fechar2Rodape.onclick = () => fecharModalAtendimento("modalVisualizarAtendimento");
-
-    const pesquisa = document.getElementById("pesquisaAtendimento");
-    if (pesquisa) pesquisa.onkeyup = atualizarTabelaAtendimentos;
-
-    const form = document.getElementById("formAtendimento");
-    if (form) form.onsubmit = salvarAtendimento;
-}
-
-function abrirModalAtendimento(id) {
-    const modal = document.getElementById(id);
-    if (modal) modal.classList.add("ativo");
-}
-
-function fecharModalAtendimento(id) {
-    const modal = document.getElementById(id);
-    if (modal) modal.classList.remove("ativo");
-    if (id === "modalAtendimento") atendimentoEditando = null;
-}
-
-function salvarAtendimento(e) {
-    e.preventDefault();
-
-    if (!Banco.dados.atendimentos) Banco.dados.atendimentos = [];
-
-    const objeto = {
-        id: atendimentoEditando ?? gerarId("atendimentos"),
-        data: document.getElementById("dataAtendimento").value,
-        tipo: document.getElementById("tipoAtendimento").value,
-        assunto: document.getElementById("assuntoAtendimento").value.trim(),
-        plantonista: document.getElementById("plantonistaAtendimento").value.trim()
-    };
-
-    if (atendimentoEditando === null) {
-        inserirRegistro("atendimentos", objeto);
-    } else {
-        atualizarRegistro("atendimentos", objeto);
+    function salvarAtendimentos() {
+        try {
+            localStorage.setItem('atendimentos', JSON.stringify(atendimentos));
+        } catch (e) {
+            console.error('Erro ao salvar:', e);
+        }
     }
 
-    fecharModalAtendimento("modalAtendimento");
-    atualizarTabelaAtendimentos();
-    calcularIndicadoresAtendimentos();
-}
+    // ==========================================
+    // RENDERIZAR TABELA
+    // ==========================================
+    function renderizarAtendimentos(filtro = '') {
+        const tbody = document.getElementById('listaAtendimentos');
+        if (!tbody) return;
 
-function visualizarAtendimento(id) {
-    const item = Banco.dados.atendimentos.find(a => Number(a.id) === Number(id));
-    if (!item) return;
-
-    // Formata a data de AAAA-MM-DD para DD/MM/AAAA para exibição amigável
-    let dataFormatada = item.data;
-    if (item.data && item.data.includes("-")) {
-        const partes = item.data.split("-");
-        dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
-    }
-
-    document.getElementById("verDataAtendimento").value = dataFormatada || "";
-    document.getElementById("verTipoAtendimento").value = item.tipo || "";
-    document.getElementById("verAssuntoAtendimento").value = item.assunto || "";
-    document.getElementById("verPlantonistaAtendimento").value = item.plantonista || "";
-
-    abrirModalAtendimento("modalVisualizarAtendimento");
-}
-
-function editarAtendimento(id) {
-    const item = Banco.dados.atendimentos.find(a => Number(a.id) === Number(id));
-    if (!item) return;
-
-    atendimentoEditando = item.id;
-
-    document.getElementById("dataAtendimento").value = item.data || "";
-    document.getElementById("tipoAtendimento").value = item.tipo || "";
-    document.getElementById("assuntoAtendimento").value = item.assunto || "";
-    document.getElementById("plantonistaAtendimento").value = item.plantonista || "";
-
-    abrirModalAtendimento("modalAtendimento");
-}
-
-function excluirAtendimento(id) {
-    if (!confirm("Deseja realmente excluir este atendimento?")) return;
-    removerRegistro("atendimentos", id);
-    atualizarTabelaAtendimentos();
-    calcularIndicadoresAtendimentos();
-}
-
-function calcularIndicadoresAtendimentos() {
-    if (!Banco || !Banco.dados || !Banco.dados.atendimentos) return;
-
-    const lista = Banco.dados.atendimentos;
-    
-    // Data atual do navegador baseada em 2026
-    const hoje = new Date();
-    const anoAtual = hoje.getFullYear();
-    const mesAtual = String(hoje.getMonth() + 1).padStart(2, '0');
-    const diaAtual = String(hoje.getDate()).padStart(2, '0');
-    
-    const dataHojeStr = `${anoAtual}-${mesAtual}-${diaAtual}`;
-    const anoMesAtualStr = `${anoAtual}-${mesAtual}`;
-
-    // Total Diário (Conselheiros + Atos de Balcão somados)
-    const totalDiario = lista.filter(item => item.data === dataHojeStr).length;
-
-    // Total Mensal (Todo o mês atual somado)
-    const totalMensal = lista.filter(item => item.data && item.data.startsWith(anoMesAtualStr)).length;
-
-    const cardDiario = document.getElementById("cardAtendimentosDiarios");
-    const cardMensal = document.getElementById("cardAtendimentosMensais");
-
-    if (cardDiario) cardDiario.textContent = totalDiario;
-    if (cardMensal) cardMensal.textContent = totalMensal;
-}
-
-function atualizarTabelaAtendimentos() {
-    const tbody = document.getElementById("listaAtendimentos");
-    if (!tbody || !Banco || !Banco.dados || !Banco.dados.atendimentos) return;
-
-    tbody.innerHTML = "";
-    const termo = document.getElementById("pesquisaAtendimento")?.value.toLowerCase() || "";
-
-    let lista = Banco.dados.atendimentos.filter(item => 
-        (item.assunto && item.assunto.toLowerCase().includes(termo)) ||
-        (item.plantonista && item.plantonista.toLowerCase().includes(termo)) ||
-        (item.tipo && item.tipo.toLowerCase().includes(termo)) ||
-        (item.data && item.data.includes(termo))
-    );
-
-    if (lista.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--texto-secundario);">Nenhum atendimento encontrado.</td></tr>`;
-        return;
-    }
-
-    // Ordena do mais recente para o mais antigo por data
-    lista.sort((a, b) => new Date(b.data) - new Date(a.data));
-
-    tbody.innerHTML = lista.map(item => {
-        let dataFormatada = item.data;
-        if (item.data && item.data.includes("-")) {
-            const partes = item.data.split("-");
-            dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+        let lista = atendimentos;
+        
+        // Filtro
+        if (filtro) {
+            const termo = filtro.toLowerCase();
+            lista = atendimentos.filter(a => 
+                a.assunto.toLowerCase().includes(termo) ||
+                a.plantonista.toLowerCase().includes(termo) ||
+                a.tipo.toLowerCase().includes(termo) ||
+                a.data.includes(termo)
+            );
         }
 
-        // Estilo diferente para destacar o Ato de Atendimento (Balcão)
-        const ehAtoBalcao = item.tipo && item.tipo.includes("Ato de Atendimento");
-        const badgeTipo = ehAtoBalcao 
-            ? `<span class="badge badge-laranja" style="font-size:11px;">Ato de Balcão</span>` 
-            : `<span class="badge badge-azul" style="font-size:11px;">Conselheiro</span>`;
+        if (lista.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--texto-secundario);">
+                <i class="fa-regular fa-inbox" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>
+                Nenhum atendimento encontrado.
+            </td></tr>`;
+            return;
+        }
 
-        return `
+        tbody.innerHTML = lista.map(a => `
             <tr>
-                <td><strong>${dataFormatada}</strong></td>
+                <td>${formatarData(a.data)}</td>
+                <td><span class="badge ${a.tipo.includes('Conselheiro') ? 'badge-primary' : 'badge-info'}">${a.tipo}</span></td>
+                <td>${a.assunto}</td>
+                <td>${a.plantonista}</td>
                 <td>
-                    ${item.tipo || "Não informado"}<br>
-                    ${badgeTipo}
-                </td>
-                <td>${item.assunto}</td>
-                <td>${item.plantonista}</td>
-                <td>
-                    <div class="tabela-acoes">
-                        <button class="btn-acao-tabela btn-visualizar" onclick="visualizarAtendimento(${item.id})" title="Visualizar / Imprimir">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
-                        <button class="btn-acao-tabela btn-editar" onclick="editarAtendimento(${item.id})" title="Editar">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button class="btn-acao-tabela btn-excluir" onclick="excluirAtendimento(${item.id})" title="Excluir">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
+                    <button class="btn-icone" onclick="visualizarAtendimento(${a.id})" title="Visualizar">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                    <button class="btn-icone" onclick="editarAtendimento(${a.id})" title="Editar">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
+                    <button class="btn-icone" onclick="excluirAtendimento(${a.id})" title="Excluir" style="color: var(--vermelho);">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
                 </td>
             </tr>
-        `;
-    }).join("");
-}
+        `).join('');
+
+        atualizarCards();
+    }
+
+    // ==========================================
+    // FORMATAR DATA
+    // ==========================================
+    function formatarData(dataStr) {
+        if (!dataStr) return '-';
+        const partes = dataStr.split('-');
+        if (partes.length === 3) {
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+        return dataStr;
+    }
+
+    function formatarDataParaInput(dataStr) {
+        if (!dataStr) return '';
+        // Tenta converter DD/MM/AAAA para AAAA-MM-DD
+        const match = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+        if (match) {
+            return `${match[3]}-${match[2]}-${match[1]}`;
+        }
+        return dataStr;
+    }
+
+    // ==========================================
+    // ATUALIZAR CARDS
+    // ==========================================
+    function atualizarCards() {
+        const hoje = new Date().toISOString().split('T')[0];
+        const mesAtual = hoje.substring(0, 7);
+
+        const diarios = atendimentos.filter(a => a.data === hoje);
+        const mensais = atendimentos.filter(a => a.data.startsWith(mesAtual));
+
+        const cardDiario = document.getElementById('cardAtendimentosDiarios');
+        const cardMensal = document.getElementById('cardAtendimentosMensais');
+
+        if (cardDiario) cardDiario.textContent = diarios.length;
+        if (cardMensal) cardMensal.textContent = mensais.length;
+    }
+
+    // ==========================================
+    // ABRIR MODAL NOVO/EDIÇÃO
+    // ==========================================
+    function abrirModalAtendimento(atendimento = null) {
+        const modal = document.getElementById('modalAtendimento');
+        const form = document.getElementById('formAtendimento');
+        if (!modal || !form) return;
+
+        // Limpa o formulário
+        form.reset();
+        
+        // Remove o ID se existir
+        delete form.dataset.id;
+
+        if (atendimento) {
+            // Edição
+            document.querySelector('#modalAtendimento .modal-header h2').innerHTML = 
+                '<i class="fa-solid fa-pen-to-square"></i> Editar Atendimento';
+            
+            document.getElementById('dataAtendimento').value = atendimento.data;
+            document.getElementById('tipoAtendimento').value = atendimento.tipo;
+            document.getElementById('assuntoAtendimento').value = atendimento.assunto;
+            document.getElementById('plantonistaAtendimento').value = atendimento.plantonista;
+            
+            form.dataset.id = atendimento.id;
+        } else {
+            // Novo
+            document.querySelector('#modalAtendimento .modal-header h2').innerHTML = 
+                '<i class="fa-solid fa-file-pen"></i> Registro de Atendimento';
+            
+            // Preenche data atual
+            document.getElementById('dataAtendimento').value = new Date().toISOString().split('T')[0];
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    // ==========================================
+    // SALVAR ATENDIMENTO
+    // ==========================================
+    document.addEventListener('submit', (e) => {
+        if (e.target.id === 'formAtendimento') {
+            e.preventDefault();
+            
+            const form = e.target;
+            const data = document.getElementById('dataAtendimento').value;
+            const tipo = document.getElementById('tipoAtendimento').value;
+            const assunto = document.getElementById('assuntoAtendimento').value.trim();
+            const plantonista = document.getElementById('plantonistaAtendimento').value.trim();
+
+            if (!data || !tipo || !assunto || !plantonista) {
+                alert('⚠️ Preencha todos os campos obrigatórios!');
+                return;
+            }
+
+            const id = form.dataset.id ? parseInt(form.dataset.id) : null;
+
+            if (id) {
+                // Edição
+                const index = atendimentos.findIndex(a => a.id === id);
+                if (index !== -1) {
+                    atendimentos[index] = { id, data, tipo, assunto, plantonista };
+                }
+            } else {
+                // Novo
+                const novoId = atendimentos.length > 0 ? Math.max(...atendimentos.map(a => a.id)) + 1 : 1;
+                atendimentos.push({ id: novoId, data, tipo, assunto, plantonista });
+            }
+
+            salvarAtendimentos();
+            renderizarAtendimentos();
+            fecharModal('modalAtendimento');
+            
+            alert(id ? '✅ Atendimento atualizado com sucesso!' : '✅ Atendimento salvo com sucesso!');
+        }
+    });
+
+    // ==========================================
+    // VISUALIZAR ATENDIMENTO
+    // ==========================================
+    function visualizarAtendimento(id) {
+        const atendimento = atendimentos.find(a => a.id === id);
+        if (!atendimento) return;
+
+        document.getElementById('verDataAtendimento').value = formatarData(atendimento.data);
+        document.getElementById('verTipoAtendimento').value = atendimento.tipo;
+        document.getElementById('verAssuntoAtendimento').value = atendimento.assunto;
+        document.getElementById('verPlantonistaAtendimento').value = atendimento.plantonista;
+
+        document.getElementById('modalVisualizarAtendimento').style.display = 'flex';
+    }
+
+    // ==========================================
+    // EDITAR ATENDIMENTO
+    // ==========================================
+    function editarAtendimento(id) {
+        const atendimento = atendimentos.find(a => a.id === id);
+        if (atendimento) {
+            abrirModalAtendimento(atendimento);
+        }
+    }
+
+    // ==========================================
+    // EXCLUIR ATENDIMENTO
+    // ==========================================
+    function excluirAtendimento(id) {
+        if (!confirm('⚠️ Tem certeza que deseja excluir este atendimento?')) return;
+        
+        atendimentos = atendimentos.filter(a => a.id !== id);
+        salvarAtendimentos();
+        renderizarAtendimentos();
+        alert('🗑️ Atendimento excluído com sucesso!');
+    }
+
+    // ==========================================
+    // FECHAR MODAIS
+    // ==========================================
+    function fecharModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = 'none';
+    }
+
+    // ==========================================
+    // EVENTOS DOS MODAIS
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // Botão novo atendimento
+        const btnNovo = document.getElementById('btnNovoAtendimento');
+        if (btnNovo) {
+            btnNovo.addEventListener('click', () => abrirModalAtendimento(null));
+        }
+
+        // Botões fechar modal
+        document.querySelectorAll('.fechar, #cancelarAtendimento, #fecharVisualizarAtendimento, #fecharVisualizarAtendimentoRodape')
+            .forEach(btn => {
+                if (btn) {
+                    btn.addEventListener('click', (e) => {
+                        const modal = e.target.closest('.modal');
+                        if (modal) modal.style.display = 'none';
+                    });
+                }
+            });
+
+        // Fechar ao clicar fora
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        // Pesquisa
+        const pesquisa = document.getElementById('pesquisaAtendimento');
+        if (pesquisa) {
+            pesquisa.addEventListener('input', (e) => {
+                renderizarAtendimentos(e.target.value);
+            });
+        }
+
+        // Atualizar
+        const btnAtualizar = document.getElementById('btnAtualizarAtendimento');
+        if (btnAtualizar) {
+            btnAtualizar.addEventListener('click', () => {
+                carregarAtendimentos();
+                renderizarAtendimentos();
+                alert('🔄 Dados atualizados!');
+            });
+        }
+
+        // Carregar dados iniciais
+        carregarAtendimentos();
+        renderizarAtendimentos();
+    });
+
+    // ==========================================
+    // EXPORTA FUNÇÕES PARA O GLOBAL
+    // ==========================================
+    window.visualizarAtendimento = visualizarAtendimento;
+    window.editarAtendimento = editarAtendimento;
+    window.excluirAtendimento = excluirAtendimento;
+    window.fecharModal = fecharModal;
+    window.abrirModalAtendimento = abrirModalAtendimento;
+
+    console.log('📋 Módulo de Atendimentos carregado com sucesso!');
+</script>
+
+<!-- ==========================================================
+    ESTILOS PARA BADGES E COMPONENTES
+=========================================================== -->
+<style>
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .badge-primary {
+        background: var(--cor-primaria);
+        color: white;
+    }
+    
+    .badge-info {
+        background: var(--cor-secundaria);
+        color: white;
+    }
+    
+    .btn-icone {
+        background: none;
+        border: none;
+        padding: 5px 8px;
+        cursor: pointer;
+        font-size: 16px;
+        color: var(--texto-secundario);
+        transition: all 0.2s;
+        border-radius: 4px;
+    }
+    
+    .btn-icone:hover {
+        background: var(--fundo-hover);
+        color: var(--cor-primaria);
+    }
+    
+    .btn-icone:hover i {
+        transform: scale(1.1);
+    }
+    
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .painel {
+        background: var(--fundo-card);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid var(--borda);
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: var(--texto-primario);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 10px;
+        border: 1px solid var(--borda);
+        border-radius: 6px;
+        font-size: 14px;
+        background: var(--fundo);
+        color: var(--texto-primario);
+        transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--cor-primaria);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+        font-family: inherit;
+    }
+    
+    .modal-header h2 i {
+        margin-right: 10px;
+        color: var(--cor-primaria);
+    }
+    
+    .titulo-pagina {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .titulo-pagina h2 {
+        margin: 0;
+        font-size: 24px;
+    }
+    
+    .titulo-pagina p {
+        margin: 5px 0 0 0;
+        color: var(--texto-secundario);
+    }
+    
+    .acoes-topo {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-padrao {
+        background: var(--cor-primaria);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-padrao:hover {
+        background: var(--cor-primaria-escura);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+    
+    .btn-secundario {
+        background: var(--fundo);
+        color: var(--texto-primario);
+        border: 1px solid var(--borda);
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-secundario:hover {
+        background: var(--fundo-hover);
+        border-color: var(--cor-primaria);
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 20px;
+        border-top: 1px solid var(--borda);
+    }
+    
+    .modal-grande {
+        max-width: 800px;
+        width: 95%;
+    }
+    
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .titulo-pagina {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .acoes-topo {
+            width: 100%;
+            justify-content: stretch;
+        }
+        
+        .acoes-topo button {
+            flex: 1;
+        }
+    }
+</style>

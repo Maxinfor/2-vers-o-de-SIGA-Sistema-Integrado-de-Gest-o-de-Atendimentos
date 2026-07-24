@@ -1,5 +1,5 @@
 /* ==========================================================
-   SIGACTPAR - EXTRATOR DE PDF (VERSÃO FINAL FUNCIONAL)
+   SIGACTPAR - EXTRATOR DE PDF (ADAPTADO PARA SEU FORMULÁRIO)
 ========================================================== */
 
 class ExtratorPDF {
@@ -27,7 +27,6 @@ class ExtratorPDF {
     // ==========================================
     extrairCampo(texto, rotulos) {
         for (const rotulo of rotulos) {
-            // Tenta vários padrões
             const padroes = [
                 new RegExp(`${rotulo}\\s*[:\\-]?\\s*([^\\n]+)`, "i"),
                 new RegExp(`${rotulo}\\s*([^\\n]+)`, "i"),
@@ -51,16 +50,13 @@ class ExtratorPDF {
     // LOCALIZAR DATAS
     // ==========================================
     localizarDatas(texto) {
-        // Procura no formato DD/MM/AAAA
-        const datas = texto.match(/\b(\d{2}\/\d{2}\/\d{4})\b/g) || [];
-        return datas;
+        return texto.match(/\b(\d{2}\/\d{2}\/\d{4})\b/g) || [];
     }
 
     // ==========================================
     // LOCALIZAR TELEFONE
     // ==========================================
     localizarTelefone(texto) {
-        // Procura números de telefone
         const padroes = [
             /\(?\d{2}\)?\s?9?\d{4}[-\s]?\d{4}/g,
             /\(?\d{2}\)?\s?\d{4}[-\s]?\d{4}/g,
@@ -77,26 +73,27 @@ class ExtratorPDF {
     }
 
     // ==========================================
-    // LOCALIZAR ENDEREÇO
+    // LOCALIZAR NOME (primeira linha)
     // ==========================================
-    localizarEndereco(texto, linhas) {
-        // Procura por padrões de endereço
-        const padroes = [
-            /(?:Rua|Av|Alameda|Quadra|Q[0-9]|Conjunto|Lote)[\s]+[^,\n]+/i,
-            /Endere[cç]o:?\s*([^\n]+)/i,
-            /(?:Rua|Av|Alameda|Quadra).*?(?=\n|,|$)/i
-        ];
+    localizarNome(texto, linhas) {
+        // Tenta encontrar por rótulo primeiro
+        const nome = this.extrairCampo(texto, [
+            "criança", "adolescente", "nome completo", 
+            "nome da criança", "nome do adolescente",
+            "criança/adolescente", "cidadão", "cidadao"
+        ]);
         
-        for (const padrao of padroes) {
-            const match = texto.match(padrao);
-            if (match) {
-                let endereco = match[0].trim();
-                if (endereco.includes(':')) {
-                    endereco = endereco.split(':')[1].trim();
-                }
-                if (endereco.length > 5) {
-                    return endereco;
-                }
+        if (nome) return nome;
+        
+        // Se não encontrou, usa a primeira linha que não está vazia
+        for (const linha of linhas) {
+            const linhaLimpa = linha.trim();
+            if (linhaLimpa && 
+                !linhaLimpa.includes(':') && 
+                !linhaLimpa.includes('data') &&
+                !linhaLimpa.includes('atendimento') &&
+                linhaLimpa.length < 100) {
+                return linhaLimpa;
             }
         }
         return "";
@@ -108,50 +105,36 @@ class ExtratorPDF {
     extrair(textoOriginal) {
         console.log("🔍 Iniciando extração de dados do PDF...");
         
-        // Normaliza o texto
         const textoNorm = this.normalizar(textoOriginal);
         const linhas = textoOriginal.split('\n').filter(l => l.trim());
         
         // Inicializa dados
         this.dados = {
             nome: "",
-            nascimento: "",
-            responsavel: "",
-            endereco: "",
-            telefone: "",
-            contato: "",
+            dataAtendimento: "",
+            tipoAtendimento: "",
             assunto: "",
-            atendimento: "",
-            data: "",
-            observacao: ""
+            plantonista: "",
+            telefone: "",
+            endereco: "",
+            responsavel: "",
+            nascimento: "",
+            contato: ""
         };
 
         // ==========================================
         // 1. EXTRAIR NOME
         // ==========================================
-        this.dados.nome = this.extrairCampo(textoOriginal, [
-            "criança", "adolescente", "nome completo", 
-            "nome da criança", "nome do adolescente",
-            "criança/adolescente"
-        ]);
-        
-        // Se não encontrou, tenta encontrar na primeira linha
-        if (!this.dados.nome && linhas.length > 0) {
-            const primeiraLinha = linhas[0];
-            if (primeiraLinha.length < 50 && !primeiraLinha.includes(':')) {
-                this.dados.nome = primeiraLinha.trim();
-            }
-        }
+        this.dados.nome = this.localizarNome(textoOriginal, linhas);
+        console.log("Nome encontrado:", this.dados.nome);
 
         // ==========================================
         // 2. EXTRAIR DATA DE NASCIMENTO
         // ==========================================
         const todasDatas = this.localizarDatas(textoOriginal);
-        
-        // Procura data de nascimento por rótulo
         const nascimento = this.extrairCampo(textoOriginal, [
             "data de nascimento", "nascimento", "dt nasc", 
-            "data nasc", "dn", "d.n."
+            "data nasc", "dn", "d.n.", "nasc."
         ]);
         
         if (nascimento) {
@@ -161,7 +144,6 @@ class ExtratorPDF {
             }
         }
         
-        // Se não encontrou, usa a segunda data encontrada
         if (!this.dados.nascimento && todasDatas.length > 1) {
             this.dados.nascimento = todasDatas[1];
         }
@@ -177,13 +159,9 @@ class ExtratorPDF {
         // ==========================================
         // 4. EXTRAIR ENDEREÇO
         // ==========================================
-        this.dados.endereco = this.localizarEndereco(textoOriginal, linhas);
-        
-        if (!this.dados.endereco) {
-            this.dados.endereco = this.extrairCampo(textoOriginal, [
-                "endereço", "endereco", "logradouro", "residência", "residencia"
-            ]);
-        }
+        this.dados.endereco = this.extrairCampo(textoOriginal, [
+            "endereço", "endereco", "logradouro", "residência", "residencia"
+        ]);
 
         // ==========================================
         // 5. EXTRAIR TELEFONE
@@ -194,8 +172,6 @@ class ExtratorPDF {
             this.dados.telefone = this.extrairCampo(textoOriginal, [
                 "telefone", "fone", "celular", "contato"
             ]);
-            
-            // Verifica se o valor extraído contém números
             if (this.dados.telefone && !/\d/.test(this.dados.telefone)) {
                 this.dados.telefone = "";
             }
@@ -207,57 +183,12 @@ class ExtratorPDF {
         this.dados.contato = this.extrairCampo(textoOriginal, [
             "contato", "telefone para contato"
         ]);
-        
         if (!this.dados.contato) {
             this.dados.contato = this.dados.telefone;
         }
 
         // ==========================================
-        // 7. EXTRAIR ASSUNTO
-        // ==========================================
-        this.dados.assunto = this.extrairCampo(textoOriginal, [
-            "assunto", "motivo", "demanda", "ocorrência", "ocorrencia"
-        ]);
-
-        // Se não encontrou, tenta identificar por palavras-chave
-        if (!this.dados.assunto) {
-            if (textoNorm.includes("abuso")) {
-                this.dados.assunto = "Suspeita de abuso";
-            } else if (textoNorm.includes("violência") || textoNorm.includes("violencia")) {
-                this.dados.assunto = "Violência";
-            } else if (textoNorm.includes("abandono")) {
-                this.dados.assunto = "Abandono";
-            } else if (textoNorm.includes("negligência") || textoNorm.includes("negligencia")) {
-                this.dados.assunto = "Negligência";
-            } else if (textoNorm.includes("conselho tutelar")) {
-                this.dados.assunto = "Atendimento Conselho Tutelar";
-            }
-        }
-
-        // ==========================================
-        // 8. EXTRAIR TIPO DE ATENDIMENTO
-        // ==========================================
-        this.dados.atendimento = this.extrairCampo(textoOriginal, [
-            "tipo de atendimento", "atendimento", "modalidade"
-        ]);
-
-        // Se não encontrou, tenta identificar
-        if (!this.dados.atendimento) {
-            if (textoNorm.includes("presencial")) {
-                this.dados.atendimento = "Presencial";
-            } else if (textoNorm.includes("telefônico") || textoNorm.includes("telefonico")) {
-                this.dados.atendimento = "Telefônico";
-            } else if (textoNorm.includes("online") || textoNorm.includes("on line")) {
-                this.dados.atendimento = "Online";
-            } else if (textoNorm.includes("contato")) {
-                this.dados.atendimento = "Contato";
-            } else {
-                this.dados.atendimento = "Presencial";
-            }
-        }
-
-        // ==========================================
-        // 9. EXTRAIR DATA DO ATENDIMENTO
+        // 7. EXTRAIR DATA DO ATENDIMENTO
         // ==========================================
         const dataAtend = this.extrairCampo(textoOriginal, [
             "data do atendimento", "data atendimento", "data"
@@ -266,42 +197,90 @@ class ExtratorPDF {
         if (dataAtend) {
             const matchData = dataAtend.match(/\d{2}\/\d{2}\/\d{4}/);
             if (matchData) {
-                this.dados.data = matchData[0];
+                this.dados.dataAtendimento = matchData[0];
             }
         }
         
-        // Se não encontrou, usa a primeira data
-        if (!this.dados.data && todasDatas.length > 0) {
-            this.dados.data = todasDatas[0];
+        if (!this.dados.dataAtendimento && todasDatas.length > 0) {
+            this.dados.dataAtendimento = todasDatas[0];
         }
 
         // ==========================================
-        // 10. OBSERVAÇÕES
+        // 8. EXTRAIR TIPO DE ATENDIMENTO
         // ==========================================
-        // Pega o restante do texto como observação
-        const camposExtraidos = [
-            this.dados.nome,
-            this.dados.nascimento,
-            this.dados.responsavel,
-            this.dados.endereco,
-            this.dados.telefone,
-            this.dados.contato,
-            this.dados.assunto,
-            this.dados.atendimento,
-            this.dados.data
-        ];
-        
-        let textoRestante = textoOriginal;
-        for (const campo of camposExtraidos) {
-            if (campo) {
-                textoRestante = textoRestante.replace(campo, '');
+        this.dados.tipoAtendimento = this.extrairCampo(textoOriginal, [
+            "tipo de atendimento", "atendimento", "modalidade"
+        ]);
+
+        // Se não encontrou, tenta identificar
+        if (!this.dados.tipoAtendimento) {
+            if (textoNorm.includes("conselheiro")) {
+                this.dados.tipoAtendimento = "Atendimento com Conselheiro";
+            } else if (textoNorm.includes("balcão") || textoNorm.includes("balcao") || textoNorm.includes("informação")) {
+                this.dados.tipoAtendimento = "Ato de Atendimento (Balcão / Informação)";
+            } else if (textoNorm.includes("presencial")) {
+                this.dados.tipoAtendimento = "Atendimento com Conselheiro";
+            } else {
+                this.dados.tipoAtendimento = "Ato de Atendimento (Balcão / Informação)";
             }
         }
-        
-        this.dados.observacao = textoRestante
-            .replace(/\n{3,}/g, '\n\n')
-            .trim()
-            .substring(0, 500);
+
+        // ==========================================
+        // 9. EXTRAIR ASSUNTO (completo)
+        // ==========================================
+        // Tenta encontrar o assunto principal
+        let assunto = this.extrairCampo(textoOriginal, [
+            "assunto", "motivo", "demanda", "ocorrência", "ocorrencia", "solicitação", "solicitacao"
+        ]);
+
+        // Se não encontrou, constrói um assunto baseado nos dados
+        if (!assunto) {
+            const partesAssunto = [];
+            
+            if (this.dados.nome) {
+                partesAssunto.push(`Nome: ${this.dados.nome}`);
+            }
+            
+            if (this.dados.responsavel) {
+                partesAssunto.push(`Responsável: ${this.dados.responsavel}`);
+            }
+            
+            if (this.dados.telefone) {
+                partesAssunto.push(`Contato: ${this.dados.telefone}`);
+            }
+            
+            if (this.dados.endereco) {
+                partesAssunto.push(`Endereço: ${this.dados.endereco}`);
+            }
+            
+            // Adiciona informações sobre o tipo de atendimento
+            if (this.dados.tipoAtendimento && this.dados.tipoAtendimento.includes("Conselheiro")) {
+                partesAssunto.push("Necessita atendimento com conselheiro");
+            } else {
+                partesAssunto.push("Informação/balcão");
+            }
+            
+            assunto = partesAssunto.join(" | ");
+        }
+
+        // Limpa o assunto
+        this.dados.assunto = assunto
+            .replace(/^[:-\s]+/, '')
+            .replace(/\s{2,}/g, ' ')
+            .trim();
+
+        // ==========================================
+        // 10. EXTRAIR PLANTONISTA
+        // ==========================================
+        this.dados.plantonista = this.extrairCampo(textoOriginal, [
+            "plantonista", "conselheiro", "responsável", "atendente",
+            "funcionário", "funcionario"
+        ]);
+
+        // Se não encontrou, usa "Conselheiro" como padrão
+        if (!this.dados.plantonista) {
+            this.dados.plantonista = "Conselheiro";
+        }
 
         console.log("✅ Dados extraídos com sucesso!");
         console.table(this.dados);
@@ -365,72 +344,92 @@ async function processarExtracaoPdf(texto) {
     }
 
     // ==========================================
-    // PREENCHER FORMULÁRIO
+    // PREENCHER FORMULÁRIO (Adaptado para seus campos)
     // ==========================================
     async function preencherFormulario() {
         console.log("📝 Preenchendo formulário...");
         
-        // Aguarda os campos
+        // Aguarda os campos do seu formulário
         const campos = {
-            nome: await aguardarElemento('txtNome'),
-            nascimento: await aguardarElemento('txtDataNascimento'),
-            responsavel: await aguardarElemento('txtResponsavel'),
-            endereco: await aguardarElemento('txtEndereco'),
-            telefone: await aguardarElemento('txtTelefone'),
-            contato: await aguardarElemento('txtContato'),
-            assunto: await aguardarElemento('txtAssunto'),
-            data: await aguardarElemento('txtData'),
-            tipoAtendimento: await aguardarElemento('cmbTipoAtendimento')
+            dataAtendimento: await aguardarElemento('dataAtendimento'),
+            tipoAtendimento: await aguardarElemento('tipoAtendimento'),
+            assuntoAtendimento: await aguardarElemento('assuntoAtendimento'),
+            plantonistaAtendimento: await aguardarElemento('plantonistaAtendimento')
         };
 
-        // Preenche os campos
-        if (campos.nome) campos.nome.value = dados.nome || '';
-        if (campos.nascimento) campos.nascimento.value = converterDataParaInput(dados.nascimento);
-        if (campos.responsavel) campos.responsavel.value = dados.responsavel || '';
-        if (campos.endereco) campos.endereco.value = dados.endereco || '';
-        if (campos.telefone) campos.telefone.value = dados.telefone || '';
-        if (campos.contato) campos.contato.value = dados.contato || '';
-        if (campos.assunto) campos.assunto.value = dados.assunto || '';
-        if (campos.data) campos.data.value = converterDataParaInput(dados.data);
-        
-        // ComboBox de Tipo de Atendimento
-        if (campos.tipoAtendimento && dados.atendimento) {
+        // Preenche a data
+        if (campos.dataAtendimento) {
+            campos.dataAtendimento.value = converterDataParaInput(dados.dataAtendimento);
+        }
+
+        // Preenche o tipo de atendimento (select)
+        if (campos.tipoAtendimento && dados.tipoAtendimento) {
             let encontrou = false;
             for (let option of campos.tipoAtendimento.options) {
-                if (option.text.toLowerCase() === dados.atendimento.toLowerCase()) {
+                if (option.value === dados.tipoAtendimento || 
+                    option.text.toLowerCase() === dados.tipoAtendimento.toLowerCase()) {
                     campos.tipoAtendimento.value = option.value;
                     encontrou = true;
                     break;
                 }
             }
+            
+            // Se não encontrou, adiciona como opção
             if (!encontrou) {
                 const novaOpcao = document.createElement('option');
-                novaOpcao.value = dados.atendimento;
-                novaOpcao.text = dados.atendimento;
+                novaOpcao.value = dados.tipoAtendimento;
+                novaOpcao.text = dados.tipoAtendimento;
                 campos.tipoAtendimento.appendChild(novaOpcao);
-                campos.tipoAtendimento.value = dados.atendimento;
+                campos.tipoAtendimento.value = dados.tipoAtendimento;
             }
+        }
+
+        // Preenche o assunto com todas as informações
+        if (campos.assuntoAtendimento && dados.assunto) {
+            // Adiciona informações detalhadas no assunto
+            let assuntoCompleto = dados.assunto;
+            
+            // Se tiver informações adicionais, adiciona no assunto
+            if (dados.endereco) {
+                assuntoCompleto += `\nEndereço: ${dados.endereco}`;
+            }
+            if (dados.telefone) {
+                assuntoCompleto += `\nTelefone: ${dados.telefone}`;
+            }
+            if (dados.responsavel) {
+                assuntoCompleto += `\nResponsável: ${dados.responsavel}`;
+            }
+            if (dados.nascimento) {
+                assuntoCompleto += `\nNascimento: ${dados.nascimento}`;
+            }
+            
+            campos.assuntoAtendimento.value = assuntoCompleto;
+        }
+
+        // Preenche o plantonista
+        if (campos.plantonistaAtendimento) {
+            campos.plantonistaAtendimento.value = dados.plantonista || 'Conselheiro';
         }
 
         // ==========================================
         // PREENCHER CAMPOS DE VISUALIZAÇÃO (PDF)
         // ==========================================
         const camposPdf = {
-            pdfNome: dados.nome,
-            pdfNascimento: dados.nascimento,
-            pdfResponsavel: dados.responsavel,
-            pdfEndereco: dados.endereco,
-            pdfTelefone: dados.telefone,
-            pdfContato: dados.contato,
-            pdfAssunto: dados.assunto,
-            pdfTipo: dados.atendimento,
-            pdfData: dados.data
+            pdfNome: dados.nome || '—',
+            pdfData: dados.dataAtendimento || '—',
+            pdfTipo: dados.tipoAtendimento || '—',
+            pdfAssunto: dados.assunto || '—',
+            pdfPlantonista: dados.plantonista || '—',
+            pdfTelefone: dados.telefone || '—',
+            pdfEndereco: dados.endereco || '—',
+            pdfResponsavel: dados.responsavel || '—',
+            pdfNascimento: dados.nascimento || '—'
         };
 
         Object.keys(camposPdf).forEach(id => {
             const el = document.getElementById(id);
             if (el) {
-                el.textContent = camposPdf[id] || '—';
+                el.textContent = camposPdf[id];
             }
         });
 
@@ -460,15 +459,16 @@ async function processarExtracaoPdf(texto) {
     const mensagem = `
 📄 PDF IMPORTADO COM SUCESSO!
 
-👶 Nome: ${dados.nome || '—'}
-📅 Nascimento: ${dados.nascimento || '—'}
-👤 Responsável: ${dados.responsavel || '—'}
-📍 Endereço: ${dados.endereco || '—'}
+👤 Nome: ${dados.nome || '—'}
+📅 Data Atendimento: ${dados.dataAtendimento || '—'}
+📋 Tipo: ${dados.tipoAtendimento || '—'}
+📝 Assunto: ${dados.assunto || '—'}
+👨‍💼 Plantonista: ${dados.plantonista || '—'}
+
 📞 Telefone: ${dados.telefone || '—'}
-📱 Contato: ${dados.contato || '—'}
-📋 Assunto: ${dados.assunto || '—'}
-🔄 Atendimento: ${dados.atendimento || '—'}
-📆 Data: ${dados.data || '—'}
+📍 Endereço: ${dados.endereco || '—'}
+👤 Responsável: ${dados.responsavel || '—'}
+📅 Nascimento: ${dados.nascimento || '—'}
 
 ✅ Todos os campos foram preenchidos automaticamente!
     `;

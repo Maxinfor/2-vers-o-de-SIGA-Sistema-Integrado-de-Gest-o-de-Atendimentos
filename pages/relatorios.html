@@ -1,21 +1,202 @@
 <div class="pagina">
+
+    <!-- ==========================================================
+                            TÍTULO
+    =========================================================== -->
     <div class="titulo-pagina">
         <h2>Relatórios Estatísticos</h2>
         <small>Geração de relatórios gerenciais das ocorrências e atendimentos.</small>
     </div>
-    
-    <div class="painel" style="padding: 30px; text-align: center;"> 
-        <i class="fa-solid fa-chart-column" style="font-size: 48px; color: var(--azul); margin-bottom: 15px;"></i>
-        <h3>Módulo de Relatórios Integrados</h3>
-        <p style="color: var(--texto-secundario); margin-top: 10px; margin-bottom: 25px;">Utilize os filtros globais para exportar dados estatísticos consolidados do Conselho Tutelar.</p>
-        
-        <!-- Bloco de Importação de Ficha via PDF -->
-        <div class="secao-importacao-pdf" style="margin-top: 20px; padding: 20px; border: 1px dashed #ccc; border-radius: 8px; background: #f9f9f9; display: inline-block; width: 100%; max-width: 600px; box-sizing: border-box;">
-            <h4 style="margin-bottom: 8px; color: #333;">Importar Ficha de Atendimento via PDF</h4>
-            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Selecione o arquivo PDF preenchido para o sistema extrair os dados automaticamente.</p>
-            
-            <!-- Input nativo limpo e funcional -->
-            <input type="file" id="inputPdfImport" accept="application/pdf" style="padding: 10px; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; width: 100%; max-width: 400px;">
+
+    <!-- ==========================================================
+                        PAINEL PRINCIPAL
+    =========================================================== -->
+    <div class="painel" style="padding:30px;">
+
+        <div style="text-align:center;">
+
+            <i class="fa-solid fa-chart-column"
+               style="font-size:52px;color:var(--azul);margin-bottom:15px;"></i>
+
+            <h3>Módulo de Relatórios Integrados</h3>
+
+            <p style="margin-top:10px;color:var(--texto-secundario);">
+                Utilize os filtros globais para exportar dados estatísticos do Conselho Tutelar.
+            </p>
+
         </div>
+
+        <hr style="margin:30px 0;">
+
+        <!-- ==========================================================
+                        IMPORTAÇÃO PDF
+        =========================================================== -->
+
+        <div class="painel">
+
+            <h3>
+                <i class="fa-solid fa-file-pdf"></i>
+                Importar Ficha de Atendimento
+            </h3>
+
+            <p style="margin-top:10px;color:#666;">
+
+                Selecione um arquivo PDF.
+
+                O SIGACTPAR irá localizar automaticamente:
+
+            </p>
+
+            <ul style="margin:15px 0 25px 20px;line-height:28px;">
+
+                <li>Criança / Adolescente</li>
+
+                <li>Data de Nascimento</li>
+
+                <li>Responsável</li>
+
+                <li>Endereço</li>
+
+                <li>Telefone</li>
+
+                <li>Contato</li>
+
+                <li>Assunto</li>
+
+                <li>Tipo de Atendimento</li>
+
+                <li>Data do Atendimento</li>
+
+            </ul>
+
+            <!-- Seleção -->
+
+            <input
+                type="file"
+                id="inputPdfImport"
+                accept=".pdf,application/pdf"
+                class="input"
+                style="margin-bottom:20px;">
+
+            <!-- Barra -->
+
+            <progress
+                id="progressoImportacao"
+                value="0"
+                max="100"
+                style="display:none;width:100%;height:20px;">
+            </progress>
+
+            <!-- Status -->
+
+            <div
+                id="statusImportacao"
+                style="margin-top:15px;font-weight:600;color:var(--azul);">
+            </div>
+
+        </div>
+
+        <br>
+
+        <!-- ==========================================================
+                        RESUMO DA IMPORTAÇÃO
+        =========================================================== -->
+
+        <div class="painel">
+
+            <h3>
+
+                <i class="fa-solid fa-circle-check"></i>
+
+                Dados Encontrados
+
+            </h3>
+
+            <table class="tabela" style="margin-top:20px;">
+
+                <tbody>
+
+                    <tr>
+                        <th width="220">Criança / Adolescente</th>
+                        <td id="pdfNome">—</td>
+                    </tr>
+
+                    <tr>
+                        <th>Data de Nascimento</th>
+                        <td id="pdfNascimento">—</td>
+                    </tr>
+
+                    <tr>
+                        <th>Responsável</th>
+                        <td id="pdfResponsavel">—</td>
+                    </tr>
+
+                    <tr>
+                        <th>Endereço</th>
+                        <td id="pdfEndereco">—</td>
+                    </tr>
+
+                    <tr>
+                        <th>Telefone</th>
+                        <td id="pdfTelefone">—</td>
+                    </tr>
+
+                    <tr>
+                        <th>Contato</th>
+                        <td id="pdfContato">—</td>
+                    </tr>
+
+                    <tr>
+                        <th>Assunto</th>
+                        <td id="pdfAssunto">—</td>
+                    </tr>
+
+                    <tr>
+                        <th>Tipo Atendimento</th>
+                        <td id="pdfTipo">—</td>
+                    </tr>
+
+                    <tr>
+                        <th>Data Atendimento</th>
+                        <td id="pdfData">—</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <br>
+
+        <!-- ==========================================================
+                        AÇÕES
+        =========================================================== -->
+
+        <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
+
+            <button
+                class="btn btn-success"
+                id="btnImportarBanco">
+
+                <i class="fa-solid fa-floppy-disk"></i>
+
+                Importar para o Sistema
+
+            </button>
+
+            <button
+                class="btn btn-secondary"
+                id="btnLimparImportacao">
+
+                <i class="fa-solid fa-trash"></i>
+
+                Limpar
+
+            </button>
+
+        </div>
+
     </div>
+
 </div>

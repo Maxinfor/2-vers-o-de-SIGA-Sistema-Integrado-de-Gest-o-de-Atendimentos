@@ -1,273 +1,287 @@
 /* ==========================================================
    SIGACTPAR - MÓDULO DE CRIANÇAS E ADOLESCENTES
-   VERSÃO COM INTEGRAÇÃO DE PDF
+   VERSÃO COMPLETA COM INTEGRAÇÃO PDF
 ========================================================== */
 
-let criancaEditando = null;
-let criancaExcluir = null;
+// ==========================================
+// BANCO DE DADOS LOCAL
+// ==========================================
+let criancas = [];
 
-// ==========================================
-// INICIALIZAÇÃO
-// ==========================================
-function iniciarCriancas() {
-    configurarEventosCriancas();
-    atualizarTabelaCriancas();
-    atualizarIndicadoresCriancas();
-    console.log('👶 Módulo de Crianças iniciado!');
+function carregarCriancas() {
+    try {
+        const dados = localStorage.getItem('criancas');
+        if (dados) {
+            criancas = JSON.parse(dados);
+        } else {
+            // Dados de exemplo
+            criancas = [
+                {
+                    id: 1,
+                    nome: 'João Silva',
+                    nascimento: '2015-03-15',
+                    cpf: '123.456.789-00',
+                    escola: 'Escola Municipal',
+                    responsavel: 'Maria Silva',
+                    observacoes: 'Suspeita de abuso'
+                }
+            ];
+            salvarCriancas();
+        }
+    } catch (e) {
+        console.error('Erro ao carregar:', e);
+        criancas = [];
+    }
+    return criancas;
+}
+
+function salvarCriancas() {
+    try {
+        localStorage.setItem('criancas', JSON.stringify(criancas));
+    } catch (e) {
+        console.error('Erro ao salvar:', e);
+    }
 }
 
 // ==========================================
-// CONFIGURAR EVENTOS
+// FUNÇÕES AUXILIARES DE DATA
 // ==========================================
-function configurarEventosCriancas() {
-    const btnNovo = document.getElementById("btnNovaCrianca");
-    if (btnNovo) btnNovo.onclick = novaCrianca;
+function formatarData(dataStr) {
+    if (!dataStr) return '-';
+    const partes = dataStr.split('-');
+    if (partes.length === 3) {
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+    return dataStr;
+}
 
-    const btnAtualizar = document.getElementById("btnAtualizarCriancas");
-    if (btnAtualizar) {
-        btnAtualizar.onclick = () => {
-            atualizarTabelaCriancas();
-            atualizarIndicadoresCriancas();
-        };
+function formatarDataParaInput(dataStr) {
+    if (!dataStr) return '';
+    const match = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (match) {
+        return `${match[3]}-${match[2]}-${match[1]}`;
+    }
+    return dataStr;
+}
+
+// ==========================================
+// RENDERIZAR TABELA (CORRIGIDO)
+// ==========================================
+function renderizarCriancas(filtro = '') {
+    const tbody = document.getElementById('listaCriancas');
+    if (!tbody) return;
+
+    let lista = criancas;
+    
+    if (filtro) {
+        const termo = filtro.toLowerCase();
+        lista = criancas.filter(c => 
+            c.nome.toLowerCase().includes(termo) ||
+            (c.escola && c.escola.toLowerCase().includes(termo)) ||
+            (c.responsavel && c.responsavel.toLowerCase().includes(termo)) ||
+            (c.cpf && c.cpf.includes(termo))
+        );
     }
 
-    // Fechar e cancelar modais
-    const fecharModalCadastro = document.getElementById("fecharModalCrianca");
-    const cancelar = document.getElementById("cancelarCrianca");
-    if (fecharModalCadastro) fecharModalCadastro.onclick = fecharModalCrianca;
-    if (cancelar) cancelar.onclick = fecharModalCrianca;
+    if (lista.length === 0) {
+        tbody.innerHTML = `<tr>
+            <td colspan="6" style="text-align: center; padding: 40px; color: var(--texto-secundario);">
+                <i class="fa-regular fa-inbox" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>
+                Nenhuma criança ou adolescente cadastrado.
+            </td>
+        </tr>`;
+        return;
+    }
 
-    const fecharVis = document.getElementById("fecharVisualizarCrianca");
-    const fecharVisRodape = document.getElementById("fecharVisualizarCriancaRodape");
-    if (fecharVis) fecharVis.onclick = fecharModalVisualizacaoCrianca;
-    if (fecharVisRodape) fecharVisRodape.onclick = fecharModalVisualizacaoCrianca;
+    let html = '';
+    for (const c of lista) {
+        html += `
+            <tr>
+                <td><strong>#${c.id}</strong></td>
+                <td>${c.nome}</td>
+                <td>${formatarData(c.nascimento)}</td>
+                <td>${c.escola || '—'}</td>
+                <td>${c.responsavel || '—'}</td>
+                <td>
+                    <div class="tabela-acoes">
+                        <button class="btn-acao-tabela btn-visualizar" onclick="visualizarCrianca(${c.id})" title="Visualizar">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        <button class="btn-acao-tabela btn-editar" onclick="editarCrianca(${c.id})" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="btn-acao-tabela btn-excluir" onclick="abrirExcluirCrianca(${c.id})" title="Excluir">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+    tbody.innerHTML = html;
 
-    const fecharExc = document.getElementById("fecharExcluirCrianca");
-    const cancelarExc = document.getElementById("cancelarExcluirCrianca");
-    const confirmarExc = document.getElementById("confirmarExcluirCrianca");
-    if (fecharExc) fecharExc.onclick = fecharModalExcluirCrianca;
-    if (cancelarExc) cancelarExc.onclick = fecharModalExcluirCrianca;
-    if (confirmarExc) confirmarExc.onclick = confirmarExclusaoCrianca;
-
-    // Pesquisa em tempo real
-    const pesquisa = document.getElementById("pesquisaCrianca");
-    if (pesquisa) pesquisa.onkeyup = atualizarTabelaCriancas;
-
-    // Submit do formulário de cadastro/edição
-    const form = document.getElementById("formCrianca");
-    if (form) form.onsubmit = salvarCrianca;
+    atualizarCardsCriancas();
 }
 
 // ==========================================
-// FUNÇÕES DE MODAL
+// ATUALIZAR CARDS
 // ==========================================
-function novaCrianca() {
-    criancaEditando = null;
-    const form = document.getElementById("formCrianca");
-    if (form) form.reset();
-    abrirModalCrianca();
-}
+function atualizarCardsCriancas() {
+    const total = criancas.length;
+    const comEscola = criancas.filter(c => c.escola && c.escola.trim() !== '').length;
 
-function abrirModalCrianca() {
-    const modal = document.getElementById("modalCrianca");
-    if (modal) modal.classList.add("ativo");
-}
-
-function fecharModalCrianca() {
-    const modal = document.getElementById("modalCrianca");
-    if (modal) modal.classList.remove("ativo");
-    criancaEditando = null;
-}
-
-function abrirModalVisualizacaoCrianca() {
-    const modal = document.getElementById("modalVisualizarCrianca");
-    if (modal) modal.classList.add("ativo");
-}
-
-function fecharModalVisualizacaoCrianca() {
-    const modal = document.getElementById("modalVisualizarCrianca");
-    if (modal) modal.classList.remove("ativo");
-}
-
-function fecharModalExcluirCrianca() {
-    criancaExcluir = null;
-    const modal = document.getElementById("modalExcluirCrianca");
-    if (modal) modal.classList.remove("ativo");
-}
-
-// ==========================================
-// INDICADORES
-// ==========================================
-function atualizarIndicadoresCriancas() {
-    if (!Banco || !Banco.dados || !Banco.dados.criancas) return;
-
-    const total = Banco.dados.criancas.length;
-    const comEscola = Banco.dados.criancas.filter(c => c.escola && c.escola.trim() !== "").length;
-
-    const cardTotal = document.getElementById("cardTotalCriancas");
-    const cardEscola = document.getElementById("cardComEscola");
+    const cardTotal = document.getElementById('cardTotalCriancas');
+    const cardEscola = document.getElementById('cardComEscola');
 
     if (cardTotal) cardTotal.textContent = total;
     if (cardEscola) cardEscola.textContent = comEscola;
 }
 
 // ==========================================
+// ABRIR MODAL NOVO/EDIÇÃO
+// ==========================================
+function abrirModalCrianca(crianca = null) {
+    const modal = document.getElementById('modalCrianca');
+    const form = document.getElementById('formCrianca');
+    if (!modal || !form) return;
+
+    form.reset();
+    delete form.dataset.id;
+
+    if (crianca) {
+        document.querySelector('#modalCrianca .modal-header h2').innerHTML = 
+            '<i class="fa-solid fa-pen-to-square"></i> Editar Criança / Adolescente';
+        
+        document.getElementById('nomeCrianca').value = crianca.nome || '';
+        document.getElementById('nascimentoCrianca').value = crianca.nascimento || '';
+        document.getElementById('cpfCrianca').value = crianca.cpf || '';
+        document.getElementById('escolaCrianca').value = crianca.escola || '';
+        document.getElementById('responsavelCrianca').value = crianca.responsavel || '';
+        document.getElementById('observacoesCrianca').value = crianca.observacoes || '';
+        
+        form.dataset.id = crianca.id;
+    } else {
+        document.querySelector('#modalCrianca .modal-header h2').innerHTML = 
+            '<i class="fa-solid fa-child"></i> Formulário de Criança / Adolescente';
+    }
+
+    modal.style.display = 'flex';
+}
+
+function fecharModalCrianca() {
+    const modal = document.getElementById('modalCrianca');
+    if (modal) modal.style.display = 'none';
+}
+
+// ==========================================
 // SALVAR CRIANÇA
 // ==========================================
-function salvarCrianca(e) {
-    e.preventDefault();
+document.addEventListener('submit', (e) => {
+    if (e.target.id === 'formCrianca') {
+        e.preventDefault();
+        
+        const form = e.target;
+        const nome = document.getElementById('nomeCrianca').value.trim();
+        const nascimento = document.getElementById('nascimentoCrianca').value;
+        const cpf = document.getElementById('cpfCrianca').value.trim();
+        const escola = document.getElementById('escolaCrianca').value.trim();
+        const responsavel = document.getElementById('responsavelCrianca').value.trim();
+        const observacoes = document.getElementById('observacoesCrianca').value.trim();
 
-    const objeto = {
-        id: criancaEditando ?? gerarId("crianca"),
-        nome: document.getElementById("nomeCrianca").value.trim(),
-        nascimento: document.getElementById("nascimentoCrianca").value,
-        cpf: document.getElementById("cpfCrianca").value.trim(),
-        escola: document.getElementById("escolaCrianca").value.trim(),
-        responsavel: document.getElementById("responsavelCrianca").value.trim(),
-        observacoes: document.getElementById("observacoesCrianca").value.trim()
-    };
+        if (!nome || !nascimento || !responsavel) {
+            alert('⚠️ Preencha todos os campos obrigatórios!');
+            return;
+        }
 
-    if (!objeto.nome || !objeto.nascimento || !objeto.escola || !objeto.responsavel) {
-        alert("Preencha todos os campos obrigatórios (*).");
-        return;
+        const id = form.dataset.id ? parseInt(form.dataset.id) : null;
+
+        if (id) {
+            const index = criancas.findIndex(c => c.id === id);
+            if (index !== -1) {
+                criancas[index] = { id, nome, nascimento, cpf, escola, responsavel, observacoes };
+            }
+        } else {
+            const novoId = criancas.length > 0 ? Math.max(...criancas.map(c => c.id)) + 1 : 1;
+            criancas.push({ id: novoId, nome, nascimento, cpf, escola, responsavel, observacoes });
+        }
+
+        salvarCriancas();
+        renderizarCriancas();
+        fecharModalCrianca();
+        
+        alert(id ? '✅ Criança atualizada com sucesso!' : '✅ Criança cadastrada com sucesso!');
     }
-
-    if (criancaEditando === null) {
-        inserirRegistro("criancas", objeto);
-    } else {
-        atualizarRegistro("criancas", objeto);
-    }
-
-    atualizarTabelaCriancas();
-    atualizarIndicadoresCriancas();
-    fecharModalCrianca();
-}
+});
 
 // ==========================================
-// TABELA
-// ==========================================
-function atualizarTabelaCriancas() {
-    const tbody = document.getElementById("listaCriancas");
-    if (!tbody) return;
-
-    tbody.innerHTML = "";
-
-    if (!Banco || !Banco.dados || !Banco.dados.criancas) return;
-
-    const termo = document.getElementById("pesquisaCrianca")?.value.toLowerCase() || "";
-
-    let lista = Banco.dados.criancas.filter(item => {
-        return (
-            (item.nome && item.nome.toLowerCase().includes(termo)) ||
-            (item.escola && item.escola.toLowerCase().includes(termo)) ||
-            (item.cpf && item.cpf.toLowerCase().includes(termo)) ||
-            (item.responsavel && item.responsavel.toLowerCase().includes(termo))
-        );
-    });
-
-    lista.sort((a, b) => b.id - a.id);
-
-    if (lista.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="vazio" style="text-align: center; padding: 20px; color: var(--texto-secundario);">
-                    <i class="fa-regular fa-inbox" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>
-                    Nenhuma criança cadastrada.
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    tbody.innerHTML = lista.map(item => `
-        <tr>
-            <td><strong>#${item.id}</strong></td>
-            <td>${item.nome}</td>
-            <td>${item.nascimento ? item.nascimento.split('-').reverse().join('/') : ''}</td>
-            <td>${item.escola || '—'}</td>
-            <td>${item.responsavel || '—'}</td>
-            <td>
-                <div class="tabela-acoes">
-                    <button class="btn-acao-tabela btn-visualizar" onclick="visualizarCrianca(${item.id})" title="Visualizar">
-                        <i class="fa-solid fa-eye"></i>
-                    </button>
-                    <button class="btn-acao-tabela btn-editar" onclick="editarCrianca(${item.id})" title="Editar">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button class="btn-acao-tabela btn-excluir" onclick="excluirCriancaModal(${item.id})" title="Excluir">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join("");
-}
-
-// ==========================================
-// BUSCAR CRIANÇA
-// ==========================================
-function buscarCrianca(id) {
-    if (!Banco || !Banco.dados || !Banco.dados.criancas) return null;
-    return Banco.dados.criancas.find(item => item.id === id);
-}
-
-// ==========================================
-// VISUALIZAR
+// VISUALIZAR CRIANÇA
 // ==========================================
 function visualizarCrianca(id) {
-    const item = buscarCrianca(id);
-    if (!item) return;
+    const crianca = criancas.find(c => c.id === id);
+    if (!crianca) return;
 
-    document.getElementById("verIdCrianca").value = `#${item.id}`;
-    document.getElementById("verNascimentoCrianca").value = item.nascimento ? item.nascimento.split('-').reverse().join('/') : '';
-    document.getElementById("verCpfCrianca").value = item.cpf || "Não informado";
-    document.getElementById("verNomeCrianca").value = item.nome;
-    document.getElementById("verEscolaCrianca").value = item.escola || '—';
-    document.getElementById("verResponsavelCrianca").value = item.responsavel || '—';
-    document.getElementById("verObservacoesCrianca").value = item.observacoes || "Nenhuma observação registrada.";
+    document.getElementById('verIdCrianca').value = `#${crianca.id}`;
+    document.getElementById('verNomeCrianca').value = crianca.nome || '—';
+    document.getElementById('verNascimentoCrianca').value = formatarData(crianca.nascimento);
+    document.getElementById('verCpfCrianca').value = crianca.cpf || 'Não informado';
+    document.getElementById('verEscolaCrianca').value = crianca.escola || '—';
+    document.getElementById('verResponsavelCrianca').value = crianca.responsavel || '—';
+    document.getElementById('verObservacoesCrianca').value = crianca.observacoes || 'Nenhuma observação registrada.';
 
-    abrirModalVisualizacaoCrianca();
+    document.getElementById('modalVisualizarCrianca').style.display = 'flex';
+}
+
+function fecharModalVisualizacaoCrianca() {
+    document.getElementById('modalVisualizarCrianca').style.display = 'none';
 }
 
 // ==========================================
-// EDITAR
+// EDITAR CRIANÇA
 // ==========================================
 function editarCrianca(id) {
-    const item = buscarCrianca(id);
-    if (!item) return;
-
-    criancaEditando = item.id;
-    document.getElementById("nomeCrianca").value = item.nome;
-    document.getElementById("nascimentoCrianca").value = item.nascimento;
-    document.getElementById("cpfCrianca").value = item.cpf || "";
-    document.getElementById("escolaCrianca").value = item.escola || "";
-    document.getElementById("responsavelCrianca").value = item.responsavel || "";
-    document.getElementById("observacoesCrianca").value = item.observacoes || "";
-
-    abrirModalCrianca();
+    const crianca = criancas.find(c => c.id === id);
+    if (crianca) {
+        abrirModalCrianca(crianca);
+    }
 }
 
 // ==========================================
-// EXCLUIR
+// EXCLUIR CRIANÇA
 // ==========================================
-function excluirCriancaModal(id) {
-    criancaExcluir = id;
-    const modal = document.getElementById("modalExcluirCrianca");
-    if (modal) modal.classList.add("ativo");
+let idExcluirCrianca = null;
+
+function abrirExcluirCrianca(id) {
+    idExcluirCrianca = id;
+    document.getElementById('modalExcluirCrianca').style.display = 'flex';
 }
 
-function confirmarExclusaoCrianca() {
-    if (criancaExcluir === null) return;
-
-    removerRegistro("criancas", criancaExcluir);
-    atualizarTabelaCriancas();
-    atualizarIndicadoresCriancas();
-    fecharModalExcluirCrianca();
+function fecharModalExcluirCrianca() {
+    idExcluirCrianca = null;
+    document.getElementById('modalExcluirCrianca').style.display = 'none';
 }
 
-// ==========================================================
+document.getElementById('confirmarExcluirCrianca')?.addEventListener('click', () => {
+    if (idExcluirCrianca !== null) {
+        criancas = criancas.filter(c => c.id !== idExcluirCrianca);
+        salvarCriancas();
+        renderizarCriancas();
+        fecharModalExcluirCrianca();
+        alert('🗑️ Criança excluída com sucesso!');
+        idExcluirCrianca = null;
+    }
+});
+
+// ==========================================
+// FECHAR MODAIS (GERAL)
+// ==========================================
+function fecharModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.style.display = 'none';
+}
+
+// ==========================================
 // 🆕 FUNÇÃO PARA PREENCHER DO PDF
-// ==========================================================
+// ==========================================
 function preencherCriancaDoPDF(dados) {
     console.log('📝 Preenchendo formulário de criança com dados do PDF...');
     
@@ -276,92 +290,83 @@ function preencherCriancaDoPDF(dados) {
         return;
     }
 
-    // Abre o modal de cadastro
     const modal = document.getElementById('modalCrianca');
-    if (modal) {
-        modal.classList.add('ativo');
-    }
-
-    // Reseta o formulário
     const form = document.getElementById('formCrianca');
-    if (form) {
-        form.reset();
-        criancaEditando = null;
-    }
-
-    // ==========================================
-    // FUNÇÃO AUXILIAR: Converter Data
-    // ==========================================
-    function converterDataParaInput(dataStr) {
-        if (!dataStr) return '';
-        const match = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-        if (match) {
-            return `${match[3]}-${match[2]}-${match[1]}`;
-        }
-        return dataStr;
-    }
-
-    // ==========================================
-    // PREENCHER CAMPOS
-    // ==========================================
     
-    // 1. Nome
+    if (!modal || !form) {
+        console.warn('⚠️ Modal de criança não encontrado!');
+        return;
+    }
+
+    // Abre o modal
+    modal.style.display = 'flex';
+    
+    // Limpa o form e remove ID de edição
+    form.reset();
+    delete form.dataset.id;
+
+    // 1. NOME
     const nomeInput = document.getElementById('nomeCrianca');
     if (nomeInput && dados.nome) {
         nomeInput.value = dados.nome;
         console.log(`✅ Nome preenchido: ${dados.nome}`);
     }
 
-    // 2. Data de Nascimento
+    // 2. DATA DE NASCIMENTO
     const nascimentoInput = document.getElementById('nascimentoCrianca');
     if (nascimentoInput && dados.nascimento) {
-        const dataFormatada = converterDataParaInput(dados.nascimento);
+        const dataFormatada = formatarDataParaInput(dados.nascimento);
         if (dataFormatada) {
             nascimentoInput.value = dataFormatada;
             console.log(`✅ Nascimento preenchido: ${dataFormatada}`);
         }
     }
 
-    // 3. Escola
+    // 3. ESCOLA
     const escolaInput = document.getElementById('escolaCrianca');
     if (escolaInput && dados.escola) {
         escolaInput.value = dados.escola;
         console.log(`✅ Escola preenchida: ${dados.escola}`);
     }
 
-    // 4. Responsável
+    // 4. RESPONSÁVEL
     const responsavelInput = document.getElementById('responsavelCrianca');
     if (responsavelInput && dados.responsavel) {
         responsavelInput.value = dados.responsavel;
         console.log(`✅ Responsável preenchido: ${dados.responsavel}`);
     }
 
-    // 5. Observações (monta com todas as informações)
+    // 5. OBSERVAÇÕES
     const observacoesInput = document.getElementById('observacoesCrianca');
     if (observacoesInput) {
-        let obs = [];
+        let observacoes = [];
         
-        if (dados.observacao) obs.push(dados.observacao);
-        if (dados.assunto) obs.push(`Assunto: ${dados.assunto}`);
-        if (dados.endereco) obs.push(`Endereço: ${dados.endereco}`);
-        if (dados.telefone) obs.push(`Telefone: ${dados.telefone}`);
-        if (dados.dataAtendimento) obs.push(`Data do Atendimento: ${dados.dataAtendimento}`);
-        if (dados.tipoAtendimento) obs.push(`Tipo de Atendimento: ${dados.tipoAtendimento}`);
-        if (dados.plantonista) obs.push(`Plantonista: ${dados.plantonista}`);
-        if (dados.processo) obs.push(`Nº Processo: ${dados.processo}`);
-        if (dados.vara) obs.push(`Vara: ${dados.vara}`);
-        if (dados.juiz) obs.push(`Juiz: ${dados.juiz}`);
-        if (dados.promotor) obs.push(`Promotor: ${dados.promotor}`);
-        if (dados.serie) obs.push(`Série: ${dados.serie}`);
-        if (dados.contato) obs.push(`Contato: ${dados.contato}`);
+        if (dados.observacao) observacoes.push(dados.observacao);
+        if (dados.assunto) observacoes.push(`📋 Assunto: ${dados.assunto}`);
+        if (dados.endereco) observacoes.push(`📍 Endereço: ${dados.endereco}`);
+        if (dados.telefone) observacoes.push(`📞 Telefone: ${dados.telefone}`);
+        if (dados.contato) observacoes.push(`📱 Contato: ${dados.contato}`);
+        if (dados.dataAtendimento) observacoes.push(`📅 Data Atendimento: ${dados.dataAtendimento}`);
+        if (dados.tipoAtendimento) observacoes.push(`📋 Tipo: ${dados.tipoAtendimento}`);
+        if (dados.plantonista) observacoes.push(`👨‍💼 Plantonista: ${dados.plantonista}`);
+        if (dados.processo) observacoes.push(`⚖️ Processo: ${dados.processo}`);
+        if (dados.vara) observacoes.push(`🏛️ Vara: ${dados.vara}`);
+        if (dados.juiz) observacoes.push(`👨‍⚖️ Juiz: ${dados.juiz}`);
+        if (dados.promotor) observacoes.push(`⚖️ Promotor: ${dados.promotor}`);
+        if (dados.serie) observacoes.push(`📚 Série: ${dados.serie}`);
         
-        observacoesInput.value = obs.join('\n');
-        console.log(`✅ Observações preenchidas`);
+        observacoesInput.value = observacoes.join('\n');
+        console.log(`✅ Observações preenchidas (${observacoes.length} itens)`);
     }
 
-    // ==========================================
-    // ATUALIZA TÍTULO DO MODAL
-    // ==========================================
+    // 6. CPF
+    const cpfInput = document.getElementById('cpfCrianca');
+    if (cpfInput && dados.cpf) {
+        cpfInput.value = dados.cpf;
+        console.log(`✅ CPF preenchido: ${dados.cpf}`);
+    }
+
+    // 7. ATUALIZA TÍTULO
     const tituloModal = document.querySelector('#modalCrianca .modal-header h2');
     if (tituloModal) {
         tituloModal.innerHTML = '<i class="fa-solid fa-child"></i> Criança / Adolescente (Dados do PDF)';
@@ -371,44 +376,72 @@ function preencherCriancaDoPDF(dados) {
 }
 
 // ==========================================
-// 🆕 FUNÇÃO PARA VERIFICAR SE HÁ DADOS DO PDF
+// EVENTOS
 // ==========================================
-function verificarDadosPDF() {
-    try {
-        const dadosSalvos = localStorage.getItem('dadosPdfExtraidos');
-        if (dadosSalvos) {
-            const dados = JSON.parse(dadosSalvos);
-            if (dados && dados.nome) {
-                console.log('📄 Dados do PDF encontrados:', dados);
-                return dados;
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('👶 Inicializando módulo de Crianças...');
+    
+    // Botão nova criança
+    const btnNovo = document.getElementById('btnNovaCrianca');
+    if (btnNovo) {
+        btnNovo.addEventListener('click', () => abrirModalCrianca(null));
+    }
+
+    // Botão atualizar
+    const btnAtualizar = document.getElementById('btnAtualizarCriancas');
+    if (btnAtualizar) {
+        btnAtualizar.addEventListener('click', () => {
+            carregarCriancas();
+            renderizarCriancas();
+            alert('🔄 Dados atualizados!');
+        });
+    }
+
+    // Botões fechar modal
+    document.querySelectorAll('.fechar, #cancelarCrianca, #fecharVisualizarCrianca, #fecharVisualizarCriancaRodape, #cancelarExcluirCrianca, #fecharExcluirCrianca')
+        .forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal');
+                    if (modal) modal.style.display = 'none';
+                });
             }
-        }
-    } catch (e) {
-        console.error('Erro ao verificar dados do PDF:', e);
+        });
+
+    // Fechar ao clicar fora
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+
+    // Pesquisa
+    const pesquisa = document.getElementById('pesquisaCrianca');
+    if (pesquisa) {
+        pesquisa.addEventListener('input', (e) => {
+            renderizarCriancas(e.target.value);
+        });
     }
-    return null;
-}
+
+    // Carregar dados iniciais
+    carregarCriancas();
+    renderizarCriancas();
+    
+    console.log(`👶 ${criancas.length} crianças carregadas!`);
+});
 
 // ==========================================
-// 🆕 FUNÇÃO PARA CARREGAR DADOS DO PDF AUTOMATICAMENTE
+// EXPORTA FUNÇÕES
 // ==========================================
-function carregarDadosPDFNoFormulario() {
-    const dados = verificarDadosPDF();
-    if (dados) {
-        console.log('📄 Carregando dados do PDF automaticamente...');
-        preencherCriancaDoPDF(dados);
-    }
-}
-
-// ==========================================
-// EXPORTA FUNÇÕES PARA O GLOBAL
-// ==========================================
-window.preencherCriancaDoPDF = preencherCriancaDoPDF;
-window.verificarDadosPDF = verificarDadosPDF;
-window.carregarDadosPDFNoFormulario = carregarDadosPDFNoFormulario;
-window.novaCrianca = novaCrianca;
-window.editarCrianca = editarCrianca;
 window.visualizarCrianca = visualizarCrianca;
-window.excluirCriancaModal = excluirCriancaModal;
+window.editarCrianca = editarCrianca;
+window.abrirExcluirCrianca = abrirExcluirCrianca;
+window.fecharModal = fecharModal;
+window.abrirModalCrianca = abrirModalCrianca;
+window.preencherCriancaDoPDF = preencherCriancaDoPDF;
+window.carregarCriancas = carregarCriancas;
+window.renderizarCriancas = renderizarCriancas;
 
-console.log('👶 Módulo de Crianças com integração PDF carregado!');
+console.log('👶 Módulo de Crianças carregado com sucesso!');

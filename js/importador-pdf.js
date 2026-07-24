@@ -35,17 +35,20 @@ class ImportadorPDF {
     }
 
     eventos() {
+        // Evento para selecionar arquivo
         document.addEventListener('change', (e) => {
             if (e.target.id === 'inputPdfImport') {
                 this.processarArquivo(e.target.files[0]);
             }
         });
 
+        // Evento para botão de importar
         document.addEventListener('click', (e) => {
             if (e.target.id === 'btnImportarPdf' || e.target.closest('#btnImportarPdf')) {
+                e.preventDefault();
                 this.importarPorBotao();
             }
-            if (e.target.id === 'btnLimparImportacao') {
+            if (e.target.id === 'btnLimparImportacao' || e.target.closest('#btnLimparImportacao')) {
                 this.limpar();
             }
         });
@@ -130,11 +133,12 @@ class ImportadorPDF {
             barra.style.display = 'none';
         }
 
-        // Limpa todos os campos de visualização
+        // Limpa campos de visualização
         const camposPdf = [
-            'pdfNome', 'pdfData', 'pdfTipo', 'pdfAssunto', 'pdfPlantonista',
-            'pdfTelefone', 'pdfEndereco', 'pdfResponsavel', 'pdfNascimento',
-            'pdfEscola', 'pdfSerie', 'pdfProcesso', 'pdfVara', 'pdfJuiz', 'pdfPromotor'
+            'pdfNome', 'pdfNascimento', 'pdfResponsavel', 'pdfEndereco', 
+            'pdfTelefone', 'pdfEscola', 'pdfSerie', 'pdfData', 'pdfTipo',
+            'pdfAssunto', 'pdfPlantonista', 'pdfProcesso', 'pdfVara', 
+            'pdfJuiz', 'pdfPromotor'
         ];
         
         camposPdf.forEach(id => {
@@ -144,6 +148,7 @@ class ImportadorPDF {
     }
 }
 
+// Inicializa quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
     window.importadorPDF = new ImportadorPDF();
 });

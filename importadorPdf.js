@@ -4,8 +4,6 @@
 
 class ImportadorPDF {
     constructor() {
-        this.arquivo = null;
-        this.texto = "";
         this.iniciar();
     }
 
@@ -37,17 +35,19 @@ class ImportadorPDF {
     }
 
     eventos() {
-        // Evento para selecionar arquivo
         document.addEventListener('change', (e) => {
-            if (e.target.id === 'inputPdfImport' || e.target.id === 'pdfUpload') {
+            if (e.target.id === 'inputPdfImport') {
                 this.processarArquivo(e.target.files[0]);
             }
         });
 
-        // Evento para botão de importar
         document.addEventListener('click', (e) => {
-            if (e.target.id === 'btnImportarPdf' || e.target.id === 'btnConcluirPdf') {
+            if (e.target.id === 'btnImportarPdf' || e.target.closest('#btnImportarPdf')) {
+                e.preventDefault();
                 this.importarPorBotao();
+            }
+            if (e.target.id === 'btnLimparImportacao' || e.target.closest('#btnLimparImportacao')) {
+                this.limpar();
             }
         });
     }
@@ -82,7 +82,7 @@ class ImportadorPDF {
             this.mostrarProgresso(90);
             this.mostrarStatus('🔍 Extraindo informações...');
 
-            // PROCESSAR O TEXTO
+            // CHAMA A FUNÇÃO PRINCIPAL
             if (typeof processarExtracaoPdf === 'function') {
                 await processarExtracaoPdf(textoCompleto);
                 this.mostrarProgresso(100);
@@ -94,13 +94,13 @@ class ImportadorPDF {
 
         } catch (erro) {
             console.error('❌ Erro ao processar PDF:', erro);
-            alert('❌ Erro ao processar o PDF. Verifique o console para mais detalhes.');
+            alert('❌ Erro ao processar o PDF. Verifique o console.');
             this.mostrarStatus('❌ Erro ao importar PDF');
         }
     }
 
     async importarPorBotao() {
-        const input = document.getElementById('inputPdfImport') || document.getElementById('pdfUpload');
+        const input = document.getElementById('inputPdfImport');
         if (input && input.files && input.files[0]) {
             await this.processarArquivo(input.files[0]);
         } else {
@@ -110,7 +110,7 @@ class ImportadorPDF {
 
     mostrarStatus(texto) {
         const el = document.getElementById('statusImportacao');
-        if (el) el.textContent = texto;
+        if (el) el.innerHTML = texto;
     }
 
     mostrarProgresso(valor) {
@@ -122,27 +122,31 @@ class ImportadorPDF {
     }
 
     limpar() {
-        const input = document.getElementById('inputPdfImport') || document.getElementById('pdfUpload');
+        const input = document.getElementById('inputPdfImport');
         if (input) input.value = '';
 
-        this.mostrarStatus('');
+        this.mostrarStatus('<i class="fa-solid fa-info-circle"></i> Aguardando PDF...');
         const barra = document.getElementById('progressoImportacao');
         if (barra) {
             barra.value = 0;
             barra.style.display = 'none';
         }
 
-        // Limpa campos de visualização
-        ['pdfNome', 'pdfData', 'pdfTipo', 'pdfAssunto', 'pdfPlantonista',
-         'pdfTelefone', 'pdfEndereco', 'pdfResponsavel', 'pdfNascimento']
-        .forEach(id => {
+        const camposPdf = [
+            'pdfNome', 'pdfNascimento', 'pdfResponsavel', 'pdfEndereco', 
+            'pdfTelefone', 'pdfEscola', 'pdfSerie', 'pdfData', 'pdfTipo',
+            'pdfAssunto', 'pdfPlantonista', 'pdfProcesso', 'pdfVara', 
+            'pdfJuiz', 'pdfPromotor'
+        ];
+        
+        camposPdf.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.textContent = '—';
         });
     }
 }
 
-// Inicializa quando o DOM estiver pronto
+// Inicializa
 document.addEventListener('DOMContentLoaded', () => {
     window.importadorPDF = new ImportadorPDF();
 });

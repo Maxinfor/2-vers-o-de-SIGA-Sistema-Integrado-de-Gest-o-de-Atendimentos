@@ -3,14 +3,18 @@
  */
 function processarExtracaoPdf(texto) {
 
+    console.log("========== 1. INICIANDO PROCESSAMENTO DO PDF ==========");
+
     // ==========================================
     // ETAPA 0: VERIFICAÇÃO DE SEGURANÇA DO TEXTO
     // ==========================================
     if (!texto || typeof texto !== "string" || texto.trim() === "") {
-        console.error("ERRO: O texto passado para a função está vazio!");
+        console.error("ERRO: O texto passado para a função está vazio ou inválido!");
         alert("Atenção: Nenhum texto foi encontrado ou extraído deste PDF.");
         return;
     }
+
+    console.log("Texto bruto recebido com sucesso. Tamanho:", texto.length, "caracteres");
 
     // ==========================================
     // ETAPA 1: NORMALIZAÇÃO GERAL DO TEXTO
@@ -226,7 +230,7 @@ function processarExtracaoPdf(texto) {
         return "";
     }
 
-    console.log("========== DADOS EXTRAÍDOS ==========");
+    console.log("========== 2. DADOS FINAIS EXTRAÍDOS ==========");
     console.table(dados);
 
     // ==========================================
@@ -251,6 +255,7 @@ function processarExtracaoPdf(texto) {
     // ==========================================
     try {
         localStorage.setItem("dadosAtendimentoGlobal", JSON.stringify(dados));
+        console.log("Dados salvos no localStorage com sucesso.");
     } catch (e) {
         console.error("Erro ao salvar no localStorage:", e);
     }
@@ -271,39 +276,26 @@ Atendimento: ${dados.atendimento || "-"}
 }
 
 // ==========================================
-// ETAPA 11: CAPTURA DO ARQUIVO PDF (INPUT FILE)
+// ETAPA 11: CAPTURA DO ARQUIVO (COMPATIBILIDADE LEITURA DE TEXTO/PDF)
 // ==========================================
-// Certifique-se de que no seu HTML existe um input com id="inputPdf"
 document.addEventListener("DOMContentLoaded", () => {
-    const inputFile = document.getElementById("inputPdf");
+    // Procura por qualquer input de arquivo na sua tela (independente do ID)
+    const inputFile = document.querySelector("input[type='file']");
     
     if (inputFile) {
         inputFile.addEventListener("change", async function(e) {
             const arquivo = e.target.files[0];
             if (!arquivo) return;
 
-            try {
-                const leitorArray = await arquivo.arrayBuffer();
-                
-                // Utiliza a biblioteca PDF.js integrada para extrair o texto de todas as páginas
-                const carregadorPdf = pdfjsLib.getDocument({ data: leitorArray });
-                const pdfDoc = await carregadorPdf.promise;
-                let textoCompleto = "";
-
-                for (let i = 1; i <= pdfDoc.numPages; i++) {
-                    const pagina = await pdfDoc.getPage(i);
-                    const conteudoTexto = await pagina.getTextContent();
-                    const textoPagina = conteudoTexto.items.map(item => item.str).join(" ");
-                    textoCompleto += textoPagina + "\n";
-                }
-
-                // Executa a função de processamento com o texto real extraído do PDF
-                processarExtracaoPdf(textoCompleto);
-
-            } catch (erro) {
-                console.error("Erro ao ler o arquivo PDF:", erro);
-                alert("Erro ao ler o arquivo PDF. Verifique se o arquivo é válido.");
-            }
+            // Se o arquivo for texto puro ou PDF lido de outra forma
+            const leitor = new FileReader();
+            leitor.onload = function(eventoLeitura) {
+                const conteudoTexto = eventoLeitura.target.result;
+                processarExtracaoPdf(conteudoTexto);
+            };
+            
+            // Lê o arquivo como texto
+            leitor.readAsText(arquivo);
         });
     }
 });

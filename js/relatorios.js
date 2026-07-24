@@ -1,90 +1,195 @@
-// Carrega a biblioteca PDF.js dinamicamente se ela já não existir na página
-function carregarBibliotecaPdfJs() {
-    return new Promise((resolve, reject) => {
-        if (window.pdfjsLib) {
-            resolve(window.pdfjsLib);
-            return;
-        }
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-        script.onload = () => {
-            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-            resolve(window.pdfjsLib);
-        };
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
-}
-
-// Escuta a seleção do arquivo em qualquer momento (mesmo se o HTML carregar depois)
-document.addEventListener("change", async (event) => {
-    if (event.target && event.target.id === "inputPdfImport") {
-        const arquivo = event.target.files[0];
-        if (!arquivo) return;
-
-        console.log("Iniciando leitura do arquivo:", arquivo.name);
-
-        try {
-            // Garante que o motor do PDF está pronto
-            const pdfjsLib = await carregarBibliotecaPdfJs();
-
-            const arrayBuffer = await arquivo.arrayBuffer();
-            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-            const pdfDoc = await loadingTask.promise;
-            
-            let textoPdf = "";
-
-            // Varre todas as páginas do PDF recolhendo os textos
-            for (let i = 1; i <= pdfDoc.numPages; i++) {
-                const pagina = await pdfDoc.getPage(i);
-                const conteudo = await pagina.getTextContent();
-                const textosPagina = conteudo.items.map(item => item.str);
-                textoPdf += textosPagina.join(" ") + "\n";
-            }
-
-            processarExtracaoPdf(textoPdf);
-
-        } catch (erro) {
-            console.error("Erro ao processar o PDF:", erro);
-            alert("Não foi possível ler este arquivo PDF. Verifique se o arquivo está íntegro.");
-        } finally {
-            // Limpa o input para permitir nova seleção se precisar
-            event.target.value = "";
-        }
-    }
-});
-
 function processarExtracaoPdf(texto) {
-    // Expressões regulares inteligentes para capturar os dados do documento
-    const matchData = texto.match(/Data[:\s]*(\d{2}\/\d{2}\/\d{4})/i);
-    const dataAtendimento = matchData ? matchData[1] : "";
 
-    const matchCrianca = texto.match(/(?:Criança|Adolescente|Nome)[:\s]*([A-Za-zÀ-ú\s]+?)(?=(Data|Nascimento|Responsável|Endereço|Contato|$))/i);
-    const nomeCrianca = matchCrianca ? matchCrianca[1].trim() : "";
+    // Normaliza o texto
+    texto = texto
+        .replace(/\r/g, "")
+        .replace(/[ \t]+/g, " ")
+        .replace(/\n{2,}/g, "\n");
 
-    const matchNasc = texto.match(/(?:Nascimento|Dt\.?\s*Nasc\.?)[:\s]*(\d{2}\/\d{2}\/\d{4})/i);
-    const dataNascimento = matchNasc ? matchNasc[1] : "";
+    const linhas = texto
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l !== "");
 
-    const matchResp = texto.match(/Responsável[:\s]*([A-Za-zÀ-ú\s]+?)(?=(Endereço|Contato|Telefone|$))/i);
-    const responsavel = matchResp ? matchResp[1].trim() : "";
-
-    const matchEnd = texto.match(/Endereço[:\s]*([A-Za-zÀ-ú0-9,\.\-\s]+?)(?=(Contato|Telefone|Responsável|$))/i);
-    const endereco = matchEnd ? matchEnd[1].trim() : "";
-
-    const matchContato = texto.match(/Contato[:\s]*([\d\(\)\-\s]+)/i);
-    const contato = matchContato ? matchContato[1].trim() : "";
-
-    const dadosFormulario = {
-        dataAtendimento,
-        nomeCrianca,
-        dataNascimento,
-        responsavel,
-        endereco,
-        contato
+    const dados = {
+        dataAtendimento: "",
+        nomeCrianca: "",
+        dataNascimento: "",
+        responsavel: "",
+        endereco: "",
+        telefone: "",
+        contato: "",
+        assunto: "",
+        atendimento: ""
     };
 
-    console.log("=== DADOS EXTRAÍDOS COM SUCESSO ===", dadosFormulario);
-    
-    // Alerta informativo com os dados encontrados para validação imediata
-    alert(`PDF Lido com Sucesso!\n\nCriança: ${nomeCrianca || 'Não identificado'}\nResponsável: ${responsavel || 'Não identificado'}\nData: ${dataAtendimento || 'Não identificada'}\n\n(Abra o F12 > Console para ver o objeto completo)`);
+    // Sinônimos aceitos
+    const campos = {
+
+        nomeCrianca: [
+            "criança",
+            "criança/adolescente",
+            "adolescente",
+            "nome",
+            "nome da criança",
+            "nome do adolescente"
+        ],
+
+        dataNascimento: [
+            "data de nascimento",
+            "nascimento",
+            "dt nasc",
+            "dt. nasc",
+            "data nasc"
+        ],
+
+        responsavel: [
+            "responsável",
+            "responsável legal",
+            "genitora",
+            "genitor",
+            "pai",
+            "mãe"
+        ],
+
+        endereco: [
+            "endereço",
+            "logradouro",
+            "residência"
+        ],
+
+        telefone: [
+            "telefone",
+            "fone",
+            "celular"
+        ],
+
+        contato: [
+            "contato"
+        ],
+
+        assunto: [
+            "assunto",
+            "motivo",
+            "demanda"
+        ],
+
+        atendimento: [
+            "tipo de atendimento",
+            "atendimento"
+        ],
+
+        dataAtendimento: [
+            "data",
+            "data do atendimento"
+        ]
+
+    };
+
+    // Procura cada linha
+    linhas.forEach((linha, indice) => {
+
+        const textoLinha = linha.toLowerCase();
+
+        Object.keys(campos).forEach(campo => {
+
+            if (dados[campo] !== "") return;
+
+            campos[campo].forEach(nomeCampo => {
+
+                if (dados[campo] !== "") return;
+
+                if (textoLinha.startsWith(nomeCampo)) {
+
+                    let valor = linha.substring(nomeCampo.length);
+
+                    valor = valor.replace(/^[:\- ]+/, "").trim();
+
+                    // Caso o valor esteja na linha seguinte
+                    if (!valor && linhas[indice + 1]) {
+
+                        const prox = linhas[indice + 1];
+
+                        if (!prox.includes(":"))
+                            valor = prox.trim();
+
+                    }
+
+                    dados[campo] = valor;
+
+                }
+
+            });
+
+        });
+
+    });
+
+    // Procura datas em qualquer parte do documento
+    if (!dados.dataNascimento) {
+
+        const datas = texto.match(/\d{2}\/\d{2}\/\d{4}/g);
+
+        if (datas && datas.length > 1)
+            dados.dataNascimento = datas[1];
+
+    }
+
+    if (!dados.dataAtendimento) {
+
+        const datas = texto.match(/\d{2}\/\d{2}\/\d{4}/g);
+
+        if (datas && datas.length)
+            dados.dataAtendimento = datas[0];
+
+    }
+
+    // Procura telefone
+    if (!dados.telefone) {
+
+        const tel = texto.match(/(\(?\d{2}\)?\s?9?\d{4}\-?\d{4})/);
+
+        if (tel)
+            dados.telefone = tel[1];
+
+    }
+
+    // Se contato estiver vazio usa telefone
+    if (!dados.contato)
+        dados.contato = dados.telefone;
+
+    console.log("========== DADOS EXTRAÍDOS ==========");
+    console.table(dados);
+
+    // Preenche automaticamente o formulário
+    document.getElementById("txtNome")?.value = dados.nomeCrianca;
+    document.getElementById("txtDataNascimento")?.value = dados.dataNascimento;
+    document.getElementById("txtResponsavel")?.value = dados.responsavel;
+    document.getElementById("txtEndereco")?.value = dados.endereco;
+    document.getElementById("txtTelefone")?.value = dados.telefone;
+    document.getElementById("txtContato")?.value = dados.contato;
+    document.getElementById("txtAssunto")?.value = dados.assunto;
+
+    const tipo = document.getElementById("cmbTipoAtendimento");
+    if (tipo)
+        tipo.value = dados.atendimento;
+
+    const data = document.getElementById("txtData");
+    if (data)
+        data.value = dados.dataAtendimento;
+
+    alert(
+`Documento analisado com sucesso!
+
+Nome: ${dados.nomeCrianca || "-"}
+Nascimento: ${dados.dataNascimento || "-"}
+Responsável: ${dados.responsavel || "-"}
+Endereço: ${dados.endereco || "-"}
+Telefone: ${dados.telefone || "-"}
+Contato: ${dados.contato || "-"}
+Assunto: ${dados.assunto || "-"}
+Atendimento: ${dados.atendimento || "-"}
+`
+    );
+
 }

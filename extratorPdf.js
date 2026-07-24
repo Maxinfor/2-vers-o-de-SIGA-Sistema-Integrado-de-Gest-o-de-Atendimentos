@@ -1,5 +1,6 @@
 /* ==========================================================
-   SIGACTPAR - EXTRATOR DE PDF (VERSÃO SIMPLIFICADA)
+   SIGACTPAR - EXTRATOR DE PDF (VERSÃO FINAL)
+   COM INTEGRAÇÃO PARA TODOS OS MÓDULOS
 ========================================================== */
 
 class ExtratorPDF {
@@ -23,7 +24,7 @@ class ExtratorPDF {
     }
 
     // ==========================================
-    // EXTRAIR CAMPO POR RÓTULO
+    // EXTRAIR CAMPO
     // ==========================================
     extrairCampo(texto, rotulos) {
         for (const rotulo of rotulos) {
@@ -73,7 +74,7 @@ class ExtratorPDF {
     }
 
     // ==========================================
-    // LOCALIZAR NOME (primeira linha significativa)
+    // LOCALIZAR NOME
     // ==========================================
     localizarNome(texto, linhas) {
         const nome = this.extrairCampo(texto, [
@@ -109,13 +110,7 @@ class ExtratorPDF {
         const textoNorm = this.normalizar(textoOriginal);
         
         this.dados = {
-            // Para o formulário de atendimentos
-            dataAtendimento: "",
-            tipoAtendimento: "",
-            assunto: "",
-            plantonista: "",
-            
-            // Informações adicionais (para pré-visualização)
+            // Criança
             nome: "",
             nascimento: "",
             responsavel: "",
@@ -124,10 +119,24 @@ class ExtratorPDF {
             contato: "",
             escola: "",
             serie: "",
+            bairro: "",
+            cidade: "",
+            cpf: "",
+            
+            // Atendimento
+            dataAtendimento: "",
+            tipoAtendimento: "",
+            assunto: "",
+            plantonista: "",
+            
+            // Processo
             processo: "",
             vara: "",
             juiz: "",
-            promotor: ""
+            promotor: "",
+            
+            // Geral
+            observacao: ""
         };
 
         // ==========================================
@@ -154,6 +163,7 @@ class ExtratorPDF {
         if (!this.dados.nascimento && todasDatas.length > 1) {
             this.dados.nascimento = todasDatas[1];
         }
+        console.log("Nascimento:", this.dados.nascimento);
 
         // ==========================================
         // 3. RESPONSÁVEL
@@ -163,6 +173,7 @@ class ExtratorPDF {
             "genitora", "genitor", "pai", "mãe", "mae",
             "representante legal"
         ]);
+        console.log("Responsável:", this.dados.responsavel);
 
         // ==========================================
         // 4. ENDEREÇO
@@ -177,6 +188,7 @@ class ExtratorPDF {
             if (matchEnd) endereco = matchEnd[0].trim();
         }
         this.dados.endereco = endereco;
+        console.log("Endereço:", this.dados.endereco);
 
         // ==========================================
         // 5. TELEFONE
@@ -191,6 +203,7 @@ class ExtratorPDF {
                 this.dados.telefone = "";
             }
         }
+        console.log("Telefone:", this.dados.telefone);
 
         // ==========================================
         // 6. CONTATO
@@ -206,6 +219,7 @@ class ExtratorPDF {
         this.dados.escola = this.extrairCampo(textoOriginal, [
             "escola", "colégio", "colegio", "instituição", "instituicao"
         ]);
+        console.log("Escola:", this.dados.escola);
 
         // ==========================================
         // 8. SÉRIE
@@ -213,9 +227,23 @@ class ExtratorPDF {
         this.dados.serie = this.extrairCampo(textoOriginal, [
             "série", "serie", "ano escolar", "turma", "classe"
         ]);
+        console.log("Série:", this.dados.serie);
 
         // ==========================================
-        // 9. DATA DO ATENDIMENTO (PRINCIPAL)
+        // 9. CPF
+        // ==========================================
+        this.dados.cpf = this.extrairCampo(textoOriginal, [
+            "cpf", "CPF"
+        ]);
+        // Tenta encontrar CPF no formato 000.000.000-00
+        if (!this.dados.cpf) {
+            const cpfMatch = textoOriginal.match(/\d{3}\.\d{3}\.\d{3}-\d{2}/);
+            if (cpfMatch) this.dados.cpf = cpfMatch[0];
+        }
+        console.log("CPF:", this.dados.cpf);
+
+        // ==========================================
+        // 10. DATA DO ATENDIMENTO
         // ==========================================
         const dataAtend = this.extrairCampo(textoOriginal, [
             "data do atendimento", "data atendimento", "data"
@@ -232,7 +260,7 @@ class ExtratorPDF {
         console.log("Data Atendimento:", this.dados.dataAtendimento);
 
         // ==========================================
-        // 10. TIPO DE ATENDIMENTO
+        // 11. TIPO DE ATENDIMENTO
         // ==========================================
         this.dados.tipoAtendimento = this.extrairCampo(textoOriginal, [
             "tipo de atendimento", "atendimento", "modalidade"
@@ -243,10 +271,6 @@ class ExtratorPDF {
                 this.dados.tipoAtendimento = "Atendimento com Conselheiro";
             } else if (textoNorm.includes("balcão") || textoNorm.includes("balcao") || textoNorm.includes("informação")) {
                 this.dados.tipoAtendimento = "Ato de Atendimento (Balcão / Informação)";
-            } else if (textoNorm.includes("telefone") || textoNorm.includes("telefonico")) {
-                this.dados.tipoAtendimento = "Atendimento Telefônico";
-            } else if (textoNorm.includes("online") || textoNorm.includes("virtual")) {
-                this.dados.tipoAtendimento = "Atendimento Online";
             } else {
                 this.dados.tipoAtendimento = "Atendimento com Conselheiro";
             }
@@ -254,7 +278,7 @@ class ExtratorPDF {
         console.log("Tipo Atendimento:", this.dados.tipoAtendimento);
 
         // ==========================================
-        // 11. ASSUNTO (PRINCIPAL)
+        // 12. ASSUNTO
         // ==========================================
         let assunto = this.extrairCampo(textoOriginal, [
             "assunto", "motivo", "demanda", "ocorrência", "ocorrencia", 
@@ -286,7 +310,7 @@ class ExtratorPDF {
         console.log("Assunto:", this.dados.assunto);
 
         // ==========================================
-        // 12. PLANTONISTA (PRINCIPAL)
+        // 13. PLANTONISTA
         // ==========================================
         this.dados.plantonista = this.extrairCampo(textoOriginal, [
             "plantonista", "conselheiro", "responsável", "atendente",
@@ -299,7 +323,7 @@ class ExtratorPDF {
         console.log("Plantonista:", this.dados.plantonista);
 
         // ==========================================
-        // 13. PROCESSO
+        // 14. PROCESSO
         // ==========================================
         this.dados.processo = this.extrairCampo(textoOriginal, [
             "processo", "número", "numero", "protocolo", "registro"
@@ -310,27 +334,55 @@ class ExtratorPDF {
             const matchProc = textoOriginal.match(padraoProcesso);
             if (matchProc) this.dados.processo = matchProc[0];
         }
+        console.log("Processo:", this.dados.processo);
 
         // ==========================================
-        // 14. VARA
+        // 15. VARA
         // ==========================================
         this.dados.vara = this.extrairCampo(textoOriginal, [
             "vara", "comarca", "juizado", "tribunal"
         ]);
+        console.log("Vara:", this.dados.vara);
 
         // ==========================================
-        // 15. JUIZ
+        // 16. JUIZ
         // ==========================================
         this.dados.juiz = this.extrairCampo(textoOriginal, [
             "juiz", "juiZ", "magistrado"
         ]);
+        console.log("Juiz:", this.dados.juiz);
 
         // ==========================================
-        // 16. PROMOTOR
+        // 17. PROMOTOR
         // ==========================================
         this.dados.promotor = this.extrairCampo(textoOriginal, [
             "promotor", "promotora", "ministério público", "ministerio publico"
         ]);
+        console.log("Promotor:", this.dados.promotor);
+
+        // ==========================================
+        // 18. OBSERVAÇÃO
+        // ==========================================
+        const camposExtraidos = [
+            this.dados.nome, this.dados.nascimento, this.dados.responsavel,
+            this.dados.endereco, this.dados.telefone, this.dados.contato,
+            this.dados.assunto, this.dados.tipoAtendimento, this.dados.dataAtendimento,
+            this.dados.escola, this.dados.serie, this.dados.processo,
+            this.dados.cpf, this.dados.vara, this.dados.juiz, this.dados.promotor
+        ];
+        
+        let textoRestante = textoOriginal;
+        for (const campo of camposExtraidos) {
+            if (campo) {
+                textoRestante = textoRestante.replace(campo, '');
+            }
+        }
+        
+        this.dados.observacao = textoRestante
+            .replace(/\n{3,}/g, '\n\n')
+            .trim()
+            .substring(0, 500);
+        console.log("Observação:", this.dados.observacao);
 
         console.log("✅ Dados extraídos com sucesso!");
         console.table(this.dados);
@@ -343,7 +395,7 @@ class ExtratorPDF {
 // FUNÇÃO GLOBAL PARA PROCESSAR O PDF
 // ==========================================
 async function processarExtracaoPdf(texto) {
-    console.log("========== INICIANDO EXTRAÇÃO ==========");
+    console.log("========== INICIANDO EXTRAÇÃO COMPLETA ==========");
     
     if (!texto || texto.trim() === "") {
         alert("❌ Nenhum texto encontrado no PDF!");
@@ -354,236 +406,66 @@ async function processarExtracaoPdf(texto) {
     const dados = extrator.extrair(texto);
 
     // ==========================================
-    // FUNÇÃO: Converter Data para Input (DD/MM/AAAA -> AAAA-MM-DD)
+    // SALVA DADOS NO LOCALSTORAGE
     // ==========================================
-    function converterDataParaInput(dataStr) {
-        if (!dataStr) return "";
-        const match = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-        if (match) {
-            return `${match[3]}-${match[2]}-${match[1]}`;
-        }
-        return "";
+    try {
+        localStorage.setItem('dadosPdfExtraidos', JSON.stringify(dados));
+        localStorage.setItem('ultimoPdfImportado', JSON.stringify({
+            dados: dados,
+            timestamp: new Date().toISOString()
+        }));
+        console.log('✅ Dados salvos no localStorage!');
+    } catch (e) {
+        console.error('Erro ao salvar:', e);
     }
 
     // ==========================================
-    // FUNÇÃO: Aguardar Elemento
+    // 1. PREENCHER ATENDIMENTOS
     // ==========================================
-    function aguardarElemento(id, timeout = 3000) {
-        return new Promise((resolve) => {
-            let el = document.getElementById(id);
-            if (el) {
-                resolve(el);
-                return;
-            }
-            
-            const inicio = Date.now();
-            const intervalo = setInterval(() => {
-                el = document.getElementById(id);
-                if (el) {
-                    clearInterval(intervalo);
-                    resolve(el);
-                    return;
-                }
-                if (Date.now() - inicio > timeout) {
-                    clearInterval(intervalo);
-                    resolve(null);
-                }
-            }, 100);
-        });
+    console.log('📝 Preenchendo Atendimentos...');
+    if (typeof preencherAtendimentoDoPDF === 'function') {
+        preencherAtendimentoDoPDF(dados);
+    } else {
+        console.warn('⚠️ Função preencherAtendimentoDoPDF não encontrada!');
+        // Fallback: tenta preencher diretamente os campos
+        await preencherAtendimentoDireto(dados);
     }
 
     // ==========================================
-    // PREENCHER FORMULÁRIO (APENAS CAMPOS EXISTENTES)
+    // 2. PREENCHER CRIANÇAS
     // ==========================================
-    async function preencherFormulario() {
-        console.log("📝 Preenchendo formulário de atendimentos...");
-        
-        // Aguarda os campos do seu formulário
-        const dataInput = await aguardarElemento('dataAtendimento');
-        const tipoSelect = await aguardarElemento('tipoAtendimento');
-        const assuntoTextarea = await aguardarElemento('assuntoAtendimento');
-        const plantonistaInput = await aguardarElemento('plantonistaAtendimento');
-
-        // 1. Preenche a DATA
-        if (dataInput && dados.dataAtendimento) {
-            const dataFormatada = converterDataParaInput(dados.dataAtendimento);
-            if (dataFormatada) {
-                dataInput.value = dataFormatada;
-                console.log(`✅ Data preenchida: ${dataFormatada}`);
-            }
-        }
-
-        // 2. Preenche o TIPO (select)
-        if (tipoSelect && dados.tipoAtendimento) {
-            let encontrou = false;
-            for (let option of tipoSelect.options) {
-                if (option.value === dados.tipoAtendimento || 
-                    option.text.toLowerCase() === dados.tipoAtendimento.toLowerCase()) {
-                    tipoSelect.value = option.value;
-                    encontrou = true;
-                    break;
-                }
-            }
-            
-            if (!encontrou) {
-                const novaOpcao = document.createElement('option');
-                novaOpcao.value = dados.tipoAtendimento;
-                novaOpcao.text = dados.tipoAtendimento;
-                tipoSelect.appendChild(novaOpcao);
-                tipoSelect.value = dados.tipoAtendimento;
-                console.log(`✅ Tipo adicionado: ${dados.tipoAtendimento}`);
-            } else {
-                console.log(`✅ Tipo preenchido: ${tipoSelect.value}`);
-            }
-        }
-
-        // 3. Preenche o ASSUNTO
-        if (assuntoTextarea && dados.assunto) {
-            // Constrói um assunto completo com todas as informações
-            let assuntoCompleto = dados.assunto;
-            
-            // Adiciona informações adicionais se disponíveis
-            const infoAdicional = [];
-            if (dados.nome && !assuntoCompleto.includes(dados.nome)) {
-                infoAdicional.push(`Nome: ${dados.nome}`);
-            }
-            if (dados.responsavel && !assuntoCompleto.includes(dados.responsavel)) {
-                infoAdicional.push(`Responsável: ${dados.responsavel}`);
-            }
-            if (dados.telefone && !assuntoCompleto.includes(dados.telefone)) {
-                infoAdicional.push(`Telefone: ${dados.telefone}`);
-            }
-            if (dados.endereco && !assuntoCompleto.includes(dados.endereco)) {
-                infoAdicional.push(`Endereço: ${dados.endereco}`);
-            }
-            if (dados.nascimento && !assuntoCompleto.includes(dados.nascimento)) {
-                infoAdicional.push(`Nascimento: ${dados.nascimento}`);
-            }
-            if (dados.escola && !assuntoCompleto.includes(dados.escola)) {
-                infoAdicional.push(`Escola: ${dados.escola}`);
-            }
-            if (dados.serie && !assuntoCompleto.includes(dados.serie)) {
-                infoAdicional.push(`Série: ${dados.serie}`);
-            }
-            
-            if (infoAdicional.length > 0) {
-                assuntoCompleto += "\n\n" + infoAdicional.join("\n");
-            }
-            
-            assuntoTextarea.value = assuntoCompleto;
-            console.log(`✅ Assunto preenchido: ${assuntoCompleto.substring(0, 50)}...`);
-        }
-
-        // 4. Preenche o PLANTONISTA
-        if (plantonistaInput && dados.plantonista) {
-            plantonistaInput.value = dados.plantonista;
-            console.log(`✅ Plantonista preenchido: ${dados.plantonista}`);
-        }
-
-        // ==========================================
-        // ATUALIZA PRÉ-VISUALIZAÇÃO
-        // ==========================================
-        const camposPdf = {
-            pdfNome: dados.nome || '—',
-            pdfNascimento: dados.nascimento || '—',
-            pdfResponsavel: dados.responsavel || '—',
-            pdfEndereco: dados.endereco || '—',
-            pdfTelefone: dados.telefone || '—',
-            pdfEscola: dados.escola || '—',
-            pdfSerie: dados.serie || '—',
-            pdfData: dados.dataAtendimento || '—',
-            pdfTipo: dados.tipoAtendimento || '—',
-            pdfAssunto: dados.assunto || '—',
-            pdfPlantonista: dados.plantonista || '—',
-            pdfProcesso: dados.processo || '—',
-            pdfVara: dados.vara || '—',
-            pdfJuiz: dados.juiz || '—',
-            pdfPromotor: dados.promotor || '—'
-        };
-
-        Object.keys(camposPdf).forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.textContent = camposPdf[id];
-            }
-        });
-
-        // ==========================================
-        // SALVAR NO LOCALSTORAGE
-        // ==========================================
-        try {
-            localStorage.setItem('dadosPdfExtraidos', JSON.stringify(dados));
-            localStorage.setItem('ultimoPdfImportado', JSON.stringify({
-                dados: dados,
-                timestamp: new Date().toISOString()
-            }));
-        } catch (e) {
-            console.error('Erro ao salvar:', e);
-        }
-
-        console.log("✅ Formulário preenchido com sucesso!");
-        
-        // ==========================================
-        // DISPARA EVENTO PARA ATUALIZAR A TABELA
-        // ==========================================
-        // Tenta salvar automaticamente o atendimento
-        if (dataInput && tipoSelect && assuntoTextarea && plantonistaInput) {
-            const data = dataInput.value;
-            const tipo = tipoSelect.value;
-            const assunto = assuntoTextarea.value;
-            const plantonista = plantonistaInput.value;
-            
-            if (data && tipo && assunto && plantonista) {
-                // Salva no sistema de atendimentos
-                try {
-                    let atendimentos = [];
-                    const dadosAtend = localStorage.getItem('atendimentos');
-                    if (dadosAtend) {
-                        atendimentos = JSON.parse(dadosAtend);
-                    }
-                    
-                    const novoId = atendimentos.length > 0 ? Math.max(...atendimentos.map(a => a.id)) + 1 : 1;
-                    const novoAtendimento = {
-                        id: novoId,
-                        data: data,
-                        tipo: tipo,
-                        assunto: assunto,
-                        plantonista: plantonista
-                    };
-                    
-                    atendimentos.push(novoAtendimento);
-                    localStorage.setItem('atendimentos', JSON.stringify(atendimentos));
-                    
-                    // Atualiza a tabela se a função existir
-                    if (typeof renderizarAtendimentos === 'function') {
-                        renderizarAtendimentos();
-                    }
-                    
-                    console.log('✅ Atendimento salvo automaticamente!');
-                } catch (e) {
-                    console.error('Erro ao salvar atendimento:', e);
-                }
-            }
-        }
+    console.log('📝 Preenchendo Crianças...');
+    if (typeof preencherCriancaDoPDF === 'function') {
+        preencherCriancaDoPDF(dados);
+    } else {
+        console.warn('⚠️ Função preencherCriancaDoPDF não encontrada!');
+        // Fallback: tenta preencher diretamente
+        await preencherCriancaDireto(dados);
     }
 
-    // Executa o preenchimento
-    await preencherFormulario();
+    // ==========================================
+    // 3. PREENCHER RESPONSÁVEIS
+    // ==========================================
+    console.log('📝 Preenchendo Responsáveis...');
+    if (typeof preencherResponsavelDoPDF === 'function') {
+        preencherResponsavelDoPDF(dados);
+    } else {
+        console.warn('⚠️ Função preencherResponsavelDoPDF não encontrada!');
+        await preencherResponsavelDireto(dados);
+    }
 
     // ==========================================
-    // MOSTRA CONFIRMAÇÃO
+    // 4. ATUALIZA PRÉ-VISUALIZAÇÃO
+    // ==========================================
+    atualizarPreview(dados);
+
+    // ==========================================
+    // 5. MOSTRA CONFIRMAÇÃO
     // ==========================================
     const mensagem = `
 📄 PDF IMPORTADO COM SUCESSO!
 
-📋 ATENDIMENTO
-━━━━━━━━━━━━━━━━━━━━
-📅 Data: ${dados.dataAtendimento || '—'}
-📋 Tipo: ${dados.tipoAtendimento || '—'}
-📝 Assunto: ${dados.assunto || '—'}
-👨‍💼 Plantonista: ${dados.plantonista || '—'}
-
-👶 CRIANÇA/ADOLESCENTE
+👶 CRIANÇA
 ━━━━━━━━━━━━━━━━━━━━
 Nome: ${dados.nome || '—'}
 Nascimento: ${dados.nascimento || '—'}
@@ -593,18 +475,187 @@ Endereço: ${dados.endereco || '—'}
 Escola: ${dados.escola || '—'}
 Série: ${dados.serie || '—'}
 
+📋 ATENDIMENTO
+━━━━━━━━━━━━━━━━━━━━
+Data: ${dados.dataAtendimento || '—'}
+Tipo: ${dados.tipoAtendimento || '—'}
+Assunto: ${dados.assunto || '—'}
+Plantonista: ${dados.plantonista || '—'}
+
 ⚖️ PROCESSO
 ━━━━━━━━━━━━━━━━━━━━
-Número: ${dados.processo || '—'}
+Nº: ${dados.processo || '—'}
 Vara: ${dados.vara || '—'}
 Juiz: ${dados.juiz || '—'}
-Promotor: ${dados.promotor || '—'}
 
-✅ Dados inseridos no formulário!
+✅ Todos os módulos foram preenchidos!
     `;
 
     alert(mensagem);
     console.log("========== EXTRAÇÃO FINALIZADA ==========");
 }
 
-console.log("📄 Extrator de PDF carregado!");
+// ==========================================
+// FUNÇÕES DE FALLBACK (PREENCHE DIRETO)
+// ==========================================
+async function preencherAtendimentoDireto(dados) {
+    console.log('🔄 Fallback: Preenchendo Atendimento diretamente...');
+    
+    const campos = {
+        dataAtendimento: document.getElementById('dataAtendimento'),
+        tipoAtendimento: document.getElementById('tipoAtendimento'),
+        assuntoAtendimento: document.getElementById('assuntoAtendimento'),
+        plantonistaAtendimento: document.getElementById('plantonistaAtendimento')
+    };
+
+    // Converter data
+    function converterData(dataStr) {
+        if (!dataStr) return '';
+        const match = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+        if (match) return `${match[3]}-${match[2]}-${match[1]}`;
+        return dataStr;
+    }
+
+    if (campos.dataAtendimento && dados.dataAtendimento) {
+        campos.dataAtendimento.value = converterData(dados.dataAtendimento);
+    }
+
+    if (campos.tipoAtendimento && dados.tipoAtendimento) {
+        for (let option of campos.tipoAtendimento.options) {
+            if (option.value === dados.tipoAtendimento || 
+                option.text.toLowerCase() === dados.tipoAtendimento.toLowerCase()) {
+                campos.tipoAtendimento.value = option.value;
+                break;
+            }
+        }
+    }
+
+    if (campos.assuntoAtendimento && dados.assunto) {
+        campos.assuntoAtendimento.value = dados.assunto;
+    }
+
+    if (campos.plantonistaAtendimento && dados.plantonista) {
+        campos.plantonistaAtendimento.value = dados.plantonista;
+    }
+
+    console.log('✅ Atendimento preenchido (fallback)');
+}
+
+async function preencherCriancaDireto(dados) {
+    console.log('🔄 Fallback: Preenchendo Criança diretamente...');
+    
+    function converterData(dataStr) {
+        if (!dataStr) return '';
+        const match = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+        if (match) return `${match[3]}-${match[2]}-${match[1]}`;
+        return dataStr;
+    }
+
+    const nomeInput = document.getElementById('nomeCrianca');
+    if (nomeInput && dados.nome) nomeInput.value = dados.nome;
+
+    const nascimentoInput = document.getElementById('nascimentoCrianca');
+    if (nascimentoInput && dados.nascimento) {
+        nascimentoInput.value = converterData(dados.nascimento);
+    }
+
+    const escolaInput = document.getElementById('escolaCrianca');
+    if (escolaInput && dados.escola) escolaInput.value = dados.escola;
+
+    const responsavelInput = document.getElementById('responsavelCrianca');
+    if (responsavelInput && dados.responsavel) responsavelInput.value = dados.responsavel;
+
+    const cpfInput = document.getElementById('cpfCrianca');
+    if (cpfInput && dados.cpf) cpfInput.value = dados.cpf;
+
+    const observacoesInput = document.getElementById('observacoesCrianca');
+    if (observacoesInput) {
+        let obs = [];
+        if (dados.observacao) obs.push(dados.observacao);
+        if (dados.assunto) obs.push(`Assunto: ${dados.assunto}`);
+        if (dados.endereco) obs.push(`Endereço: ${dados.endereco}`);
+        if (dados.telefone) obs.push(`Telefone: ${dados.telefone}`);
+        if (dados.dataAtendimento) obs.push(`Data Atendimento: ${dados.dataAtendimento}`);
+        observacoesInput.value = obs.join('\n');
+    }
+
+    // Abre o modal
+    const modal = document.getElementById('modalCrianca');
+    if (modal) modal.style.display = 'flex';
+
+    console.log('✅ Criança preenchida (fallback)');
+}
+
+async function preencherResponsavelDireto(dados) {
+    console.log('🔄 Fallback: Preenchendo Responsável diretamente...');
+    
+    const nomeInput = document.getElementById('nomeResponsavel');
+    if (nomeInput && dados.responsavel) nomeInput.value = dados.responsavel;
+
+    const telefoneInput = document.getElementById('telefoneResponsavel');
+    if (telefoneInput && dados.telefone) telefoneInput.value = dados.telefone;
+
+    const enderecoInput = document.getElementById('enderecoResponsavel');
+    if (enderecoInput && dados.endereco) enderecoInput.value = dados.endereco;
+
+    const cpfInput = document.getElementById('cpfResponsavel');
+    if (cpfInput && dados.cpf) cpfInput.value = dados.cpf;
+
+    const observacoesInput = document.getElementById('observacoesResponsavel');
+    if (observacoesInput) {
+        let obs = [];
+        if (dados.nome) obs.push(`Criança: ${dados.nome}`);
+        if (dados.assunto) obs.push(`Assunto: ${dados.assunto}`);
+        if (dados.dataAtendimento) obs.push(`Data Atendimento: ${dados.dataAtendimento}`);
+        if (dados.observacao) obs.push(dados.observacao);
+        observacoesInput.value = obs.join('\n');
+    }
+
+    // Abre o modal
+    const modal = document.getElementById('modalResponsavel');
+    if (modal) modal.style.display = 'flex';
+
+    console.log('✅ Responsável preenchido (fallback)');
+}
+
+// ==========================================
+// FUNÇÃO PARA ATUALIZAR PRÉ-VISUALIZAÇÃO
+// ==========================================
+function atualizarPreview(dados) {
+    console.log('📊 Atualizando pré-visualização...');
+    
+    const campos = {
+        pdfNome: dados.nome,
+        pdfNascimento: dados.nascimento,
+        pdfResponsavel: dados.responsavel,
+        pdfEndereco: dados.endereco,
+        pdfTelefone: dados.telefone,
+        pdfEscola: dados.escola,
+        pdfSerie: dados.serie,
+        pdfData: dados.dataAtendimento,
+        pdfTipo: dados.tipoAtendimento,
+        pdfAssunto: dados.assunto,
+        pdfPlantonista: dados.plantonista,
+        pdfProcesso: dados.processo,
+        pdfVara: dados.vara,
+        pdfJuiz: dados.juiz,
+        pdfPromotor: dados.promotor
+    };
+
+    Object.keys(campos).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = campos[id] || '—';
+        }
+    });
+
+    console.log('✅ Pré-visualização atualizada!');
+}
+
+// ==========================================
+// EXPORTA FUNÇÕES
+// ==========================================
+window.processarExtracaoPdf = processarExtracaoPdf;
+window.ExtratorPDF = ExtratorPDF;
+
+console.log('📄 Extrator de PDF carregado com sucesso!');

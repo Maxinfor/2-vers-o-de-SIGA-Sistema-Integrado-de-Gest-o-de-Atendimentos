@@ -1,5 +1,5 @@
 /* ==========================================================
-   SIGACTPAR - IMPORTADOR DE PDF (VERSÃO FINAL)
+   SIGACTPAR - IMPORTADOR DE PDF
 ========================================================== */
 
 class ImportadorPDF {
@@ -56,7 +56,7 @@ class ImportadorPDF {
         if (!arquivo) return;
         
         console.log(`📄 Processando: ${arquivo.name}`);
-        this.mostrarStatus('Lendo PDF...');
+        this.mostrarStatus('📖 Lendo PDF...');
         this.mostrarProgresso(10);
 
         try {
@@ -76,11 +76,11 @@ class ImportadorPDF {
                 
                 const progresso = 50 + (i / pdf.numPages) * 40;
                 this.mostrarProgresso(Math.round(progresso));
-                this.mostrarStatus(`Lendo página ${i} de ${pdf.numPages}...`);
+                this.mostrarStatus(`📖 Lendo página ${i} de ${pdf.numPages}...`);
             }
 
             this.mostrarProgresso(90);
-            this.mostrarStatus('Extraindo informações...');
+            this.mostrarStatus('🔍 Extraindo informações...');
 
             // PROCESSAR O TEXTO
             if (typeof processarExtracaoPdf === 'function') {
@@ -133,8 +133,8 @@ class ImportadorPDF {
         }
 
         // Limpa campos de visualização
-        ['pdfNome', 'pdfNascimento', 'pdfResponsavel', 'pdfEndereco', 
-         'pdfTelefone', 'pdfContato', 'pdfAssunto', 'pdfTipo', 'pdfData']
+        ['pdfNome', 'pdfData', 'pdfTipo', 'pdfAssunto', 'pdfPlantonista',
+         'pdfTelefone', 'pdfEndereco', 'pdfResponsavel', 'pdfNascimento']
         .forEach(id => {
             const el = document.getElementById(id);
             if (el) el.textContent = '—';

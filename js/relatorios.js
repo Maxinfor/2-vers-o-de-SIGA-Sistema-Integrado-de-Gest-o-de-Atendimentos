@@ -5,16 +5,11 @@ function processarExtracaoPdf(texto) {
 
     console.log("========== 1. INICIANDO PROCESSAMENTO DO PDF ==========");
 
-    // ==========================================
-    // ETAPA 0: VERIFICAÇÃO DE SEGURANÇA DO TEXTO
-    // ==========================================
     if (!texto || typeof texto !== "string" || texto.trim() === "") {
         console.error("ERRO: O texto passado para a função está vazio ou inválido!");
-        alert("Atenção: Nenhum texto foi encontrado ou extraído deste PDF.");
+        alert("Atenção: Nenhum texto legível foi encontrado neste PDF.");
         return;
     }
-
-    console.log("Texto bruto recebido com sucesso. Tamanho:", texto.length, "caracteres");
 
     // ==========================================
     // ETAPA 1: NORMALIZAÇÃO GERAL DO TEXTO
@@ -41,15 +36,14 @@ function processarExtracaoPdf(texto) {
         atendimento: ""
     };
 
-    // Função auxiliar para remover acentos, pontuações e transformar em minúsculas
     function normalizarTexto(str) {
         if (!str) return "";
         return str
             .toLowerCase()
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "") // Remove acentos
-            .replace(/[,.-]/g, " ")          // Substitui vírgulas, pontos e traços por espaço
-            .replace(/\s+/g, " ")            // Padroniza espaços
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[,.-]/g, " ")
+            .replace(/\s+/g, " ")
             .trim();
     }
 
@@ -255,7 +249,6 @@ function processarExtracaoPdf(texto) {
     // ==========================================
     try {
         localStorage.setItem("dadosAtendimentoGlobal", JSON.stringify(dados));
-        console.log("Dados salvos no localStorage com sucesso.");
     } catch (e) {
         console.error("Erro ao salvar no localStorage:", e);
     }
@@ -276,10 +269,9 @@ Atendimento: ${dados.atendimento || "-"}
 }
 
 // ==========================================
-// ETAPA 11: CAPTURA DO ARQUIVO (COMPATIBILIDADE LEITURA DE TEXTO/PDF)
+// ETAPA 11: LEITOR AUTOMÁTICO DE PDF VIA PDF.JS
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
-    // Procura por qualquer input de arquivo na sua tela (independente do ID)
     const inputFile = document.querySelector("input[type='file']");
     
     if (inputFile) {
@@ -287,15 +279,33 @@ document.addEventListener("DOMContentLoaded", () => {
             const arquivo = e.target.files[0];
             if (!arquivo) return;
 
-            // Se o arquivo for texto puro ou PDF lido de outra forma
-            const leitor = new FileReader();
-            leitor.onload = function(eventoLeitura) {
-                const conteudoTexto = eventoLeitura.target.result;
-                processarExtracaoPdf(conteudoTexto);
-            };
-            
-            // Lê o arquivo como texto
-            leitor.readAsText(arquivo);
+            try {
+                const leitorArray = await arquivo.arrayBuffer();
+                
+                // Configuração do leitor nativo de PDF
+                if (typeof pdfjsLib === "undefined") {
+                    alert("A biblioteca PDF.js não foi encontrada no seu HTML. Certifique-se de incluí-la.");
+                    return;
+                }
+
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                const carregadorPdf = pdfjsLib.getDocument({ data: leitorArray });
+                const pdfDoc = await carregadorPdf.promise;
+                let textoCompleto = "";
+
+                for (let i = 1; i <= pdfDoc.numPages; i++) {
+                    const pagina = await pdfDoc.getPage(i);
+                    const conteudoTexto = await pagina.getTextContent();
+                    const textoPagina = conteudoTexto.items.map(item => item.str).join(" ");
+                    textoCompleto += textoPagina + "\n";
+                }
+
+                processarExtracaoPdf(textoCompleto);
+
+            } catch (erro) {
+                console.error("Erro ao ler o PDF:", erro);
+                alert("Erro ao ler o arquivo PDF. Certifique-se de enviar um PDF válido.");
+            }
         });
     }
 });

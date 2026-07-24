@@ -1,3 +1,8 @@
+/* ==========================================================
+   SIGACTPAR
+   MOTOR DE EXTRAÇÃO INTELIGENTE E PROCESSAMENTO DE PDF
+========================================================== */
+
 /**
  * Função principal para processar o texto extraído do PDF e carregar no sistema
  */

@@ -1,6 +1,5 @@
 /* ==========================================================
-   SIGACTPAR - EXTRATOR DE PDF (VERSÃO COMPLETA)
-   PREENCHE TODOS OS MÓDULOS DO SISTEMA
+   SIGACTPAR - EXTRATOR DE PDF (VERSÃO SIMPLIFICADA)
 ========================================================== */
 
 class ExtratorPDF {
@@ -24,7 +23,7 @@ class ExtratorPDF {
     }
 
     // ==========================================
-    // EXTRAIR CAMPO
+    // EXTRAIR CAMPO POR RÓTULO
     // ==========================================
     extrairCampo(texto, rotulos) {
         for (const rotulo of rotulos) {
@@ -74,7 +73,7 @@ class ExtratorPDF {
     }
 
     // ==========================================
-    // LOCALIZAR NOME
+    // LOCALIZAR NOME (primeira linha significativa)
     // ==========================================
     localizarNome(texto, linhas) {
         const nome = this.extrairCampo(texto, [
@@ -110,7 +109,13 @@ class ExtratorPDF {
         const textoNorm = this.normalizar(textoOriginal);
         
         this.dados = {
-            // Para Crianças/Adolescentes
+            // Para o formulário de atendimentos
+            dataAtendimento: "",
+            tipoAtendimento: "",
+            assunto: "",
+            plantonista: "",
+            
+            // Informações adicionais (para pré-visualização)
             nome: "",
             nascimento: "",
             responsavel: "",
@@ -119,27 +124,14 @@ class ExtratorPDF {
             contato: "",
             escola: "",
             serie: "",
-            bairro: "",
-            cidade: "",
-            
-            // Para Atendimentos
-            dataAtendimento: "",
-            tipoAtendimento: "",
-            assunto: "",
-            plantonista: "",
-            
-            // Para Processos
-            numeroProcesso: "",
+            processo: "",
             vara: "",
             juiz: "",
-            promotor: "",
-            
-            // Geral
-            observacao: ""
+            promotor: ""
         };
 
         // ==========================================
-        // 1. NOME DA CRIANÇA
+        // 1. NOME
         // ==========================================
         this.dados.nome = this.localizarNome(textoOriginal, linhas);
         console.log("Nome:", this.dados.nome);
@@ -162,7 +154,6 @@ class ExtratorPDF {
         if (!this.dados.nascimento && todasDatas.length > 1) {
             this.dados.nascimento = todasDatas[1];
         }
-        console.log("Nascimento:", this.dados.nascimento);
 
         // ==========================================
         // 3. RESPONSÁVEL
@@ -172,7 +163,6 @@ class ExtratorPDF {
             "genitora", "genitor", "pai", "mãe", "mae",
             "representante legal"
         ]);
-        console.log("Responsável:", this.dados.responsavel);
 
         // ==========================================
         // 4. ENDEREÇO
@@ -182,46 +172,14 @@ class ExtratorPDF {
         ]);
         
         if (!endereco) {
-            // Tenta encontrar padrão de endereço
             const padraoEndereco = /(?:Rua|Av|Alameda|Quadra|Q[0-9]|Conjunto|Lote|Sítio|Fazenda)[\s]+[^,\n]+/i;
             const matchEnd = textoOriginal.match(padraoEndereco);
             if (matchEnd) endereco = matchEnd[0].trim();
         }
         this.dados.endereco = endereco;
-        console.log("Endereço:", this.dados.endereco);
 
         // ==========================================
-        // 5. BAIRRO
-        // ==========================================
-        this.dados.bairro = this.extrairCampo(textoOriginal, [
-            "bairro", "distrito", "localidade"
-        ]);
-        
-        if (!this.dados.bairro && this.dados.endereco) {
-            const partes = this.dados.endereco.split(',');
-            if (partes.length > 1) {
-                const possivelBairro = partes[1].trim();
-                if (possivelBairro && !possivelBairro.includes(' ')) {
-                    this.dados.bairro = possivelBairro;
-                }
-            }
-        }
-        console.log("Bairro:", this.dados.bairro);
-
-        // ==========================================
-        // 6. CIDADE
-        // ==========================================
-        this.dados.cidade = this.extrairCampo(textoOriginal, [
-            "cidade", "município", "municipio", "local"
-        ]);
-        
-        if (!this.dados.cidade) {
-            this.dados.cidade = "Brasília";
-        }
-        console.log("Cidade:", this.dados.cidade);
-
-        // ==========================================
-        // 7. TELEFONE
+        // 5. TELEFONE
         // ==========================================
         this.dados.telefone = this.localizarTelefone(textoOriginal);
         
@@ -233,10 +191,9 @@ class ExtratorPDF {
                 this.dados.telefone = "";
             }
         }
-        console.log("Telefone:", this.dados.telefone);
 
         // ==========================================
-        // 8. CONTATO
+        // 6. CONTATO
         // ==========================================
         this.dados.contato = this.extrairCampo(textoOriginal, [
             "contato", "telefone para contato"
@@ -244,23 +201,21 @@ class ExtratorPDF {
         if (!this.dados.contato) this.dados.contato = this.dados.telefone;
 
         // ==========================================
-        // 9. ESCOLA
+        // 7. ESCOLA
         // ==========================================
         this.dados.escola = this.extrairCampo(textoOriginal, [
             "escola", "colégio", "colegio", "instituição", "instituicao"
         ]);
-        console.log("Escola:", this.dados.escola);
 
         // ==========================================
-        // 10. SÉRIE
+        // 8. SÉRIE
         // ==========================================
         this.dados.serie = this.extrairCampo(textoOriginal, [
             "série", "serie", "ano escolar", "turma", "classe"
         ]);
-        console.log("Série:", this.dados.serie);
 
         // ==========================================
-        // 11. DATA DO ATENDIMENTO
+        // 9. DATA DO ATENDIMENTO (PRINCIPAL)
         // ==========================================
         const dataAtend = this.extrairCampo(textoOriginal, [
             "data do atendimento", "data atendimento", "data"
@@ -277,7 +232,7 @@ class ExtratorPDF {
         console.log("Data Atendimento:", this.dados.dataAtendimento);
 
         // ==========================================
-        // 12. TIPO DE ATENDIMENTO
+        // 10. TIPO DE ATENDIMENTO
         // ==========================================
         this.dados.tipoAtendimento = this.extrairCampo(textoOriginal, [
             "tipo de atendimento", "atendimento", "modalidade"
@@ -299,7 +254,7 @@ class ExtratorPDF {
         console.log("Tipo Atendimento:", this.dados.tipoAtendimento);
 
         // ==========================================
-        // 13. ASSUNTO
+        // 11. ASSUNTO (PRINCIPAL)
         // ==========================================
         let assunto = this.extrairCampo(textoOriginal, [
             "assunto", "motivo", "demanda", "ocorrência", "ocorrencia", 
@@ -314,7 +269,6 @@ class ExtratorPDF {
             if (this.dados.endereco) partesAssunto.push(`Endereço: ${this.dados.endereco}`);
             if (this.dados.escola) partesAssunto.push(`Escola: ${this.dados.escola}`);
             
-            // Tenta identificar assunto por palavras-chave
             if (textoNorm.includes("abuso")) {
                 partesAssunto.push("Suspeita de abuso");
             } else if (textoNorm.includes("violência") || textoNorm.includes("violencia")) {
@@ -323,8 +277,6 @@ class ExtratorPDF {
                 partesAssunto.push("Abandono");
             } else if (textoNorm.includes("negligência") || textoNorm.includes("negligencia")) {
                 partesAssunto.push("Negligência");
-            } else if (textoNorm.includes("conselho tutelar")) {
-                partesAssunto.push("Atendimento Conselho Tutelar");
             }
             
             assunto = partesAssunto.join(" | ");
@@ -334,7 +286,7 @@ class ExtratorPDF {
         console.log("Assunto:", this.dados.assunto);
 
         // ==========================================
-        // 14. PLANTONISTA
+        // 12. PLANTONISTA (PRINCIPAL)
         // ==========================================
         this.dados.plantonista = this.extrairCampo(textoOriginal, [
             "plantonista", "conselheiro", "responsável", "atendente",
@@ -347,66 +299,38 @@ class ExtratorPDF {
         console.log("Plantonista:", this.dados.plantonista);
 
         // ==========================================
-        // 15. NÚMERO DO PROCESSO
+        // 13. PROCESSO
         // ==========================================
-        this.dados.numeroProcesso = this.extrairCampo(textoOriginal, [
+        this.dados.processo = this.extrairCampo(textoOriginal, [
             "processo", "número", "numero", "protocolo", "registro"
         ]);
         
-        // Tenta encontrar padrão de número de processo
-        if (!this.dados.numeroProcesso) {
+        if (!this.dados.processo) {
             const padraoProcesso = /\b\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}\b/;
             const matchProc = textoOriginal.match(padraoProcesso);
-            if (matchProc) this.dados.numeroProcesso = matchProc[0];
+            if (matchProc) this.dados.processo = matchProc[0];
         }
-        console.log("Número Processo:", this.dados.numeroProcesso);
 
         // ==========================================
-        // 16. VARA
+        // 14. VARA
         // ==========================================
         this.dados.vara = this.extrairCampo(textoOriginal, [
             "vara", "comarca", "juizado", "tribunal"
         ]);
-        console.log("Vara:", this.dados.vara);
 
         // ==========================================
-        // 17. JUIZ
+        // 15. JUIZ
         // ==========================================
         this.dados.juiz = this.extrairCampo(textoOriginal, [
             "juiz", "juiZ", "magistrado"
         ]);
-        console.log("Juiz:", this.dados.juiz);
 
         // ==========================================
-        // 18. PROMOTOR
+        // 16. PROMOTOR
         // ==========================================
         this.dados.promotor = this.extrairCampo(textoOriginal, [
             "promotor", "promotora", "ministério público", "ministerio publico"
         ]);
-        console.log("Promotor:", this.dados.promotor);
-
-        // ==========================================
-        // 19. OBSERVAÇÃO
-        // ==========================================
-        const camposExtraidos = [
-            this.dados.nome, this.dados.nascimento, this.dados.responsavel,
-            this.dados.endereco, this.dados.telefone, this.dados.contato,
-            this.dados.assunto, this.dados.tipoAtendimento, this.dados.dataAtendimento,
-            this.dados.escola, this.dados.serie, this.dados.numeroProcesso
-        ];
-        
-        let textoRestante = textoOriginal;
-        for (const campo of camposExtraidos) {
-            if (campo) {
-                textoRestante = textoRestante.replace(campo, '');
-            }
-        }
-        
-        this.dados.observacao = textoRestante
-            .replace(/\n{3,}/g, '\n\n')
-            .trim()
-            .substring(0, 500);
-        console.log("Observação:", this.dados.observacao);
 
         console.log("✅ Dados extraídos com sucesso!");
         console.table(this.dados);
@@ -419,7 +343,7 @@ class ExtratorPDF {
 // FUNÇÃO GLOBAL PARA PROCESSAR O PDF
 // ==========================================
 async function processarExtracaoPdf(texto) {
-    console.log("========== INICIANDO EXTRAÇÃO COMPLETA ==========");
+    console.log("========== INICIANDO EXTRAÇÃO ==========");
     
     if (!texto || texto.trim() === "") {
         alert("❌ Nenhum texto encontrado no PDF!");
@@ -430,12 +354,14 @@ async function processarExtracaoPdf(texto) {
     const dados = extrator.extrair(texto);
 
     // ==========================================
-    // FUNÇÃO: Converter Data para Input
+    // FUNÇÃO: Converter Data para Input (DD/MM/AAAA -> AAAA-MM-DD)
     // ==========================================
     function converterDataParaInput(dataStr) {
         if (!dataStr) return "";
         const match = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-        if (match) return `${match[3]}-${match[2]}-${match[1]}`;
+        if (match) {
+            return `${match[3]}-${match[2]}-${match[1]}`;
+        }
         return "";
     }
 
@@ -445,7 +371,10 @@ async function processarExtracaoPdf(texto) {
     function aguardarElemento(id, timeout = 3000) {
         return new Promise((resolve) => {
             let el = document.getElementById(id);
-            if (el) { resolve(el); return; }
+            if (el) {
+                resolve(el);
+                return;
+            }
             
             const inicio = Date.now();
             const intervalo = setInterval(() => {
@@ -464,183 +393,109 @@ async function processarExtracaoPdf(texto) {
     }
 
     // ==========================================
-    // PREENCHER TODOS OS MÓDULOS
+    // PREENCHER FORMULÁRIO (APENAS CAMPOS EXISTENTES)
     // ==========================================
-    async function preencherTodosModulos() {
-        console.log("📝 Preenchendo todos os módulos...");
+    async function preencherFormulario() {
+        console.log("📝 Preenchendo formulário de atendimentos...");
+        
+        // Aguarda os campos do seu formulário
+        const dataInput = await aguardarElemento('dataAtendimento');
+        const tipoSelect = await aguardarElemento('tipoAtendimento');
+        const assuntoTextarea = await aguardarElemento('assuntoAtendimento');
+        const plantonistaInput = await aguardarElemento('plantonistaAtendimento');
 
-        // ==========================================
-        // 1. ATENDIMENTOS
-        // ==========================================
-        const camposAtendimento = {
-            dataAtendimento: await aguardarElemento('dataAtendimento'),
-            tipoAtendimento: await aguardarElemento('tipoAtendimento'),
-            assuntoAtendimento: await aguardarElemento('assuntoAtendimento'),
-            plantonistaAtendimento: await aguardarElemento('plantonistaAtendimento')
-        };
-
-        if (camposAtendimento.dataAtendimento) {
-            camposAtendimento.dataAtendimento.value = converterDataParaInput(dados.dataAtendimento);
+        // 1. Preenche a DATA
+        if (dataInput && dados.dataAtendimento) {
+            const dataFormatada = converterDataParaInput(dados.dataAtendimento);
+            if (dataFormatada) {
+                dataInput.value = dataFormatada;
+                console.log(`✅ Data preenchida: ${dataFormatada}`);
+            }
         }
 
-        if (camposAtendimento.tipoAtendimento && dados.tipoAtendimento) {
+        // 2. Preenche o TIPO (select)
+        if (tipoSelect && dados.tipoAtendimento) {
             let encontrou = false;
-            for (let option of camposAtendimento.tipoAtendimento.options) {
+            for (let option of tipoSelect.options) {
                 if (option.value === dados.tipoAtendimento || 
                     option.text.toLowerCase() === dados.tipoAtendimento.toLowerCase()) {
-                    camposAtendimento.tipoAtendimento.value = option.value;
+                    tipoSelect.value = option.value;
                     encontrou = true;
                     break;
                 }
             }
+            
             if (!encontrou) {
                 const novaOpcao = document.createElement('option');
                 novaOpcao.value = dados.tipoAtendimento;
                 novaOpcao.text = dados.tipoAtendimento;
-                camposAtendimento.tipoAtendimento.appendChild(novaOpcao);
-                camposAtendimento.tipoAtendimento.value = dados.tipoAtendimento;
+                tipoSelect.appendChild(novaOpcao);
+                tipoSelect.value = dados.tipoAtendimento;
+                console.log(`✅ Tipo adicionado: ${dados.tipoAtendimento}`);
+            } else {
+                console.log(`✅ Tipo preenchido: ${tipoSelect.value}`);
             }
         }
 
-        if (camposAtendimento.assuntoAtendimento && dados.assunto) {
-            camposAtendimento.assuntoAtendimento.value = dados.assunto;
-        }
-
-        if (camposAtendimento.plantonistaAtendimento) {
-            camposAtendimento.plantonistaAtendimento.value = dados.plantonista || 'Conselheiro Tutelar';
-        }
-
-        // ==========================================
-        // 2. CRIANÇAS/ADOLESCENTES
-        // ==========================================
-        const camposCrianca = {
-            nome: await aguardarElemento('txtNomeCrianca') || await aguardarElemento('nomeCrianca'),
-            nascimento: await aguardarElemento('txtDataNascimento') || await aguardarElemento('dataNascimento'),
-            responsavel: await aguardarElemento('txtResponsavel') || await aguardarElemento('responsavel'),
-            endereco: await aguardarElemento('txtEndereco') || await aguardarElemento('endereco'),
-            telefone: await aguardarElemento('txtTelefone') || await aguardarElemento('telefone'),
-            contato: await aguardarElemento('txtContato') || await aguardarElemento('contato'),
-            escola: await aguardarElemento('txtEscola') || await aguardarElemento('escola'),
-            serie: await aguardarElemento('txtSerie') || await aguardarElemento('serie'),
-            bairro: await aguardarElemento('txtBairro') || await aguardarElemento('bairro'),
-            cidade: await aguardarElemento('txtCidade') || await aguardarElemento('cidade')
-        };
-
-        if (camposCrianca.nome) camposCrianca.nome.value = dados.nome || '';
-        if (camposCrianca.nascimento) camposCrianca.nascimento.value = converterDataParaInput(dados.nascimento);
-        if (camposCrianca.responsavel) camposCrianca.responsavel.value = dados.responsavel || '';
-        if (camposCrianca.endereco) camposCrianca.endereco.value = dados.endereco || '';
-        if (camposCrianca.telefone) camposCrianca.telefone.value = dados.telefone || '';
-        if (camposCrianca.contato) camposCrianca.contato.value = dados.contato || '';
-        if (camposCrianca.escola) camposCrianca.escola.value = dados.escola || '';
-        if (camposCrianca.serie) camposCrianca.serie.value = dados.serie || '';
-        if (camposCrianca.bairro) camposCrianca.bairro.value = dados.bairro || '';
-        if (camposCrianca.cidade) camposCrianca.cidade.value = dados.cidade || 'Brasília';
-
-        // ==========================================
-        // 3. RESPONSÁVEIS
-        // ==========================================
-        const camposResponsavel = {
-            nome: await aguardarElemento('txtNomeResponsavel') || await aguardarElemento('nomeResponsavel'),
-            telefone: await aguardarElemento('txtTelefoneResponsavel') || await aguardarElemento('telefoneResponsavel'),
-            endereco: await aguardarElemento('txtEnderecoResponsavel') || await aguardarElemento('enderecoResponsavel'),
-            contato: await aguardarElemento('txtContatoResponsavel') || await aguardarElemento('contatoResponsavel'),
-            parentesco: await aguardarElemento('txtParentesco') || await aguardarElemento('parentesco')
-        };
-
-        if (camposResponsavel.nome) camposResponsavel.nome.value = dados.responsavel || '';
-        if (camposResponsavel.telefone) camposResponsavel.telefone.value = dados.telefone || '';
-        if (camposResponsavel.endereco) camposResponsavel.endereco.value = dados.endereco || '';
-        if (camposResponsavel.contato) camposResponsavel.contato.value = dados.contato || '';
-        if (camposResponsavel.parentesco) camposResponsavel.parentesco.value = 'Responsável Legal';
-
-        // ==========================================
-        // 4. PROCESSOS
-        // ==========================================
-        const camposProcesso = {
-            numero: await aguardarElemento('txtNumeroProcesso') || await aguardarElemento('numeroProcesso'),
-            crianca: await aguardarElemento('txtCriancaProcesso') || await aguardarElemento('criancaProcesso'),
-            assunto: await aguardarElemento('txtAssuntoProcesso') || await aguardarElemento('assuntoProcesso'),
-            data: await aguardarElemento('txtDataProcesso') || await aguardarElemento('dataProcesso'),
-            vara: await aguardarElemento('txtVara') || await aguardarElemento('vara'),
-            juiz: await aguardarElemento('txtJuiz') || await aguardarElemento('juiz'),
-            promotor: await aguardarElemento('txtPromotor') || await aguardarElemento('promotor')
-        };
-
-        if (camposProcesso.numero) camposProcesso.numero.value = dados.numeroProcesso || '';
-        if (camposProcesso.crianca) camposProcesso.crianca.value = dados.nome || '';
-        if (camposProcesso.assunto) camposProcesso.assunto.value = dados.assunto || '';
-        if (camposProcesso.data) camposProcesso.data.value = converterDataParaInput(dados.dataAtendimento);
-        if (camposProcesso.vara) camposProcesso.vara.value = dados.vara || '';
-        if (camposProcesso.juiz) camposProcesso.juiz.value = dados.juiz || '';
-        if (camposProcesso.promotor) camposProcesso.promotor.value = dados.promotor || '';
-
-        // ==========================================
-        // 5. DASHBOARD (ATUALIZAR CARDS)
-        // ==========================================
-        const cardAtendimentosDiarios = document.getElementById('cardAtendimentosDiarios');
-        const cardAtendimentosMensais = document.getElementById('cardAtendimentosMensais');
-        
-        if (cardAtendimentosDiarios || cardAtendimentosMensais) {
-            // Busca atendimentos salvos
-            let atendimentos = [];
-            try {
-                const dadosAtend = localStorage.getItem('atendimentos');
-                if (dadosAtend) atendimentos = JSON.parse(dadosAtend);
-            } catch (e) {}
+        // 3. Preenche o ASSUNTO
+        if (assuntoTextarea && dados.assunto) {
+            // Constrói um assunto completo com todas as informações
+            let assuntoCompleto = dados.assunto;
             
-            const hoje = new Date().toISOString().split('T')[0];
-            const mesAtual = hoje.substring(0, 7);
-            
-            // Adiciona o novo atendimento se tiver data
-            if (dados.dataAtendimento) {
-                const dataFormatada = converterDataParaInput(dados.dataAtendimento);
-                if (dataFormatada) {
-                    const novoAtendimento = {
-                        id: atendimentos.length + 1,
-                        data: dataFormatada,
-                        tipo: dados.tipoAtendimento || 'Atendimento com Conselheiro',
-                        assunto: dados.assunto || 'Atendimento registrado',
-                        plantonista: dados.plantonista || 'Conselheiro Tutelar'
-                    };
-                    
-                    // Verifica se já existe
-                    const existe = atendimentos.some(a => 
-                        a.data === dataFormatada && 
-                        a.assunto === novoAtendimento.assunto
-                    );
-                    
-                    if (!existe) {
-                        atendimentos.push(novoAtendimento);
-                        localStorage.setItem('atendimentos', JSON.stringify(atendimentos));
-                    }
-                }
+            // Adiciona informações adicionais se disponíveis
+            const infoAdicional = [];
+            if (dados.nome && !assuntoCompleto.includes(dados.nome)) {
+                infoAdicional.push(`Nome: ${dados.nome}`);
+            }
+            if (dados.responsavel && !assuntoCompleto.includes(dados.responsavel)) {
+                infoAdicional.push(`Responsável: ${dados.responsavel}`);
+            }
+            if (dados.telefone && !assuntoCompleto.includes(dados.telefone)) {
+                infoAdicional.push(`Telefone: ${dados.telefone}`);
+            }
+            if (dados.endereco && !assuntoCompleto.includes(dados.endereco)) {
+                infoAdicional.push(`Endereço: ${dados.endereco}`);
+            }
+            if (dados.nascimento && !assuntoCompleto.includes(dados.nascimento)) {
+                infoAdicional.push(`Nascimento: ${dados.nascimento}`);
+            }
+            if (dados.escola && !assuntoCompleto.includes(dados.escola)) {
+                infoAdicional.push(`Escola: ${dados.escola}`);
+            }
+            if (dados.serie && !assuntoCompleto.includes(dados.serie)) {
+                infoAdicional.push(`Série: ${dados.serie}`);
             }
             
-            // Atualiza cards
-            const diarios = atendimentos.filter(a => a.data === hoje);
-            const mensais = atendimentos.filter(a => a.data.startsWith(mesAtual));
+            if (infoAdicional.length > 0) {
+                assuntoCompleto += "\n\n" + infoAdicional.join("\n");
+            }
             
-            if (cardAtendimentosDiarios) cardAtendimentosDiarios.textContent = diarios.length;
-            if (cardAtendimentosMensais) cardAtendimentosMensais.textContent = mensais.length;
+            assuntoTextarea.value = assuntoCompleto;
+            console.log(`✅ Assunto preenchido: ${assuntoCompleto.substring(0, 50)}...`);
+        }
+
+        // 4. Preenche o PLANTONISTA
+        if (plantonistaInput && dados.plantonista) {
+            plantonistaInput.value = dados.plantonista;
+            console.log(`✅ Plantonista preenchido: ${dados.plantonista}`);
         }
 
         // ==========================================
-        // 6. VISUALIZAÇÃO DOS DADOS EXTRAÍDOS
+        // ATUALIZA PRÉ-VISUALIZAÇÃO
         // ==========================================
         const camposPdf = {
             pdfNome: dados.nome || '—',
+            pdfNascimento: dados.nascimento || '—',
+            pdfResponsavel: dados.responsavel || '—',
+            pdfEndereco: dados.endereco || '—',
+            pdfTelefone: dados.telefone || '—',
+            pdfEscola: dados.escola || '—',
+            pdfSerie: dados.serie || '—',
             pdfData: dados.dataAtendimento || '—',
             pdfTipo: dados.tipoAtendimento || '—',
             pdfAssunto: dados.assunto || '—',
             pdfPlantonista: dados.plantonista || '—',
-            pdfTelefone: dados.telefone || '—',
-            pdfEndereco: dados.endereco || '—',
-            pdfResponsavel: dados.responsavel || '—',
-            pdfNascimento: dados.nascimento || '—',
-            pdfEscola: dados.escola || '—',
-            pdfSerie: dados.serie || '—',
-            pdfProcesso: dados.numeroProcesso || '—',
+            pdfProcesso: dados.processo || '—',
             pdfVara: dados.vara || '—',
             pdfJuiz: dados.juiz || '—',
             pdfPromotor: dados.promotor || '—'
@@ -654,64 +509,102 @@ async function processarExtracaoPdf(texto) {
         });
 
         // ==========================================
-        // 7. SALVAR DADOS COMPLETOS
+        // SALVAR NO LOCALSTORAGE
         // ==========================================
         try {
-            const dadosCompletos = {
-                ...dados,
-                dataExtraida: new Date().toISOString()
-            };
-            localStorage.setItem('dadosPdfExtraidos', JSON.stringify(dadosCompletos));
-            localStorage.setItem('dadosAtendimentoGlobal', JSON.stringify(dadosCompletos));
+            localStorage.setItem('dadosPdfExtraidos', JSON.stringify(dados));
             localStorage.setItem('ultimoPdfImportado', JSON.stringify({
-                dados: dadosCompletos,
+                dados: dados,
                 timestamp: new Date().toISOString()
             }));
         } catch (e) {
             console.error('Erro ao salvar:', e);
         }
 
-        console.log("✅ Todos os módulos preenchidos com sucesso!");
+        console.log("✅ Formulário preenchido com sucesso!");
+        
+        // ==========================================
+        // DISPARA EVENTO PARA ATUALIZAR A TABELA
+        // ==========================================
+        // Tenta salvar automaticamente o atendimento
+        if (dataInput && tipoSelect && assuntoTextarea && plantonistaInput) {
+            const data = dataInput.value;
+            const tipo = tipoSelect.value;
+            const assunto = assuntoTextarea.value;
+            const plantonista = plantonistaInput.value;
+            
+            if (data && tipo && assunto && plantonista) {
+                // Salva no sistema de atendimentos
+                try {
+                    let atendimentos = [];
+                    const dadosAtend = localStorage.getItem('atendimentos');
+                    if (dadosAtend) {
+                        atendimentos = JSON.parse(dadosAtend);
+                    }
+                    
+                    const novoId = atendimentos.length > 0 ? Math.max(...atendimentos.map(a => a.id)) + 1 : 1;
+                    const novoAtendimento = {
+                        id: novoId,
+                        data: data,
+                        tipo: tipo,
+                        assunto: assunto,
+                        plantonista: plantonista
+                    };
+                    
+                    atendimentos.push(novoAtendimento);
+                    localStorage.setItem('atendimentos', JSON.stringify(atendimentos));
+                    
+                    // Atualiza a tabela se a função existir
+                    if (typeof renderizarAtendimentos === 'function') {
+                        renderizarAtendimentos();
+                    }
+                    
+                    console.log('✅ Atendimento salvo automaticamente!');
+                } catch (e) {
+                    console.error('Erro ao salvar atendimento:', e);
+                }
+            }
+        }
     }
 
     // Executa o preenchimento
-    await preencherTodosModulos();
+    await preencherFormulario();
 
     // ==========================================
-    // MOSTRA CONFIRMAÇÃO DETALHADA
+    // MOSTRA CONFIRMAÇÃO
     // ==========================================
     const mensagem = `
 📄 PDF IMPORTADO COM SUCESSO!
+
+📋 ATENDIMENTO
+━━━━━━━━━━━━━━━━━━━━
+📅 Data: ${dados.dataAtendimento || '—'}
+📋 Tipo: ${dados.tipoAtendimento || '—'}
+📝 Assunto: ${dados.assunto || '—'}
+👨‍💼 Plantonista: ${dados.plantonista || '—'}
 
 👶 CRIANÇA/ADOLESCENTE
 ━━━━━━━━━━━━━━━━━━━━
 Nome: ${dados.nome || '—'}
 Nascimento: ${dados.nascimento || '—'}
 Responsável: ${dados.responsavel || '—'}
-Endereço: ${dados.endereco || '—'}
 Telefone: ${dados.telefone || '—'}
+Endereço: ${dados.endereco || '—'}
 Escola: ${dados.escola || '—'}
 Série: ${dados.serie || '—'}
 
-📋 ATENDIMENTO
-━━━━━━━━━━━━━━━━━━━━
-Data: ${dados.dataAtendimento || '—'}
-Tipo: ${dados.tipoAtendimento || '—'}
-Assunto: ${dados.assunto || '—'}
-Plantonista: ${dados.plantonista || '—'}
-
 ⚖️ PROCESSO
 ━━━━━━━━━━━━━━━━━━━━
-Número: ${dados.numeroProcesso || '—'}
+Número: ${dados.processo || '—'}
 Vara: ${dados.vara || '—'}
 Juiz: ${dados.juiz || '—'}
 Promotor: ${dados.promotor || '—'}
 
-✅ Todos os módulos foram preenchidos automaticamente!
+✅ Dados inseridos no formulário!
     `;
 
     alert(mensagem);
     console.log("========== EXTRAÇÃO FINALIZADA ==========");
 }
 
-console.log("📄 Extrator de PDF completo carregado!");
+console.log("📄 Extrator de PDF carregado!");

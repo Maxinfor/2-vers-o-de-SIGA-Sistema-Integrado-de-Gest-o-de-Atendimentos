@@ -1,50 +1,40 @@
 /* ==========================================================
    SIGACTPAR
-   IMPORTADOR DE PDF
-   Parte 1
+   IMPORTAÇÃO INTELIGENTE DE PDF
 ========================================================== */
 
 class ImportadorPDF {
 
     constructor() {
 
-        this.pdfjs = null;
+        this.pdf = null;
+        this.texto = "";
         this.arquivo = null;
-        this.textoCompleto = "";
-        this.totalPaginas = 0;
 
-        this.inicializar();
+        this.iniciar();
 
     }
 
-    /* ==============================================
-       Inicialização
-    ============================================== */
+    /* ========================================= */
 
-    async inicializar() {
+    async iniciar() {
 
-        await this.carregarPdfJs();
+        await this.carregarBiblioteca();
 
-        this.configurarEventos();
-
-        console.log("Importador PDF iniciado.");
+        this.eventos();
 
     }
 
-    /* ==============================================
-       Carrega PDF.js
-    ============================================== */
+    /* ========================================= */
 
-    carregarPdfJs() {
+    carregarBiblioteca() {
 
         return new Promise((resolve, reject) => {
 
             if (window.pdfjsLib) {
 
-                this.pdfjs = window.pdfjsLib;
-
-                this.pdfjs.GlobalWorkerOptions.workerSrc =
-                    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+                pdfjsLib.GlobalWorkerOptions.workerSrc =
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
                 resolve();
 
@@ -55,14 +45,12 @@ class ImportadorPDF {
             const script = document.createElement("script");
 
             script.src =
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 
             script.onload = () => {
 
-                this.pdfjs = window.pdfjsLib;
-
-                this.pdfjs.GlobalWorkerOptions.workerSrc =
-                    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+                pdfjsLib.GlobalWorkerOptions.workerSrc =
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
                 resolve();
 
@@ -76,17 +64,25 @@ class ImportadorPDF {
 
     }
 
-    /* ==============================================
-       Eventos
-    ============================================== */
+    /* ========================================= */
 
-    configurarEventos() {
+    eventos() {
 
-        document.addEventListener("change", (e) => {
+        document.addEventListener("change", e => {
 
             if (e.target.id === "inputPdfImport") {
 
-                this.selecionarArquivo(e.target.files[0]);
+                this.importar(e.target.files[0]);
+
+            }
+
+        });
+
+        document.addEventListener("click", e => {
+
+            if (e.target.id === "btnLimparImportacao") {
+
+                this.limpar();
 
             }
 
@@ -94,164 +90,153 @@ class ImportadorPDF {
 
     }
 
-    /* ==============================================
-       Seleção do arquivo
-    ============================================== */
+    /* ========================================= */
 
-    async selecionarArquivo(arquivo) {
+    status(texto) {
 
-        if (!arquivo)
-            return;
+        const div = document.getElementById("statusImportacao");
 
-        if (arquivo.type !== "application/pdf") {
-
-            alert("Selecione um arquivo PDF.");
-
-            return;
-
-        }
-
-        this.arquivo = arquivo;
-
-        await this.lerPdf();
+        if(div)
+            div.innerHTML = texto;
 
     }
 
-    /* ==============================================
-       Atualiza status
-    ============================================== */
+    barra(valor){
 
-    atualizarStatus(texto) {
+        const barra = document.getElementById("progressoImportacao");
 
-        const status =
-            document.getElementById("statusImportacao");
-
-        if (status)
-            status.innerHTML = texto;
-
-        console.log(texto);
-
-    }
-
-    atualizarBarra(valor) {
-
-        const barra =
-            document.getElementById("progressoImportacao");
-
-        if (!barra)
+        if(!barra)
             return;
 
-        barra.style.display = "block";
+        barra.style.display="block";
 
         barra.value = valor;
 
     }
 
-    /* ==============================================
-       Leitura completa
-    ============================================== */
+    /* ========================================= */
 
-    async lerPdf() {
+    async importar(arquivo){
 
-        this.textoCompleto = "";
+        if(!arquivo)
+            return;
 
-        this.atualizarStatus("Abrindo PDF...");
+        this.arquivo = arquivo;
 
-        this.atualizarBarra(5);
+        this.status("Abrindo documento...");
 
-        try {
+        this.barra(5);
 
-            const buffer =
-                await this.arquivo.arrayBuffer();
+        try{
+
+            const buffer = await arquivo.arrayBuffer();
 
             const loading =
-                this.pdfjs.getDocument({
-                    data: buffer
-                });
+            pdfjsLib.getDocument({
+                data:buffer
+            });
 
             const pdf =
-                await loading.promise;
+            await loading.promise;
 
-            this.totalPaginas = pdf.numPages;
+            this.texto="";
 
-            this.atualizarStatus(
-                `Documento possui ${this.totalPaginas} página(s).`
-            );
+            for(let i=1;i<=pdf.numPages;i++){
 
-            for (let pagina = 1; pagina <= pdf.numPages; pagina++) {
-
-                this.atualizarStatus(
-                    `Lendo página ${pagina} de ${pdf.numPages}...`
+                this.status(
+                    `Lendo página ${i} de ${pdf.numPages}`
                 );
 
-                const page =
-                    await pdf.getPage(pagina);
+                const pagina =
+                await pdf.getPage(i);
 
                 const conteudo =
-                    await page.getTextContent();
+                await pagina.getTextContent();
 
                 const textoPagina =
-                    conteudo.items
-                        .map(item => item.str)
-                        .join(" ");
+                conteudo.items
+                .map(x=>x.str)
+                .join(" ");
 
-                this.textoCompleto +=
-                    textoPagina + "\n";
+                this.texto +=
+                textoPagina + "\n";
 
-                const porcentagem =
-                    Math.round(
-                        (pagina / pdf.numPages) * 100
-                    );
-
-                this.atualizarBarra(porcentagem);
-
-            }
-
-            this.atualizarStatus(
-                "PDF carregado com sucesso."
-            );
-
-            console.log(this.textoCompleto);
-
-            /* ================================
-               Chama o extrator inteligente
-            ================================ */
-
-            if (typeof processarExtracaoPdf === "function") {
-
-                processarExtracaoPdf(
-                    this.textoCompleto
-                );
-
-            } else {
-
-                console.warn(
-                    "Função processarExtracaoPdf não encontrada."
+                this.barra(
+                    Math.round((i/pdf.numPages)*100)
                 );
 
             }
 
-        } catch (erro) {
+            this.status("Extraindo informações...");
+
+            if(typeof processarExtracaoPdf==="function"){
+
+                processarExtracaoPdf(this.texto);
+
+            }
+
+        }
+
+        catch(erro){
 
             console.error(erro);
 
-            alert(
-                "Erro ao ler o PDF."
-            );
+            alert("Erro ao abrir PDF.");
 
         }
 
     }
 
+    /* ========================================= */
+
+    limpar(){
+
+        const input =
+        document.getElementById("inputPdfImport");
+
+        if(input)
+            input.value="";
+
+        this.status("");
+
+        const barra =
+        document.getElementById("progressoImportacao");
+
+        if(barra){
+
+            barra.value=0;
+
+            barra.style.display="none";
+
+        }
+
+        [
+            "pdfNome",
+            "pdfNascimento",
+            "pdfResponsavel",
+            "pdfEndereco",
+            "pdfTelefone",
+            "pdfContato",
+            "pdfAssunto",
+            "pdfTipo",
+            "pdfData"
+        ].forEach(id=>{
+
+            const campo =
+            document.getElementById(id);
+
+            if(campo)
+                campo.innerHTML="—";
+
+        });
+
+    }
+
 }
 
-/* ======================================================
-   Inicialização automática
-====================================================== */
-
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded",()=>{
 
     window.importadorPDF =
-        new ImportadorPDF();
+    new ImportadorPDF();
 
 });

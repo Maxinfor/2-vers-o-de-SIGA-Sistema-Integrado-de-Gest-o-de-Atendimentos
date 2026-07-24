@@ -3,7 +3,6 @@ function processarExtracaoPdf(texto) {
     // ==========================================
     // ETAPA 1: NORMALIZAÇÃO GERAL DO TEXTO
     // ==========================================
-    // Remove retornos de carro, padroniza espaços e limpa quebras excessivas
     let textoLimpo = texto
         .replace(/\r/g, "")
         .replace(/[ \t]+/g, " ")
@@ -54,9 +53,8 @@ function processarExtracaoPdf(texto) {
             "data de nascimento",
             "nascimento",
             "dt nasc",
-            "dt nasc",
             "data nasc",
-            "d n", // Identifica "D.N" ou variações
+            "d n", 
             "dn"
         ],
         responsavel: [
@@ -111,7 +109,6 @@ function processarExtracaoPdf(texto) {
                     let valor = linha.substring(nomeCampo.length);
                     valor = valor.replace(/^[:\- ]+/, "").trim();
 
-                    // Se o valor estiver vazio na linha atual, busca na linha seguinte
                     if (!valor && linhas[indice + 1]) {
                         const prox = linhas[indice + 1];
                         if (!prox.includes(":"))
@@ -127,16 +124,13 @@ function processarExtracaoPdf(texto) {
     // ==========================================
     // ETAPA 4: BUSCA INTELIGENTE DE DATAS (DD/MM/AAAA)
     // ==========================================
-    // Busca todas as ocorrências no formato 15/07/2026 no texto inteiro
     const regexDatas = /\b(\d{2}\/\d{2}\/\d{4})\b/g;
     const todasDatas = textoLimpo.match(regexDatas);
 
     if (todasDatas && todasDatas.length > 0) {
-        // Tenta achar especificamente uma data próxima a "nascimento" ou "d.n"
         linhas.forEach((linha, idx) => {
             const lNorm = normalizarTexto(linha);
             if ((lNorm.includes("nascimento") || lNorm.includes("d n")) && !dados.dataNascimento) {
-                // Procura uma data nesta linha ou na próxima
                 const matchLinha = linha.match(regexDatas);
                 if (matchLinha) {
                     dados.dataNascimento = matchLinha[0];
@@ -147,7 +141,6 @@ function processarExtracaoPdf(texto) {
             }
         });
 
-        // Fallbacks se não achou isoladamente
         if (!dados.dataNascimento && todasDatas.length > 1) {
             dados.dataNascimento = todasDatas[1];
         }
@@ -171,7 +164,6 @@ function processarExtracaoPdf(texto) {
     // ==========================================
     // ETAPA 6: TRATAMENTO DO TIPO DE ATENDIMENTO
     // ==========================================
-    // Identifica termos: presencial, telefone, telefonico, contato, online, on-line ou outro (+ texto)
     const atendimentoTextoNorm = normalizarTexto(textoLimpo);
     if (!dados.atendimento) {
         if (atendimentoTextoNorm.includes("atendimento presencial") || atendimentoTextoNorm.includes("presencial")) {
@@ -183,7 +175,6 @@ function processarExtracaoPdf(texto) {
         } else if (atendimentoTextoNorm.includes("contato")) {
             dados.atendimento = "Contato";
         } else if (atendimentoTextoNorm.includes("outro")) {
-            // Tenta capturar o texto à frente de "outro" no tipo de atendimento
             const regexOutroAtend = /outro[:\s]+([^\n]+)/i;
             const matchOutro = textoLimpo.match(regexOutroAtend);
             dados.atendimento = matchOutro ? matchOutro[1].trim() : "Outro";
@@ -193,7 +184,6 @@ function processarExtracaoPdf(texto) {
     // ==========================================
     // ETAPA 7: TRATAMENTO DO ASSUNTO (COM SUPORTE A "OUTRO")
     // ==========================================
-    // Ignora acentos, vírgulas e maiúsculas/minúsculas na busca dos assuntos pedidos
     const assuntoTextoNorm = normalizarTexto(textoLimpo);
     if (!dados.assunto) {
         if (assuntoTextoNorm.includes("suspeita de abuso")) {
@@ -203,7 +193,6 @@ function processarExtracaoPdf(texto) {
         } else if (assuntoTextoNorm.includes("abandono de incapaz")) {
             dados.assunto = "Abandono de incapaz";
         } else if (assuntoTextoNorm.includes("outro")) {
-            // Se marcado "outro", busca o texto que está logo à frente
             const regexOutroAssunto = /outro[:\s]+([^\n]+)/i;
             const matchAssuntoOutro = textoLimpo.match(regexOutroAssunto);
             dados.assunto = matchAssuntoOutro ? matchAssuntoOutro[1].trim() : "Outro";
@@ -211,13 +200,13 @@ function processarExtracaoPdf(texto) {
     }
 
     // ==========================================
-    // ETAPA 8: FUNÇÃO AUXILIAR PARA FORMATAR DATA PARA O HTML (AAAA-MM-DD)
+    // ETAPA 8: FUNÇÃO AUXILIAR PARA FORMATAR DATA (AAAA-MM-DD)
     // ==========================================
     function converterDataParaInput(dataStr) {
         if (!dataStr || !dataStr.includes("/")) return "";
         const partes = dataStr.split("/");
         if (partes.length === 3) {
-            return `${partes[2]}-${partes[1]}-${partes[0]}`; // YYYY-MM-DD
+            return `${partes[2]}-${partes[1]}-${partes[0]}`;
         }
         return "";
     }
@@ -228,25 +217,12 @@ function processarExtracaoPdf(texto) {
     // ==========================================
     // ETAPA 9: PREENCHIMENTO AUTOMÁTICO DO FORMULÁRIO HTML
     // ==========================================
-    document.getElementById("txtNome")?.setAttribute("value", dados.nomeCrianca);
     if(document.getElementById("txtNome")) document.getElementById("txtNome").value = dados.nomeCrianca;
-
-    document.getElementById("txtDataNascimento")?.setAttribute("value", converterDataParaInput(dados.dataNascimento));
     if(document.getElementById("txtDataNascimento")) document.getElementById("txtDataNascimento").value = converterDataParaInput(dados.dataNascimento);
-
-    document.getElementById("txtResponsavel")?.setAttribute("value", dados.responsavel);
     if(document.getElementById("txtResponsavel")) document.getElementById("txtResponsavel").value = dados.responsavel;
-
-    document.getElementById("txtEndereco")?.setAttribute("value", dados.endereco);
     if(document.getElementById("txtEndereco")) document.getElementById("txtEndereco").value = dados.endereco;
-
-    document.getElementById("txtTelefone")?.setAttribute("value", dados.telefone);
     if(document.getElementById("txtTelefone")) document.getElementById("txtTelefone").value = dados.telefone;
-
-    document.getElementById("txtContato")?.setAttribute("value", dados.contato);
     if(document.getElementById("txtContato")) document.getElementById("txtContato").value = dados.contato;
-
-    document.getElementById("txtAssunto")?.setAttribute("value", dados.assunto);
     if(document.getElementById("txtAssunto")) document.getElementById("txtAssunto").value = dados.assunto;
 
     const tipo = document.getElementById("cmbTipoAtendimento");
@@ -255,9 +231,20 @@ function processarExtracaoPdf(texto) {
     const dataAtendInput = document.getElementById("txtData");
     if (dataAtendInput) dataAtendInput.value = converterDataParaInput(dados.dataAtendimento);
 
+    // ==========================================
+    // ETAPA 10: SALVAMENTO GLOBAL NO APP (LOCALSTORAGE)
+    // ==========================================
+    // Salva os dados em formato de texto (JSON) para que qualquer outra tela do app possa ler
+    try {
+        localStorage.setItem("dadosAtendimentoGlobal", JSON.stringify(dados));
+        console.log("Dados salvos no armazenamento global do aplicativo com sucesso!");
+    } catch (e) {
+        console.error("Erro ao salvar no localStorage:", e);
+    }
+
     // Alerta de confirmação
     alert(
-`Documento analisado com sucesso!
+`Documento analisado e carregado em todo o aplicativo com sucesso!
 
 Nome: ${dados.nomeCrianca || "-"}
 Nascimento: ${dados.dataNascimento || "-"}
